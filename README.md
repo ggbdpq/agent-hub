@@ -42,8 +42,8 @@ flowchart LR
 ### 4. Async Task Recovery
 
 - **问题**：长耗时 AI 任务会跨越刷新与断线，前端需要状态机而不是布尔 loading。
-- **实现**：`queued → running(progress) → completed / failed / cancelled → archived` 状态机；3s 轮询；`taskId` 存 localStorage、重进页面按远端详情恢复（远端是事实源，本地只存 UI 态）；服务端快照落盘、重启恢复在途任务；taskId 哈希尾号 7 确定性失败，便于演示失败分级。
-- **验证**：pytest 覆盖推进 / 取消 / 确认归档 / 确定性失败 / 404；演示：创建任务后刷新页面，按 `taskId` 恢复进度。
+- **实现**：`queued → running(progress) → completed / failed / cancelled → archived` 状态机；3s 轮询；`taskId` 存 localStorage，刷新/重进按远端恢复 snapshot，任务仍在进行（queued / running）则**自动继续轮询直到终态**（远端是事实源，本地只存 UI 态）；服务端快照落盘、重启恢复在途任务；taskId 哈希尾号 7 确定性失败，便于演示失败分级。
+- **验证**：pytest 覆盖推进 / 取消 / 确认归档 / 确定性失败 / 404；E2E 覆盖「创建 → 刷新 → 恢复 → 自动续追到终态」全链路；演示：创建任务后刷新页面，无需任何操作直到完成。
 
 ## Quick Start
 
@@ -56,7 +56,7 @@ pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
 打开 <http://localhost:8888>：
 
 1. **对话页 `/`**：提问「想给妈妈送生日礼物」→ 思考分段流式 → 推荐卡片 → 点「依据」看溯源 → 点「下单」。
-2. **任务页 `/tasks`**：创建养护方案生成任务 → 轮询进度 → 刷新页面按 `taskId` 恢复。
+2. **任务页 `/tasks`**：创建养护方案生成任务 → 轮询进度 → 刷新页面按 `taskId` 恢复并自动追踪到终态。
 3. **订单页 `/orders`**：沙箱收银台完成模拟支付，重复回调不会重复入账。
 
 前置：Node ≥ 24（pnpm 12）、Python ≥ 3.12。
@@ -71,7 +71,7 @@ pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
 
 ![证据抽屉](docs/screenshots/evidence-drawer.png)
 
-**异步任务**（创建 → 刷新按 taskId 恢复 → 完成确认归档）：
+**异步任务**（创建 → 刷新恢复并自动续追到终态 → 确认归档）：
 
 ![任务完成态](docs/screenshots/tasks-completed.png)
 
@@ -84,7 +84,7 @@ pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
 | `pnpm build` | `tsc -b` + `vite build`（类型与构建门槛） |
 | `pnpm test:shared` | SSE 解码器 / 契约 / bones 断点选择（node:test） |
 | `pnpm test:api` | 契约镜像 / SSE 序列 / 任务状态机 / 支付沙箱（pytest） |
-| `pnpm test:e2e` | 三条端到端用例：流式分段渲染 / 证据抽屉 / 任务按 taskId 恢复（Playwright，mock 驱动无需 Key） |
+| `pnpm test:e2e` | 三条端到端用例：流式分段渲染 / 证据抽屉 / 任务恢复并自动追踪到终态（Playwright，mock 驱动无需 Key）；**E2E 已进入 CI**——shared contract → API behavior → browser user story 三层证据 |
 
 推送即跑 CI（Node 24 + Python 3.12）。 
 
