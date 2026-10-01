@@ -1,0 +1,87 @@
+# agent-hub · 花语智能体（Flora Advisor）
+
+一个可运行的 AI 应用工程演示：以「花店选购顾问」为场景，把支撑 AI 产品的四条工程主线做成最小可信实现。重点不在聊天页面，而在页面之下的管线——**流式事件协议、结构化渲染、证据溯源、异步任务恢复**。
+
+React 19 + TypeScript 7 + Vite 8 + Zustand 5 + Zod 4 · FastAPI + Pydantic v2 · 跨端契约双镜像（zod ↔ pydantic）
+
+**无需真实 API Key**：未配置 Key 时由确定性剧本驱动（离线可跑、输出可断言），事件协议与接入真实 LLM 时完全一致。
+
+## 架构
+
+```mermaid
+flowchart LR
+    LLM["LLM / 确定性 mock"] -->|"Canonical Agent Events<br/>thought · token · card · evidence · done"| SSE["SSE Decoder<br/>跨 chunk UTF-8 + 帧缓冲"]
+    SSE --> ZOD["Zod Contract<br/>AI 输出白名单"]
+    ZOD --> STORE["Zustand Reducer<br/>segment 有序序列"]
+    STORE --> UI["A2UI 渲染 + Evidence 抽屉"]
+    UI -->|User Action| LLM
+```
+
+换 LLM 供应商只动服务端适配层，前端与事件协议零改动。
+
+## 四条主线
+
+### 1. Streaming Agent Event Pipeline
+
+- **问题**：LLM 输出是字节流，`EventSource` 不支持 POST / 自定义头 / 中断；多字节中文与 SSE 帧边界都可能被网络 chunk 从中间劈开。
+- **实现**：五类规范事件（`thought` / `token` / `card` / `evidence` / `done`）作为跨端契约；`decodeUtf8Stream` 用 TextDecoder streaming 模式兜住跨 chunk 多字节序列，`createSseParser` 用行缓冲在空行处派发帧、`flush` 冲出残帧；前端 fetch ReadableStream 逐帧解析，`AbortController` 支持停止生成。
+- **验证**：`pnpm test:shared` 覆盖「中文多字节被 chunk 劈开」「帧被 chunk 劈开」「CRLF / 注释行 / flush 残帧」等用例；对话页演示分段思考流式 + 正文打字机。
+
+### 2. A2UI Structured Rendering
+
+- **问题**：让 LLM 直接生成 UI 不可控也无法校验；自由文本承载不了可行动的推荐。
+- **实现**：Agent 只输出白名单契约数据（`FlowerCardPayload`），前端 zod `parse` 通过才渲染，按场景（日常自用 / 送礼 / 探望慰问）切换卡片段式；契约外字段在边界处直接拒绝。
+- **验证**：契约测试断言「契约外字段被拒绝」；演示：对话获取推荐卡片，点「下单」进入订单流。
+
+### 3. Evidence Traceability
+
+- **问题**：AI 结论必须能指认「从哪来」，否则不可信也不可用。
+- **实现**：结论与依据分离——卡片只携带 `evidenceId` 引用，证据事件包含来源、可信度、引用原文、分析时间；可信度由服务端计算，前端只做分级渲染（<80 金色预警）。
+- **验证**：SSE 冒烟断言 evidence 事件序列与证据库一致；演示：点卡片上的「依据」打开证据抽屉。
+
+### 4. Async Task Recovery
+
+- **问题**：长耗时 AI 任务会跨越刷新与断线，前端需要状态机而不是布尔 loading。
+- **实现**：`queued → running(progress) → completed / failed / cancelled → archived` 状态机；3s 轮询；`taskId` 存 localStorage、重进页面按远端详情恢复（远端是事实源，本地只存 UI 态）；服务端快照落盘、重启恢复在途任务；taskId 哈希尾号 7 确定性失败，便于演示失败分级。
+- **验证**：pytest 覆盖推进 / 取消 / 确认归档 / 确定性失败 / 404；演示：创建任务后刷新页面，按 `taskId` 恢复进度。
+
+## Quick Start
+
+```bash
+pnpm install      # JS workspace 依赖
+pnpm api:setup    # python venv + pip install -e apps/api[dev]
+pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
+```
+
+打开 <http://localhost:8888>：
+
+1. **对话页 `/`**：提问「想给妈妈送生日礼物」→ 思考分段流式 → 推荐卡片 → 点「依据」看溯源 → 点「下单」。
+2. **任务页 `/tasks`**：创建养护方案生成任务 → 轮询进度 → 刷新页面按 `taskId` 恢复。
+3. **订单页 `/orders`**：沙箱收银台完成模拟支付，重复回调不会重复入账。
+
+前置：Node ≥ 24（pnpm 12）、Python ≥ 3.12。
+
+## 验证
+
+| 命令 | 覆盖 |
+| --- | --- |
+| `pnpm build` | `tsc -b` + `vite build`（类型与构建门槛） |
+| `pnpm test:shared` | SSE 解码器 / 契约 / bones 断点选择（node:test） |
+| `pnpm test:api` | 契约镜像 / SSE 序列 / 任务状态机 / 支付沙箱（pytest） |
+
+推送即跑 CI（Node 24 + Python 3.12）。 
+
+## Additional engineering examples
+
+- **支付沙箱**：订单状态机（created → paying → paid / closed）+ SHA-256 验签 + 幂等回调（重复回调返回 `duplicate: true`）+ 渠道绑定校验。
+- **Boneyard 骨架屏**：真实内容保持挂载（`display: contents` 无盒包裹，骨架消失零重排）、overlay `pointer-events: none` 不拦截交互、URL `?boneyard=all` 预览验收、bones fixture 按断点捕获。
+- **契约双镜像**：`contracts.ts`（zod）与 `schemas.py`（pydantic）逐字段对应，`fixtures/contract-example.json` 两端共同解析对账。
+- **真实 LLM 接入**：`cp apps/api/.env.example apps/api/.env` 填入 Key（deepseek / kimi / glm / openai 均兼容 OpenAI 协议）；推荐结论走 ```card 围栏流式解析，校验失败自动降级为普通文本。
+
+## Limitations
+
+单机演示定位：进程内存储、无鉴权、SSE 无 Last-Event-ID 续传、支付为沙箱模拟。生产化差距（DB 唯一键 + 分布式锁、平台公钥验签、断线续传等）在代码注释与 [docs/adr](docs/adr/) 中注明。
+
+## License
+
+[MIT](LICENSE)
