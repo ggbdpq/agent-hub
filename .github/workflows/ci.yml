@@ -31,3 +31,22 @@ jobs:
       - run: pip install -e "apps/api[dev]"
       - working-directory: apps/api
         run: python -m pytest -q
+
+  e2e:
+    name: browser user stories
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pnpm install --frozen-lockfile
+      # demo.mjs 从 apps/api/.venv 启动 uvicorn，需先建 venv（api:setup）
+      - run: pnpm api:setup
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
