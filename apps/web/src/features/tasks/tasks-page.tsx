@@ -32,18 +32,26 @@ export function TasksPage() {
   const [restoring, setRestoring] = useState(false);
   const [polling, setPolling] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 轮询链纪元：startPolling/stopPolling 递增，作废在途 tick 的续排——
+  // 防止 StrictMode 双挂载或重复恢复产生两条并行轮询链
+  const epochRef = useRef(0);
 
   const stopPolling = useCallback(() => {
     setPolling(false);
+    epochRef.current += 1;
     if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = null;
   }, []);
 
   const startPolling = useCallback(
     (taskId: string) => {
+      stopPolling(); // 幂等入口：先作废旧链再起新链，重复调用只保留一条轮询
+      const epoch = epochRef.current;
       setPolling(true);
       const tick = async () => {
         try {
           const snapshot = await getTask(taskId);
+          if (epoch !== epochRef.current) return; // 本链已被停止或新链取代
           setTask(snapshot);
           if (["completed", "failed", "cancelled", "archived"].includes(snapshot.status)) {
             stopPolling();
@@ -51,6 +59,7 @@ export function TasksPage() {
           }
           timerRef.current = setTimeout(tick, POLL_INTERVAL_MS);
         } catch (error) {
+          if (epoch !== epochRef.current) return;
           toast.error(error instanceof Error ? error.message : String(error));
           stopPolling();
         }
@@ -60,17 +69,21 @@ export function TasksPage() {
     [stopPolling],
   );
 
-  // 进页恢复：localStorage 有 taskId 就以远端为准拉详情（恢复期展示 boneyard 骨架）
+  // 进页恢复：localStorage 有 taskId 就以远端为准拉详情（恢复期展示 boneyard 骨架）；
+  // 任务仍在进行（queued/running）则自动续轮询到终态——Async Task Recovery 闭环
   useEffect(() => {
     const saved = localStorage.getItem(TASK_ID_KEY);
     if (!saved) return;
     setRestoring(true);
     getTask(saved)
-      .then(setTask)
+      .then((snapshot) => {
+        setTask(snapshot);
+        if (snapshot.status === "queued" || snapshot.status === "running") startPolling(saved);
+      })
       .catch(() => localStorage.removeItem(TASK_ID_KEY))
       .finally(() => setRestoring(false));
     return () => stopPolling();
-  }, [stopPolling]);
+  }, [startPolling, stopPolling]);
 
   const updateTask = (snapshot: TaskSnapshot) => {
     setTask(snapshot);
