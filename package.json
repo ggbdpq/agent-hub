@@ -12,11 +12,13 @@
     "typecheck": "pnpm --filter @agent-hub/web typecheck",
     "test:shared": "node --test packages/shared/src/sse-decoder.test.ts packages/shared/src/contracts.test.ts packages/shared/src/bones.test.ts",
     "test:api": "node scripts/api.mjs test",
+    "test:e2e": "playwright test",
     "lint": "oxlint .",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check ."
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "oxfmt": "^0.70.0",
     "oxlint": "^1.85.0"
   },
