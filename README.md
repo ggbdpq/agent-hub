@@ -68,6 +68,7 @@ pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
 | `pnpm build` | `tsc -b` + `vite build`（类型与构建门槛） |
 | `pnpm test:shared` | SSE 解码器 / 契约 / bones 断点选择（node:test） |
 | `pnpm test:api` | 契约镜像 / SSE 序列 / 任务状态机 / 支付沙箱（pytest） |
+| `pnpm test:e2e` | 三条端到端用例：流式分段渲染 / 证据抽屉 / 任务按 taskId 恢复（Playwright，mock 驱动无需 Key） |
 
 推送即跑 CI（Node 24 + Python 3.12）。 
 
