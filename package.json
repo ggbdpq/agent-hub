@@ -1,0 +1,26 @@
+{
+  "name": "agent-hub",
+  "private": true,
+  "description": "花语智能体：流式智能体事件管线 + A2UI 结构化渲染 + 证据溯源 + 异步任务恢复的可运行演示",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @agent-hub/web dev",
+    "api:setup": "node scripts/api.mjs setup",
+    "api:serve": "node scripts/api.mjs serve",
+    "build": "pnpm --filter @agent-hub/web build",
+    "typecheck": "pnpm --filter @agent-hub/web typecheck",
+    "test:shared": "node --test packages/shared/src/sse-decoder.test.ts packages/shared/src/contracts.test.ts packages/shared/src/bones.test.ts",
+    "test:api": "node scripts/api.mjs test",
+    "lint": "oxlint .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check ."
+  },
+  "devDependencies": {
+    "oxfmt": "^0.70.0",
+    "oxlint": "^1.85.0"
+  },
+  "engines": {
+    "node": ">=24.21.0 <25"
+  },
+  "packageManager": "pnpm@12.6.0"
+}

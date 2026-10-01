@@ -1,0 +1,15 @@
+{
+  "name": "@agent-hub/shared",
+  "private": true,
+  "description": "跨端契约层：zod schema（Agent 事件/花束卡片/依据/任务/订单）+ SSE 帧解析器 + UTF-8 流式解码器",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node --test src/"
+  },
+  "dependencies": {
+    "zod": "^4.5.4"
+  }
+}

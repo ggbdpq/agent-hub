@@ -1,0 +1,54 @@
+{
+  "thought": { "type": "thought", "seq": 1, "text": "解析请求：送礼场景。", "final": false },
+  "token": { "type": "token", "text": "根据你的偏好，推荐以下花束。" },
+  "card": {
+    "type": "card",
+    "payload": {
+      "scene": "gift",
+      "title": "送礼首选：轻奢礼盒",
+      "reason": "浅色低香，符合问卷偏好。",
+      "items": [
+        {
+          "id": "fl-1",
+          "name": "香槟玫瑰礼盒",
+          "priceFen": 12800,
+          "typeLabel": "花盒",
+          "emoji": "🎁"
+        }
+      ],
+      "evidenceRefs": [{ "evidenceId": "ev-1", "label": "入会喜好问卷" }]
+    }
+  },
+  "evidence": {
+    "type": "evidence",
+    "evidence": {
+      "id": "ev-1",
+      "source": "入会喜好问卷",
+      "sourceKind": "preference_survey",
+      "credibility": 72,
+      "quote": "勾选'喜欢低香味、浅色系'。",
+      "analyzedAt": "2026-09-10 10:00"
+    }
+  },
+  "done": { "type": "done", "replyId": "r123abc456def" },
+  "taskCompleted": {
+    "taskId": "t1a2b3c4d5e6f",
+    "taskNo": "YH20260914001",
+    "kind": "care_plan",
+    "status": "completed",
+    "progress": 100,
+    "result": {
+      "title": "养护方案 YH20260914001",
+      "sections": [{ "heading": "浇水", "body": "玫瑰类 2 天一次，沿盆沿浇。" }]
+    }
+  },
+  "orderPaid": {
+    "orderId": "o1a2b3c4d5e6f",
+    "orderNo": "DD20260914001",
+    "flowerName": "香槟玫瑰礼盒",
+    "amountFen": 12800,
+    "channel": "wechat",
+    "status": "paid",
+    "paidAt": "2026-09-14T10:00:00+00:00"
+  }
+}
