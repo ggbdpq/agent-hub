@@ -7,6 +7,7 @@
     "dev": "pnpm --filter @agent-hub/web dev",
     "api:setup": "node scripts/api.mjs setup",
     "api:serve": "node scripts/api.mjs serve",
+    "demo": "node scripts/demo.mjs",
     "build": "pnpm --filter @agent-hub/web build",
     "typecheck": "pnpm --filter @agent-hub/web typecheck",
     "test:shared": "node --test packages/shared/src/sse-decoder.test.ts packages/shared/src/contracts.test.ts packages/shared/src/bones.test.ts",
