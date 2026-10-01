@@ -61,6 +61,22 @@ pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
 
 前置：Node ≥ 24（pnpm 12）、Python ≥ 3.12。
 
+## 演示
+
+**对话流式 + A2UI 卡片**（输入 → 思考分段 → 推荐卡 → 下单入口）：
+
+![对话页：思考分段流式与 A2UI 推荐卡](docs/screenshots/chat-streaming.png)
+
+**证据溯源**（卡片「依据」入口 → 来源 / 可信度 / 引用原文）：
+
+![证据抽屉](docs/screenshots/evidence-drawer.png)
+
+**异步任务**（创建 → 刷新按 taskId 恢复 → 完成确认归档）：
+
+![任务完成态](docs/screenshots/tasks-completed.png)
+
+完整演示录屏见 [Releases](../../releases)。
+
 ## 验证
 
 | 命令 | 覆盖 |
