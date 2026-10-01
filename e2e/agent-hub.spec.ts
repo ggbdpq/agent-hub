@@ -35,15 +35,20 @@ test("A2UI 卡片：点依据打开证据抽屉并展示可信度分级", async 
   await expect(page.getByText(/近 90 天购买 3 次鲜切花/)).toBeVisible();
 });
 
-test("任务页：刷新后按 taskId 从远端恢复", async ({ page }) => {
+test("任务页：刷新后按 taskId 恢复，并自动继续追踪到终态", async ({ page }) => {
   await page.goto("/tasks");
   await page.getByRole("button", { name: "创建生成任务" }).click();
 
-  // 任务创建：业务单号出现（taskId 为内部主键不上页面）
+  // 前提：任务仍在进行（取消按钮仅在非终态可见），保证刷新发生在恢复场景内
   await expect(page.getByText(/单号 YH/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "取消任务" })).toBeVisible();
 
-  // 刷新 → localStorage 里的 taskId 作为恢复锚点，远端详情回放
+  // 刷新 → localStorage 里的 taskId 作为恢复锚点，远端快照回放
   await page.reload();
   await expect(page.getByText(/单号 YH/)).toBeVisible();
-  await expect(page.getByText(/进度 \d+%/)).toBeVisible();
+
+  // 关键断言：无需再次刷新/操作，恢复后自动继续轮询直到终态
+  // （结果分区「浇水」仅completed 态渲染；确认保存按钮仅 completed 态出现）
+  await expect(page.getByText("浇水")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("button", { name: "确认保存" })).toBeVisible();
 });
