@@ -8,12 +8,15 @@
 import asyncio
 import hashlib
 import json
+import logging
 import os
 import uuid
 from datetime import datetime
 from pathlib import Path
 
 from app.schemas import TaskResult, TaskSection, TaskSnapshot, TaskStatus
+
+logger = logging.getLogger(__name__)
 
 # 进程内任务表（重启后从快照目录恢复在途任务）
 _TASKS: dict[str, TaskSnapshot] = {}
@@ -49,7 +52,11 @@ def _snapshot_path(task_id: str) -> Path:
 
 def _persist(task: TaskSnapshot) -> None:
     SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
-    _snapshot_path(task.taskId).write_text(task.model_dump_json(), encoding="utf-8")
+    path = _snapshot_path(task.taskId)
+    # 先写临时文件再原子替换：写到一半崩溃时保留上一版快照（.tmp 不匹配 restore 的 *.json）
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(task.model_dump_json(), encoding="utf-8")
+    os.replace(tmp, path)
 
 
 def restore_snapshots() -> int:
@@ -63,8 +70,9 @@ def restore_snapshots() -> int:
     for path in SNAPSHOT_DIR.glob("*.json"):
         try:
             task = TaskSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
-        except Exception:
-            continue  # 旧格式/损坏快照：跳过
+        except Exception as e:  # 旧格式/损坏快照：跳过，但留下痕迹
+            logger.warning("跳过无法恢复的任务快照 %s：%s", path.name, e)
+            continue
         if task.taskId not in _TASKS:
             _TASKS[task.taskId] = task
             count += 1
