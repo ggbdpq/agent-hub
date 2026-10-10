@@ -65,7 +65,7 @@ def restore_snapshots() -> int:
             task = TaskSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
         except Exception:
             continue  # 旧格式/损坏快照：跳过
-        if task.status not in _TASKS:
+        if task.taskId not in _TASKS:
             _TASKS[task.taskId] = task
             count += 1
         global _SEQ_DATE, _SEQ_N
