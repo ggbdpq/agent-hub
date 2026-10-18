@@ -1,7 +1,8 @@
 """异步任务状态机（养护方案生成）。
 
 - 状态推进 queued → running(progress) → completed/failed/cancelled → archived
-- 进程内 store + 本地快照（重启只读回状态与续号，不重新调度未完成任务）
+- 进程内 store + 本地快照；重启恢复时读回快照、续单号，并把 queued/running 任务
+  重新调度续跑（从快照进度继续，不归零）
 - 确定性失败：taskId 尾号 == 7 时失败（演示失败分级与重试）
 - confirm 归档：前端确认保存后任务进入 archived
 """
@@ -18,8 +19,20 @@ from app.schemas import TaskResult, TaskSection, TaskSnapshot, TaskStatus
 
 logger = logging.getLogger(__name__)
 
-# 进程内任务表（重启只读回快照；页面刷新续追要求 API 进程持续运行）
+# 进程内任务表（重启读回快照并续跑在途任务；页面刷新续追要求 API 进程持续运行）
 _TASKS: dict[str, TaskSnapshot] = {}
+
+# 后台任务强引用（asyncio 文档：裸 create_task 的引用可能被 GC 中途回收）；
+# 完成后经 done_callback 自动移除
+_BACKGROUND: set[asyncio.Task] = set()
+
+
+def _spawn(coro) -> asyncio.Task:
+    """创建后台任务并持有强引用，完成后自动从集合移除。"""
+    task = asyncio.create_task(coro)
+    _BACKGROUND.add(task)
+    task.add_done_callback(_BACKGROUND.discard)
+    return task
 
 # 快照目录：环境变量优先，默认系统临时目录
 SNAPSHOT_DIR = Path(os.environ.get("AGENT_HUB_SNAPSHOT_DIR", Path(os.environ.get("TEMP", "/tmp")) / "agent-hub-snapshots"))
@@ -59,10 +72,11 @@ def _persist(task: TaskSnapshot) -> None:
     os.replace(tmp, path)
 
 
-def restore_snapshots() -> int:
+def restore_snapshots(schedule: bool = True) -> int:
     """重启恢复：把快照目录里的任务读回内存，并把当日单号计数器续到最大值。
 
-    不重新调度 queued/running 任务；旧格式快照（缺 taskNo）无法通过校验，逐个跳过不中断服务。
+    queued/running 的任务重新调度续跑（从快照进度继续）；schedule=False 只读回不调度，
+    供无事件循环的单测使用。旧格式快照（缺 taskNo）无法通过校验，逐个跳过不中断服务。
     """
     if not SNAPSHOT_DIR.exists():
         return 0
@@ -76,6 +90,8 @@ def restore_snapshots() -> int:
         if task.taskId not in _TASKS:
             _TASKS[task.taskId] = task
             count += 1
+            if schedule and task.status in (TaskStatus.QUEUED, TaskStatus.RUNNING):
+                _spawn(_run(task.taskId, resume=True))
         global _SEQ_DATE, _SEQ_N
         if task.taskNo.startswith("YH") and task.taskNo[2:10] == _today():
             _SEQ_DATE = _today()
@@ -120,18 +136,22 @@ async def create_task() -> TaskSnapshot:
     )
     _TASKS[task_id] = task
     _persist(task)
-    asyncio.create_task(_run(task_id))
+    _spawn(_run(task_id))
     return task
 
 
-async def _run(task_id: str) -> None:
+async def _run(task_id: str, resume: bool = False) -> None:
     task = _TASKS.get(task_id)
-    if task is None or task.status != TaskStatus.QUEUED:
+    # resume：接受重启恢复时快照里的 RUNNING 态，从上次进度继续；新调度只接受 QUEUED
+    allowed = (TaskStatus.QUEUED, TaskStatus.RUNNING) if resume else (TaskStatus.QUEUED,)
+    if task is None or task.status not in allowed:
         return
     task.status = TaskStatus.RUNNING
     _persist(task)
     try:
-        for tick in range(1, TOTAL_TICKS + 1):
+        # 进度每 tick +10：续跑从 progress//10+1 个 tick 继续（40% → 从第 5 个 tick 开始）
+        start_tick = task.progress // 10 + 1 if resume else 1
+        for tick in range(start_tick, TOTAL_TICKS + 1):
             await asyncio.sleep(TICK_SECONDS)
             current = _TASKS.get(task_id)
             if current is None or current.status == TaskStatus.CANCELLED:
