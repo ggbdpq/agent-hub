@@ -31,7 +31,7 @@
 
 3. HTTP 用 `node:http`，不引 Web 框架。
 4. 不引测试框架：`node --test`。
-5. FastAPI 保留任务、订单、支付、场景接口。迁移期以 `AGENT_BACKEND=ts|py` 切换，WP9 删除 Python 智能体代码。
+5. FastAPI 保留任务、订单、支付、场景接口。迁移期曾保留一键回退到 Python 智能体的环境变量开关；WP9 已删除 Python 智能体代码与该开关。
 
 ## 备选方案
 

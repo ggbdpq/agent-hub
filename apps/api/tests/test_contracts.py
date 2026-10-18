@@ -1,24 +1,18 @@
-"""契约双镜像对账：fixtures/contract-example.json 必须能被 pydantic 镜像完整解析。
+"""契约双镜像对账：fixtures/contract-example.json 中 Python 仍在使用的部分必须能被 pydantic 解析。
 
-同一份 fixture 也被 packages/shared/src/contracts.test.ts（zod）解析——
-两端都过，才证明契约镜像没有漂移。
+智能体事件（thought/token/card/evidence/done）与 chatRequest 自 WP9 起只由 TS 侧
+（packages/shared/src/contracts.test.ts）校验——Python 不再消费这些结构。
+fixture 按"只追加不删除"原则保留它们的样例。
 """
 import json
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
 
 from app.schemas import (
-    AgentStreamEvent,
-    ChatRequest,
-    DoneEvent,
-    EvidenceEvent,
-    CardEvent,
     Order,
+    RecommendScene,
     TaskSnapshot,
-    ThoughtEvent,
-    TokenEvent,
 )
 
 FIXTURE = Path(__file__).resolve().parents[3] / "fixtures" / "contract-example.json"
@@ -27,31 +21,6 @@ FIXTURE = Path(__file__).resolve().parents[3] / "fixtures" / "contract-example.j
 @pytest.fixture(scope="module")
 def example() -> dict:
     return json.loads(FIXTURE.read_text(encoding="utf-8"))
-
-
-def test_thought_event(example):
-    event = ThoughtEvent.model_validate(example["thought"])
-    assert event.seq == 1
-    assert event.final is False
-
-
-def test_token_event(example):
-    assert TokenEvent.model_validate(example["token"]).text.startswith("根据")
-
-
-def test_card_event(example):
-    event = CardEvent.model_validate(example["card"])
-    assert event.payload.scene.value == "gift"
-    assert event.payload.items[0].priceFen == 12800  # 金额单位：分
-
-
-def test_evidence_event(example):
-    event = EvidenceEvent.model_validate(example["evidence"])
-    assert 0 <= event.evidence.credibility <= 100
-
-
-def test_done_event(example):
-    assert DoneEvent.model_validate(example["done"]).replyId == "r123abc456def"
 
 
 def test_task_snapshot(example):
@@ -66,21 +35,22 @@ def test_order_paid(example):
     assert order.paidAt is not None
 
 
-def test_union_discriminator(example):
-    """联合类型按 type 判别解析——SSE 帧解析的python 侧入口。"""
-    event = AgentStreamEvent.__args__  # Union 的成员列表非空即可，真正逐帧校验见上面单测
-    assert len(event) == 6
+def test_scene_enum():
+    """场景枚举仍被 /api/scenes 使用。"""
+    assert [s.value for s in RecommendScene] == ["daily", "gift", "comfort"]
 
 
-def test_unknown_type_rejected():
-    """契约外字段/类型必须被拒绝——AI 输出白名单的 python 侧证明。"""
+def test_invalid_status_rejected():
+    """枚举外的状态值必须被拒绝——pydantic 侧白名单证明（pydantic 默认忽略额外字段，故用非法值断言）。"""
+    from pydantic import ValidationError
+
     with pytest.raises(ValidationError):
-        ThoughtEvent.model_validate({"type": "thought", "seq": 0, "text": "x", "final": True, "extra": 1})
-
-
-def test_chat_request(example):
-    """ChatRequest 双端对账：迁移期 py 后端收到 threadId 只接收不使用。"""
-    req = ChatRequest.model_validate(example["chatRequest"])
-    assert req.message == "想给妈妈送生日礼物"
-    assert req.threadId == "t-0123456789"
-    assert ChatRequest.model_validate({"message": "日常自用来点花"}).threadId is None
+        TaskSnapshot.model_validate(
+            {
+                "taskId": "t1",
+                "taskNo": "YH20260101001",
+                "kind": "care_plan",
+                "status": "hacked",
+                "progress": 100,
+            }
+        )

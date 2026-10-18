@@ -1,15 +1,16 @@
-"""FastAPI 装配：Agent SSE / 异步任务 / 支付沙箱三组路由。"""
+"""FastAPI 装配：异步任务 / 支付沙箱 / 场景路由。
+
+智能体对话与证据接口已迁移到 apps/agent（TS，:8809）：POST /api/agent/chat、GET /api/evidence/:id
+由 Vite 代理分流，本服务不再提供（ADR-0003）。
+"""
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from app import agent, llm, orders, tasks
-from app.evidence import get_evidence
+from app import orders, tasks
 from app.schemas import (
-    ChatRequest,
     Order,
     PaymentChannel,
     PaymentNotify,
@@ -20,7 +21,7 @@ from app.schemas import (
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    tasks.restore_snapshots()  # 只读回快照与续号，不重新调度未完成任务
+    tasks.restore_snapshots()  # 读回快照、续单号，并重新调度 queued/running 任务续跑
     yield
 
 
@@ -43,31 +44,6 @@ class OrderRequest(BaseModel):
 @app.get("/api/health")
 def health() -> dict:
     return {"ok": True, "service": "agent-hub-api"}
-
-
-@app.post("/api/agent/chat")
-async def agent_chat(body: ChatRequest) -> StreamingResponse:
-    """花语智能体对话：SSE 事件流（thought/token/card/evidence/done）。
-
-    配置了 OPENAI_API_KEY 时走真实大模型（OpenAI 兼容协议：deepseek/kimi/glm/openai），
-    否则回退确定性剧本——前端与事件协议完全一致。
-    """
-    provider = llm.resolve_provider()
-    stream = llm.llm_stream(body.message, provider) if provider else agent.script_stream(body.message)
-    return StreamingResponse(
-        stream,
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
-    )
-
-
-@app.get("/api/evidence/{evidence_id}")
-def evidence_detail(evidence_id: str):
-    """依据抽屉数据源：按 id 取依据（结论与依据分离）。"""
-    evidence = get_evidence(evidence_id)
-    if evidence is None:
-        raise HTTPException(status_code=404, detail="evidence not found")
-    return evidence
 
 
 @app.post("/api/tasks", response_model=TaskSnapshot)

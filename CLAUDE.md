@@ -8,7 +8,7 @@ React 19.2 / TypeScript ~7.0 / Vite 8.2 / Tailwind CSS 4.3（CSS-first，无 con
 
 ## 铁律
 
-1. **契约单一事实源**：接口 schema 只写在 `packages/shared/src/contracts.ts`（zod）；python 侧 `apps/api/app/schemas.py` 是镜像。改动必须三处同步：contracts.ts、schemas.py、`fixtures/contract-example.json`，并让 `pnpm test:shared` + `pnpm test:api` 双绿。
+1. **契约单一事实源**：接口 schema 只写在 `packages/shared/src/contracts.ts`（zod）；python 侧 `apps/api/app/schemas.py` 只镜像 Python 仍在用的任务/订单/场景。涉及这些字段时三处同步：contracts.ts、schemas.py、`fixtures/contract-example.json`，并让 `pnpm test:shared` + `pnpm test:api` 双绿。
 2. **AI 输出白名单**：任何来自 SSE 的数据进 UI 前必须过 `AgentStreamEvent.parse`（zod），禁止 `as any` 绕过。
 3. **金额一律用分**（`priceFen`/`amountFen`，整数），展示层才 `formatPrice`。
 4. **服务端事件帧格式**：`event: <type>\ndata: <JSON>\n\n`——data 必须是单行完整 JSON（前端帧解析器按行缓冲）。
@@ -19,12 +19,15 @@ React 19.2 / TypeScript ~7.0 / Vite 8.2 / Tailwind CSS 4.3（CSS-first，无 con
 - web：`routes.tsx` 只做装配；页面在 `src/features/<域>/`；请求在 `src/services/`（fetch 封装 + zod schema）；跨页面状态才进 `src/stores/`（zustand 分片，一域一 store）。
 - 页面不直接 fetch；service 不 import store；store 不操作 DOM。
 - boneyard 边界：业务接入只给 `name` + `loading`；bones fixture 放 `src/features/boneyard/*.bones.json`，在 `register-bones.ts` 注册；容器/content/overlay 布局由组件统管，业务不要写 `[data-boneyard-*]` 样式。
-- api：路由薄（装配与 HTTP 语义），业务在 `app/agent.py` / `app/tasks.py` / `app/orders.py`；所有响应模型过 pydantic。
+- api：路由薄（装配与 HTTP 语义），业务在 `app/tasks.py` / `app/orders.py`；所有响应模型过 pydantic。
+- agent（`apps/agent`，Node 24 直跑 TS）：工具只在 `tools.ts`、`createAgent` 只在 `agent.ts`、出站事件只在 `translate.ts`；`server.ts` 只管 HTTP 与 SSE 写帧。
 
 ## 验证门槛（每次改动后）
 
 ```bash
-pnpm build && pnpm test:shared && pnpm test:web && pnpm test:api
+pnpm build && pnpm test:shared && pnpm test:web && pnpm test:api && pnpm test:agent
+# 涉及端到端链路时
+pnpm test:e2e
 ```
 
 涉及 SSE/任务/支付的改动，另跑真机冒烟（起 `pnpm api:serve` 后 curl，见 README 验收路径）。
@@ -37,4 +40,6 @@ pnpm build && pnpm test:shared && pnpm test:web && pnpm test:api
 - **pnpm scripts 在 Windows 上走 cmd.exe**（与用户终端无关）：cmd 不认单引号、`&&` 链和正斜杠路径不可靠——涉及 Python venv 的命令一律走 `scripts/api.mjs`（参数数组 spawn，跨平台），不要往 package.json 里写内联 shell。
 - **pydantic 的 None 序列化为 JSON null**，zod 的 `.optional()` 只收 undefined——可空字段一律 `.nullish()`（Order.paidAt、TaskSnapshot.result/failReason 已是）。
 - **store 初始化器（zustand create）里禁止 React Hooks**：不是组件，Hooks dispatcher 为 null 会白屏；"单例可变引用"用闭包普通变量。
-- LLM 流式输出的 ```card 围栏标记可能被 chunk 劈开：解析必须 hold-back 尾部字符（_StreamStateMachine 已实现），新解析逻辑照此办理。
+- 翻译层按 `msg.id` 判定「新的模型调用」：假上游/录制回放必须给每次补全唯一 id，且首个 delta 带 `role`（否则 ChatOpenAI 聚合为 generic）。
+- `present_recommendation` 的 runtime 参数必须显式标注 `ToolRuntime`，否则 TS 会选中错误的 tool() 重载。
+- 记忆是进程内 MemorySaver，重启丢失；threadId 由前端生成、未鉴权。

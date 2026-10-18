@@ -2,22 +2,27 @@
 
 一个可运行的 AI 应用工程演示：以「花店选购顾问」为场景，把支撑 AI 产品的四条工程主线做成最小可信实现。重点不在聊天页面，而在页面之下的管线——**流式事件协议、结构化渲染、证据溯源、异步任务恢复**。
 
-React 19 + TypeScript 7 + Vite 8 + Zustand 5 + Zod 4 · FastAPI + Pydantic v2 · 跨端契约双镜像（zod ↔ pydantic）
+React 19 + TypeScript 7 + Vite 8 + Zustand 5 + Zod 4 · 智能体服务 langchain.js（`apps/agent`，Node 24 直跑 TS） · FastAPI + Pydantic v2（任务 / 订单 / 支付）
 
-**无需真实 API Key**：未配置 Key 时由确定性剧本驱动（离线可跑、输出可断言），事件协议与接入真实 LLM 时完全一致。
+**无需真实 API Key**：未配置 Key 时由确定性离线剧本驱动（`ScriptedChatModel`，与真实模型共享同一张 createAgent 图，离线可跑、输出可断言）。
 
 ## 架构
 
 ```mermaid
 flowchart LR
-    LLM["LLM / 确定性 mock"] -->|"Canonical Agent Events<br/>thought · token · card · evidence · done"| SSE["SSE Decoder<br/>跨 chunk UTF-8 + 帧缓冲"]
+    subgraph AGENT["apps/agent :8809（langchain.js）"]
+        LLM["ChatOpenAI / ScriptedChatModel"] --> LOOP["createAgent + Tools<br/>search_evidence · search_catalog · present_recommendation"]
+        LOOP -->|messages + custom| TR["translate.ts<br/>出站 zod 校验 · error/done 收口"]
+    end
+    TR -->|"Canonical Agent Events<br/>thought · token · card · evidence · done"| SSE["SSE Decoder<br/>跨 chunk UTF-8 + 帧缓冲"]
     SSE --> ZOD["Zod Contract<br/>AI 输出白名单"]
     ZOD --> STORE["Zustand Reducer<br/>segment 有序序列"]
     STORE --> UI["A2UI 渲染 + Evidence 抽屉"]
-    UI -->|User Action| LLM
+    UI -->|User Action| AGENT
+    API["apps/api :8808（FastAPI）<br/>任务 · 订单 · 支付 · 场景"] -.->|其余 /api/*| UI
 ```
 
-换 LLM 供应商只动服务端适配层，前端与事件协议零改动。
+进程拓扑：Vite :8888 把 `/api/agent/*` 与 `/api/evidence/*` 代理到 TS 智能体 :8809，其余 `/api/*` 仍到 FastAPI :8808。换 LLM 供应商只动 `llm.ts` 的 provider 表，前端与事件协议零改动。
 
 ## 四条主线
 
@@ -30,19 +35,19 @@ flowchart LR
 ### 2. A2UI Structured Rendering
 
 - **问题**：让 LLM 直接生成 UI 不可控也无法校验；自由文本承载不了可行动的推荐。
-- **实现**：Agent 只输出白名单契约数据（`FlowerCardPayload`），前端 zod `parse` 通过才渲染，按场景（日常自用 / 送礼 / 探望慰问）切换卡片段式；契约外字段在边界处直接拒绝。
+- **实现**：卡片是工具 `present_recommendation` 的产物——商品字段（名称/价格/类型/emoji）只从服务端目录填充，模型只能传 `skuId`，无法报价；前端 zod `parse` 通过才渲染，按场景（日常自用 / 送礼 / 探望慰问）切换卡片段式。
 - **验证**：契约测试断言「契约外字段被拒绝」；演示：对话获取推荐卡片，点「下单」进入订单流。
 
 ### 3. Evidence Traceability
 
 - **问题**：AI 结论必须能指认「从哪来」，否则不可信也不可用。
-- **实现**：结论与依据分离——卡片只携带 `evidenceId` 引用，证据事件包含来源、可信度、引用原文、分析时间。当前这些字段来自服务端固定 fixture，可信度不是实时计算结果；前端只做分级渲染（<80 金色预警）。此演示验证证据契约与关联展示，不证明推荐质量或可信度算法效果。
+- **实现**：结论与依据分离——卡片只携带 `evidenceId` 引用，证据事件包含来源、可信度、引用原文、分析时间。因果校验：`present_recommendation` 只接受**本轮** `search_evidence` 真的返回过的证据 id、`search_catalog` 返回过的 skuId，不满足就抛错回灌给模型自我修正（杜绝"引用洗白"）。当前证据字段来自服务端固定 fixture，可信度不是实时计算结果；前端只做分级渲染（<80 金色预警）。
 - **验证**：SSE 冒烟断言 evidence 事件序列与证据库一致；演示：点卡片上的「依据」打开证据抽屉。
 
 ### 4. Async Task Recovery
 
 - **问题**：长耗时 AI 任务会跨越刷新与断线，前端需要状态机而不是布尔 loading。
-- **实现**：`queued → running(progress) → completed / failed / cancelled → archived` 状态机；3s 轮询；`taskId` 存 localStorage，刷新/重进按远端恢复 snapshot，任务仍在进行（queued / running）则**自动继续轮询直到终态**（远端是事实源，本地只存 UI 态）。此保证以 API 进程持续运行为前提；服务端重启只读回快照与续号，不重新调度未完成任务。taskId 哈希尾号 7 确定性失败，便于演示失败分级。
+- **实现**：`queued → running(progress) → completed / failed / cancelled → archived` 状态机；3s 轮询；`taskId` 存 localStorage，刷新/重进按远端恢复 snapshot，任务仍在进行（queued / running）则**自动继续轮询直到终态**（远端是事实源，本地只存 UI 态）。服务端重启会读回快照、续单号，并把 queued / running 任务从原进度续跑到终态（不归零）。taskId 哈希尾号 7 确定性失败，便于演示失败分级。
 - **验证**：pytest 覆盖推进 / 取消 / 确认归档 / 确定性失败 / 404；E2E 覆盖「创建 → 刷新 → 恢复 → 自动续追到终态」全链路；演示：创建任务后刷新页面，无需任何操作直到完成。
 
 ## Quick Start
@@ -50,7 +55,7 @@ flowchart LR
 ```bash
 pnpm install      # JS workspace 依赖
 pnpm api:setup    # python venv + pip install -e apps/api[dev]
-pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
+pnpm demo         # 一键启动 FastAPI :8808 + TS 智能体 :8809 + Vite :8888
 ```
 
 打开 <http://localhost:8888>：
@@ -84,8 +89,9 @@ pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
 | `pnpm build`       | `tsc -b` + `vite build`（类型与构建门槛）                                                                                                                                            |
 | `pnpm test:shared` | SSE 解码器 / 契约 / bones 断点选择（node:test）                                                                                                                                      |
 | `pnpm test:web`    | 公开聊天 store + 受控 HTTP 流：旧请求隔离 / 截断提示（node:test）                                                                                                                    |
-| `pnpm test:api`    | 契约镜像 / SSE 序列 / 任务状态机 / 支付沙箱（pytest）                                                                                                                                |
-| `pnpm test:e2e`    | 三条端到端用例：流式分段渲染 / 证据抽屉 / 任务恢复并自动追踪到终态（Playwright，mock 驱动无需 Key）；**E2E 已进入 CI**——shared contract → API behavior → browser user story 三层证据 |
+| `pnpm test:api`    | 契约镜像 / 任务状态机（含重启续跑）/ 支付沙箱（pytest）                                                                                                                               |
+| `pnpm test:agent`  | 工具因果校验 / 事件翻译 / 三场景剧本 / 多轮记忆与摘要 / HTTP 层 / 真实路径（ChatOpenAI × 本地假上游）（node:test）                                                             |
+| `pnpm test:e2e`    | 四条端到端用例：流式分段渲染 / 证据抽屉 / 任务恢复并自动追踪到终态 / 多轮 threadId（Playwright，离线剧本驱动无需 Key）                                                                |
 
 推送即跑 CI（Node 24 + Python 3.12）。
 
@@ -93,14 +99,15 @@ pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
 
 - **支付沙箱**：订单状态机（created → paying → paid / closed）+ SHA-256 验签 + 幂等回调（重复回调返回 `duplicate: true`）+ 渠道绑定校验。
 - **Boneyard 骨架屏**：真实内容保持挂载（`display: contents` 无盒包裹，骨架消失零重排）、overlay `pointer-events: none` 不拦截交互、URL `?boneyard=all` 预览验收、bones fixture 按断点捕获。
-- **契约双镜像**：`contracts.ts`（zod）与 `schemas.py`（pydantic）逐字段对应，`fixtures/contract-example.json` 两端共同解析对账。
-- **真实 LLM 接入**：`cp apps/api/.env.example apps/api/.env` 填入 Key（deepseek / kimi / glm / openai 均兼容 OpenAI 协议）；推荐结论走 ```card 围栏流式解析，校验失败自动降级为普通文本。
+- **契约双镜像**：`contracts.ts`（zod）是单一事实源；`schemas.py`（pydantic）只镜像 Python 仍在用的任务 / 订单 / 场景部分，两端以 `fixtures/contract-example.json` 对账（事件段只由 TS 校验）。
+- **真实 LLM 接入**：在仓库根 `.env` 填入 `OPENAI_API_KEY`（deepseek / kimi / glm / openai 均兼容 OpenAI 协议），`apps/agent` 启动时自动加载；`OPENAI_PROVIDER` / `OPENAI_BASE_URL` / `OPENAI_MODEL` 同旧版。可选 `AGENT_SUMMARY_MODEL` 启用长对话摘要。
+- **多轮记忆**：前端首次发送生成 `threadId`，服务端 `MemorySaver` 按 thread 存储；"清空"重置会话。进程内存储，重启丢失（ADR-0005）。
 
 ## Limitations
 
 单机演示定位：进程内存储、无鉴权、SSE 无 Last-Event-ID 续传、支付为沙箱模拟。生产化差距（DB 唯一键 + 分布式锁、平台公钥验签、断线续传等）在代码注释与 [docs/adr](docs/adr/) 中注明。
 
-任务恢复仅保证 API 持续运行时的页面刷新续追。后端重启后的未完成快照可能保持在 queued / running，不能自行推进，需要重新创建任务；现有 E2E 不覆盖进程重启续跑。证据库是固定演示 fixture，尚无真实顾客数据接入或可信度算法评测。
+任务恢复：页面刷新续追由远端快照保证；后端重启会把 queued / running 任务从快照进度续跑（单测覆盖，E2E 不覆盖进程重启）。记忆为进程内 `MemorySaver`，重启丢失；threadId 由前端生成且未鉴权，上线前需改为服务端签发。证据库是固定演示 fixture，尚无真实顾客数据接入或可信度算法评测。
 
 ## License
 
