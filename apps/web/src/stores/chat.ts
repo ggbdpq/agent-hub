@@ -31,6 +31,8 @@ export interface ChatMessage {
 interface ChatState {
   messages: ChatMessage[];
   phase: StreamingPhase;
+  /** 会话标识：首次发送时生成，"清空"后重置；同一会话内多轮共享（WP5 多轮记忆） */
+  threadId: string | null;
   /** 依据抽屉是全局单例：active 为空展示逐层依据历史 */
   evidenceDrawer: { open: boolean; active: Evidence | null; history: Evidence[] };
   sendMessage: (text: string) => Promise<void>;
@@ -73,22 +75,25 @@ export const useChatStore = create<ChatState>((set, get) => {
   return {
     messages: [],
     phase: "idle",
+    threadId: null,
     evidenceDrawer: { open: false, active: null, history: [] },
 
     sendMessage: async (text) => {
       if (get().phase === "thinking" || get().phase === "answering") return;
 
+      // 同一会话多轮共享 threadId；首次发送生成，"清空"后重新生成（ADR-0005）
+      const threadId = get().threadId ?? crypto.randomUUID();
       const userMessage: ChatMessage = { id: nextId("u"), role: "user", segments: [], text };
       const agentId = nextId("a");
       const agentMessage: ChatMessage = { id: agentId, role: "agent", segments: [] };
-      set((s) => ({ messages: [...s.messages, userMessage, agentMessage], phase: "thinking" }));
+      set((s) => ({ messages: [...s.messages, userMessage, agentMessage], phase: "thinking", threadId }));
 
       abortRef?.abort();
       const controller = new AbortController();
       abortRef = controller;
 
       try {
-        for await (const event of streamAgentChat(text, controller.signal)) {
+        for await (const event of streamAgentChat(text, controller.signal, threadId)) {
           if (abortRef !== controller || controller.signal.aborted) return;
           const parsed = AgentStreamEvent.parse(event);
           switch (parsed.type) {
@@ -159,7 +164,7 @@ export const useChatStore = create<ChatState>((set, get) => {
 
     reset: () => {
       abortRef?.abort();
-      set({ messages: [], phase: "idle" });
+      set({ messages: [], phase: "idle", threadId: null });
     },
 
     openEvidence: (evidenceId) => {

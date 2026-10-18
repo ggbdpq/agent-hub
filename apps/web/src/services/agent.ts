@@ -13,11 +13,12 @@ import type { RawSseFrame } from "@shared/index";
 export async function* streamAgentChat(
   message: string,
   signal?: AbortSignal,
+  threadId?: string,
 ): AsyncGenerator<Record<string, unknown>> {
   const res = await fetch("/api/agent/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify(threadId ? { message, threadId } : { message }),
     signal,
   });
   if (!res.ok || !res.body) {

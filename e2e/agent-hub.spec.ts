@@ -52,3 +52,34 @@ test("任务页：刷新后按 taskId 恢复，并自动继续追踪到终态", 
   await expect(page.getByText("浇水")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("button", { name: "确认保存" })).toBeVisible();
 });
+
+test("多轮记忆：同一会话请求携带相同 threadId，点清空后更换", async ({ page }) => {
+  await page.goto("/");
+  const bodies: string[] = [];
+  page.on("request", (req) => {
+    if (req.url().includes("/api/agent/chat")) bodies.push(req.postData() ?? "");
+  });
+
+  const input = page.getByPlaceholder(/说说你的用花场景/);
+  await input.fill("想给妈妈送生日礼物");
+  await input.press("Enter");
+  await expect(page.getByText("送礼首选：轻奢礼盒")).toBeVisible();
+
+  await input.fill("日常自用来点花");
+  await input.press("Enter");
+  await expect(page.getByText("本周自用鲜花组合")).toBeVisible();
+
+  // 同一会话两轮请求携带相同 threadId（服务端据此续接上下文）
+  const tid1 = JSON.parse(bodies[0]).threadId as string;
+  const tid2 = JSON.parse(bodies[1]).threadId as string;
+  expect(tid1).toBeTruthy();
+  expect(tid2).toBe(tid1);
+
+  // 点"清空"后 threadId 重置：下一次请求携带新 id
+  await page.getByRole("button", { name: "清空" }).click();
+  await input.fill("下周去医院探望朋友");
+  await input.press("Enter");
+  await expect(page.getByText("探望慰问：素雅安神")).toBeVisible();
+  const tid3 = JSON.parse(bodies[2]).threadId as string;
+  expect(tid3).not.toBe(tid1);
+});
