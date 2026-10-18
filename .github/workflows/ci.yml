@@ -21,6 +21,20 @@ jobs:
       - run: pnpm test:shared
       - run: pnpm test:web
 
+  agent:
+    name: agent typecheck & tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @agent-hub/agent typecheck
+      - run: pnpm test:agent
+
   api:
     name: api tests
     runs-on: ubuntu-latest

@@ -11,6 +11,7 @@ from pydantic import ValidationError
 
 from app.schemas import (
     AgentStreamEvent,
+    ChatRequest,
     DoneEvent,
     EvidenceEvent,
     CardEvent,
@@ -75,3 +76,11 @@ def test_unknown_type_rejected():
     """契约外字段/类型必须被拒绝——AI 输出白名单的 python 侧证明。"""
     with pytest.raises(ValidationError):
         ThoughtEvent.model_validate({"type": "thought", "seq": 0, "text": "x", "final": True, "extra": 1})
+
+
+def test_chat_request(example):
+    """ChatRequest 双端对账：迁移期 py 后端收到 threadId 只接收不使用。"""
+    req = ChatRequest.model_validate(example["chatRequest"])
+    assert req.message == "想给妈妈送生日礼物"
+    assert req.threadId == "t-0123456789"
+    assert ChatRequest.model_validate({"message": "日常自用来点花"}).threadId is None

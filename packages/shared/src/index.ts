@@ -2,6 +2,7 @@ export {
   // 契约
   AgentStreamEvent,
   CardEvent,
+  ChatRequest,
   DoneEvent,
   ErrorEvent,
   Evidence,
@@ -22,6 +23,7 @@ export {
 } from "./contracts.ts";
 export type {
   AgentStreamEvent as AgentStreamEventT,
+  ChatRequest as ChatRequestT,
   Evidence as EvidenceT,
   FlowerCardPayload as FlowerCardPayloadT,
   Order as OrderT,

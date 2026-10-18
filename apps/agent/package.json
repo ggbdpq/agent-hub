@@ -1,0 +1,24 @@
+{
+  "name": "@agent-hub/agent",
+  "private": true,
+  "description": "花语智能体 TS 服务：createAgent + 工具因果校验 + SSE 事件翻译（接管 /api/agent/chat 与 /api/evidence/:id）",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.ts",
+    "start": "node src/server.ts",
+    "test": "node --test",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@agent-hub/shared": "workspace:*",
+    "@langchain/core": "~1.2.18",
+    "@langchain/langgraph": "~1.5.1",
+    "@langchain/openai": "~1.6.2",
+    "langchain": "~1.5.18",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "typescript": "~7.0.2"
+  }
+}

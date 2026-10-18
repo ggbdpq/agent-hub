@@ -148,3 +148,5 @@ class PaymentNotify(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str
+    # 迁移期 TS 智能体（apps/agent）的会话标识：py 后端接收但忽略（WP9 随事件镜像一起删除）
+    threadId: str | None = None

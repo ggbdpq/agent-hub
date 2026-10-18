@@ -91,6 +91,16 @@ export const AgentStreamEvent = z.discriminatedUnion("type", [
 ]);
 export type AgentStreamEvent = z.infer<typeof AgentStreamEvent>;
 
+/* ------------------------------- 对话请求 -------------------------------- */
+
+/** 对话请求：原来只在 schemas.py 里有，现在进入单一事实源 */
+export const ChatRequest = z.object({
+  message: z.string().trim().min(1).max(2000),
+  /** 会话标识；不传 = 单轮（与旧行为一致）。前端生成，点"清空"时重置 */
+  threadId: z.string().min(8).max(64).optional(),
+});
+export type ChatRequest = z.infer<typeof ChatRequest>;
+
 /* --------------------------- 异步任务（养护方案） --------------------------- */
 
 export const TaskStatus = z.enum([

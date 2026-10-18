@@ -1,6 +1,14 @@
 {
-  "thought": { "type": "thought", "seq": 1, "text": "解析请求：送礼场景。", "final": false },
-  "token": { "type": "token", "text": "根据你的偏好，推荐以下花束。" },
+  "thought": {
+    "type": "thought",
+    "seq": 1,
+    "text": "解析请求：送礼场景。",
+    "final": false
+  },
+  "token": {
+    "type": "token",
+    "text": "根据你的偏好，推荐以下花束。"
+  },
   "card": {
     "type": "card",
     "payload": {
@@ -16,7 +24,12 @@
           "emoji": "🎁"
         }
       ],
-      "evidenceRefs": [{ "evidenceId": "ev-1", "label": "入会喜好问卷" }]
+      "evidenceRefs": [
+        {
+          "evidenceId": "ev-1",
+          "label": "入会喜好问卷"
+        }
+      ]
     }
   },
   "evidence": {
@@ -30,7 +43,10 @@
       "analyzedAt": "2026-09-10 10:00"
     }
   },
-  "done": { "type": "done", "replyId": "r123abc456def" },
+  "done": {
+    "type": "done",
+    "replyId": "r123abc456def"
+  },
   "taskCompleted": {
     "taskId": "t1a2b3c4d5e6f",
     "taskNo": "YH20260914001",
@@ -39,7 +55,12 @@
     "progress": 100,
     "result": {
       "title": "养护方案 YH20260914001",
-      "sections": [{ "heading": "浇水", "body": "玫瑰类 2 天一次，沿盆沿浇。" }]
+      "sections": [
+        {
+          "heading": "浇水",
+          "body": "玫瑰类 2 天一次，沿盆沿浇。"
+        }
+      ]
     }
   },
   "orderPaid": {
@@ -50,5 +71,9 @@
     "channel": "wechat",
     "status": "paid",
     "paidAt": "2026-09-14T10:00:00+00:00"
+  },
+  "chatRequest": {
+    "message": "想给妈妈送生日礼物",
+    "threadId": "t-0123456789"
   }
 }

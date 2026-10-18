@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
-import { AgentStreamEvent, FlowerCardPayload, Order, TaskSnapshot } from "./contracts.ts";
+import { AgentStreamEvent, ChatRequest, FlowerCardPayload, Order, TaskSnapshot } from "./contracts.ts";
 
 /**
  * 契约双镜像对账：fixtures/contract-example.json 同时被
@@ -39,4 +39,14 @@ test("契约外字段被拒绝（AI 输出白名单）", () => {
   assert.throws(() =>
     AgentStreamEvent.parse({ type: "hack", payload: "<script>alert(1)</script>" }),
   );
+});
+
+test("契约示例：对话请求（ChatRequest 双端对账，threadId 可选）", () => {
+  const req = ChatRequest.parse(example["chatRequest"]);
+  assert.equal(req.message, "想给妈妈送生日礼物");
+  assert.equal(req.threadId, "t-0123456789");
+  // 不带 threadId = 单轮（与旧行为一致）
+  assert.equal(ChatRequest.parse({ message: "日常自用来点花" }).threadId, undefined);
+  // threadId 长度边界：过短拒绝
+  assert.throws(() => ChatRequest.parse({ message: "hi", threadId: "short" }));
 });
