@@ -1,6 +1,6 @@
 """证据库：AI 推荐结论与依据分离——结论不自带证据，按 evidenceId 引用。
 
-装配逻辑集中在此：前端抽屉按 id 拉取，可信度由服务端计算（前端只做分级渲染）。
+当前内容与可信度均为固定演示 fixture；前端抽屉按 id 拉取并做分级渲染，未实现可信度计算。
 """
 from app.schemas import Evidence, EvidenceSourceKind
 

@@ -84,10 +84,12 @@ export const useChatStore = create<ChatState>((set, get) => {
       set((s) => ({ messages: [...s.messages, userMessage, agentMessage], phase: "thinking" }));
 
       abortRef?.abort();
-      abortRef = new AbortController();
+      const controller = new AbortController();
+      abortRef = controller;
 
       try {
-        for await (const event of streamAgentChat(text, abortRef.signal)) {
+        for await (const event of streamAgentChat(text, controller.signal)) {
+          if (abortRef !== controller || controller.signal.aborted) return;
           const parsed = AgentStreamEvent.parse(event);
           switch (parsed.type) {
             case "thought":
@@ -122,16 +124,16 @@ export const useChatStore = create<ChatState>((set, get) => {
             }
             case "done":
               set({ phase: "done" });
-              break;
+              return;
             case "error":
               patchAgentMessage(agentId, (m) => ({ ...m, error: parsed.message }));
               set({ phase: "error" });
               return;
           }
         }
-        if (get().phase !== "done") set({ phase: "done" });
+        throw new Error("响应流提前结束，未收到完成事件");
       } catch (error) {
-        if (get().phase === "idle") return; // 用户主动 abort
+        if (abortRef !== controller || controller.signal.aborted) return;
         // 错误分级展示：契约违规不暴露原始 JSON 给用户，控制台保留细节
         const message =
           error instanceof Error && error.name === "ZodError"
@@ -142,6 +144,11 @@ export const useChatStore = create<ChatState>((set, get) => {
         console.error("[agent] 流式事件异常:", error);
         patchAgentMessage(agentId, (m) => ({ ...m, error: message }));
         set({ phase: "error" });
+      } finally {
+        if (abortRef === controller) {
+          abortRef = null;
+          controller.abort();
+        }
       }
     },
 

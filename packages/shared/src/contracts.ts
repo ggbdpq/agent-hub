@@ -19,7 +19,7 @@ export const Evidence = z.object({
   id: z.string(),
   source: z.string(),
   sourceKind: EvidenceSourceKind,
-  /** 可信度 0-100，后端计算，前端只做分级渲染 */
+  /** 可信度 0-100，当前为服务端固定 fixture，前端只做分级渲染 */
   credibility: z.number().int().min(0).max(100),
   /** 引用原文（顾客对话/记录原文片段） */
   quote: z.string(),

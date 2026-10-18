@@ -25,7 +25,7 @@ flowchart LR
 
 - **问题**：LLM 输出是字节流，`EventSource` 不支持 POST / 自定义头 / 中断；多字节中文与 SSE 帧边界都可能被网络 chunk 从中间劈开。
 - **实现**：五类规范事件（`thought` / `token` / `card` / `evidence` / `done`）作为跨端契约；`decodeUtf8Stream` 用 TextDecoder streaming 模式兜住跨 chunk 多字节序列，`createSseParser` 用行缓冲在空行处派发帧、`flush` 冲出残帧；前端 fetch ReadableStream 逐帧解析，`AbortController` 支持停止生成。
-- **验证**：`pnpm test:shared` 覆盖「中文多字节被 chunk 劈开」「帧被 chunk 劈开」「CRLF / 注释行 / flush 残帧」等用例；对话页演示分段思考流式 + 正文打字机。
+- **验证**：`pnpm test:shared` 覆盖「中文多字节被 chunk 劈开」「帧被 chunk 劈开」「CRLF / 注释行 / flush 残帧」等用例；`pnpm test:web` 通过受控 HTTP 流验证停止后重发时旧事件、异常与 EOF 不影响新回答，未收到 `done` 的 EOF 明确显示截断。
 
 ### 2. A2UI Structured Rendering
 
@@ -36,13 +36,13 @@ flowchart LR
 ### 3. Evidence Traceability
 
 - **问题**：AI 结论必须能指认「从哪来」，否则不可信也不可用。
-- **实现**：结论与依据分离——卡片只携带 `evidenceId` 引用，证据事件包含来源、可信度、引用原文、分析时间；可信度由服务端计算，前端只做分级渲染（<80 金色预警）。
+- **实现**：结论与依据分离——卡片只携带 `evidenceId` 引用，证据事件包含来源、可信度、引用原文、分析时间。当前这些字段来自服务端固定 fixture，可信度不是实时计算结果；前端只做分级渲染（<80 金色预警）。此演示验证证据契约与关联展示，不证明推荐质量或可信度算法效果。
 - **验证**：SSE 冒烟断言 evidence 事件序列与证据库一致；演示：点卡片上的「依据」打开证据抽屉。
 
 ### 4. Async Task Recovery
 
 - **问题**：长耗时 AI 任务会跨越刷新与断线，前端需要状态机而不是布尔 loading。
-- **实现**：`queued → running(progress) → completed / failed / cancelled → archived` 状态机；3s 轮询；`taskId` 存 localStorage，刷新/重进按远端恢复 snapshot，任务仍在进行（queued / running）则**自动继续轮询直到终态**（远端是事实源，本地只存 UI 态）；服务端快照落盘、重启恢复在途任务；taskId 哈希尾号 7 确定性失败，便于演示失败分级。
+- **实现**：`queued → running(progress) → completed / failed / cancelled → archived` 状态机；3s 轮询；`taskId` 存 localStorage，刷新/重进按远端恢复 snapshot，任务仍在进行（queued / running）则**自动继续轮询直到终态**（远端是事实源，本地只存 UI 态）。此保证以 API 进程持续运行为前提；服务端重启只读回快照与续号，不重新调度未完成任务。taskId 哈希尾号 7 确定性失败，便于演示失败分级。
 - **验证**：pytest 覆盖推进 / 取消 / 确认归档 / 确定性失败 / 404；E2E 覆盖「创建 → 刷新 → 恢复 → 自动续追到终态」全链路；演示：创建任务后刷新页面，无需任何操作直到完成。
 
 ## Quick Start
@@ -79,14 +79,15 @@ pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
 
 ## 验证
 
-| 命令 | 覆盖 |
-| --- | --- |
-| `pnpm build` | `tsc -b` + `vite build`（类型与构建门槛） |
-| `pnpm test:shared` | SSE 解码器 / 契约 / bones 断点选择（node:test） |
-| `pnpm test:api` | 契约镜像 / SSE 序列 / 任务状态机 / 支付沙箱（pytest） |
-| `pnpm test:e2e` | 三条端到端用例：流式分段渲染 / 证据抽屉 / 任务恢复并自动追踪到终态（Playwright，mock 驱动无需 Key）；**E2E 已进入 CI**——shared contract → API behavior → browser user story 三层证据 |
+| 命令               | 覆盖                                                                                                                                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm build`       | `tsc -b` + `vite build`（类型与构建门槛）                                                                                                                                            |
+| `pnpm test:shared` | SSE 解码器 / 契约 / bones 断点选择（node:test）                                                                                                                                      |
+| `pnpm test:web`    | 公开聊天 store + 受控 HTTP 流：旧请求隔离 / 截断提示（node:test）                                                                                                                    |
+| `pnpm test:api`    | 契约镜像 / SSE 序列 / 任务状态机 / 支付沙箱（pytest）                                                                                                                                |
+| `pnpm test:e2e`    | 三条端到端用例：流式分段渲染 / 证据抽屉 / 任务恢复并自动追踪到终态（Playwright，mock 驱动无需 Key）；**E2E 已进入 CI**——shared contract → API behavior → browser user story 三层证据 |
 
-推送即跑 CI（Node 24 + Python 3.12）。 
+推送即跑 CI（Node 24 + Python 3.12）。
 
 ## Additional engineering examples
 
@@ -98,6 +99,8 @@ pnpm demo         # 一键启动 FastAPI :8808 + Vite :8888
 ## Limitations
 
 单机演示定位：进程内存储、无鉴权、SSE 无 Last-Event-ID 续传、支付为沙箱模拟。生产化差距（DB 唯一键 + 分布式锁、平台公钥验签、断线续传等）在代码注释与 [docs/adr](docs/adr/) 中注明。
+
+任务恢复仅保证 API 持续运行时的页面刷新续追。后端重启后的未完成快照可能保持在 queued / running，不能自行推进，需要重新创建任务；现有 E2E 不覆盖进程重启续跑。证据库是固定演示 fixture，尚无真实顾客数据接入或可信度算法评测。
 
 ## License
 

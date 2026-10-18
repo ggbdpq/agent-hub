@@ -7,7 +7,7 @@ on:
 
 jobs:
   web:
-    name: build & shared tests
+    name: build & web/shared tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +19,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm test:shared
+      - run: pnpm test:web
 
   api:
     name: api tests

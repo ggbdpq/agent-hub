@@ -12,7 +12,7 @@
 
 ## 完成定义（DoD）
 
-- `pnpm build && pnpm test:shared && pnpm test:api` 全绿。
+- `pnpm build && pnpm test:shared && pnpm test:web && pnpm test:api` 全绿。
 - 新增分支/解析/状态逻辑必须有单测（node:test 或 pytest），不引测试框架。
 - 改动涉及用户故事（README 三条验收路径）时，真机冒烟走一遍并在 PR/提交说明里贴结果。
 

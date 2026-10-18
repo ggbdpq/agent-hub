@@ -11,6 +11,7 @@
     "build": "pnpm --filter @agent-hub/web build",
     "typecheck": "pnpm --filter @agent-hub/web typecheck",
     "test:shared": "node --test packages/shared/src/sse-decoder.test.ts packages/shared/src/contracts.test.ts packages/shared/src/bones.test.ts",
+    "test:web": "node --test apps/web/tests/chat.test.ts",
     "test:api": "node scripts/api.mjs test",
     "test:e2e": "playwright test",
     "lint": "oxlint .",

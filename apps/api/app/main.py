@@ -20,7 +20,7 @@ from app.schemas import (
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    tasks.restore_snapshots()  # 重启恢复在途任务（快照目录回放）
+    tasks.restore_snapshots()  # 只读回快照与续号，不重新调度未完成任务
     yield
 
 

@@ -24,7 +24,7 @@ React 19.2 / TypeScript ~7.0 / Vite 8.2 / Tailwind CSS 4.3（CSS-first，无 con
 ## 验证门槛（每次改动后）
 
 ```bash
-pnpm build && pnpm test:shared && pnpm test:api
+pnpm build && pnpm test:shared && pnpm test:web && pnpm test:api
 ```
 
 涉及 SSE/任务/支付的改动，另跑真机冒烟（起 `pnpm api:serve` 后 curl，见 README 验收路径）。

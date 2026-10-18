@@ -1,7 +1,7 @@
 """异步任务状态机（养护方案生成）。
 
 - 状态推进 queued → running(progress) → completed/failed/cancelled → archived
-- 进程内 store + 本地快照（重启可恢复在途任务）
+- 进程内 store + 本地快照（重启只读回状态与续号，不重新调度未完成任务）
 - 确定性失败：taskId 尾号 == 7 时失败（演示失败分级与重试）
 - confirm 归档：前端确认保存后任务进入 archived
 """
@@ -18,7 +18,7 @@ from app.schemas import TaskResult, TaskSection, TaskSnapshot, TaskStatus
 
 logger = logging.getLogger(__name__)
 
-# 进程内任务表（重启后从快照目录恢复在途任务）
+# 进程内任务表（重启只读回快照；页面刷新续追要求 API 进程持续运行）
 _TASKS: dict[str, TaskSnapshot] = {}
 
 # 快照目录：环境变量优先，默认系统临时目录
@@ -62,7 +62,7 @@ def _persist(task: TaskSnapshot) -> None:
 def restore_snapshots() -> int:
     """重启恢复：把快照目录里的任务读回内存，并把当日单号计数器续到最大值。
 
-    旧格式快照（缺 taskNo）无法通过校验，逐个跳过不中断服务。
+    不重新调度 queued/running 任务；旧格式快照（缺 taskNo）无法通过校验，逐个跳过不中断服务。
     """
     if not SNAPSHOT_DIR.exists():
         return 0
