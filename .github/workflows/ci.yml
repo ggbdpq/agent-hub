@@ -48,8 +48,11 @@ jobs:
         run: python -m pytest -q
 
   e2e:
-    name: browser user stories
+    name: browser user stories (${{ matrix.backend }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        backend: [ts, py]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -64,4 +67,7 @@ jobs:
       # demo.mjs 从 apps/api/.venv 启动 uvicorn，需先建 venv（api:setup）
       - run: pnpm api:setup
       - run: pnpm exec playwright install --with-deps chromium
+      # 默认（ts）跑新智能体链路；AGENT_BACKEND=py 验证回退路径仍绿
       - run: pnpm test:e2e
+        env:
+          AGENT_BACKEND: ${{ matrix.backend }}

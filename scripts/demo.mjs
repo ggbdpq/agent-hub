@@ -1,5 +1,5 @@
-// 一键演示：同时启动 FastAPI(:8808) 与 Vite(:8888)，任一进程退出即拉停对方。
-// 与 scripts/api.mjs 同一跨平台策略：参数数组 spawn，不经过 shell。
+// 一键演示：启动 FastAPI(:8808) + TS 智能体(:8809，AGENT_BACKEND=py 时跳过) + Vite(:8888)，
+// 任一进程退出即拉停全部。与 scripts/api.mjs 同一跨平台策略：参数数组 spawn，不经过 shell。
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -14,6 +14,9 @@ const venvPython = resolve(
   ...(process.platform === "win32" ? ["Scripts/python.exe"] : ["bin/python"]),
 );
 const viteEntry = resolve(ROOT, "apps/web/node_modules/vite/bin/vite.js");
+// AGENT_BACKEND=py 为回退开关：不启动 TS 智能体，/api/agent 由 Vite 代理回 FastAPI（WP9 删）
+const agentEntry = resolve(ROOT, "apps/agent/src/server.ts");
+const useTsAgent = process.env.AGENT_BACKEND !== "py";
 
 if (!existsSync(venvPython)) {
   console.error("[demo] 未找到 python venv，请先执行: pnpm api:setup");
@@ -62,7 +65,33 @@ function shutdown(code) {
 process.on("SIGINT", () => shutdown(130));
 process.on("SIGTERM", () => shutdown(143));
 
-console.log("[demo] 启动 FastAPI :8808 与 Vite :8888（Ctrl+C 退出）…");
+console.log(
+  `[demo] 启动 FastAPI :8808${useTsAgent ? " + TS 智能体 :8809" : "（py 回退）"} 与 Vite :8888（Ctrl+C 退出）…`,
+);
+if (useTsAgent) {
+  if (!existsSync(agentEntry)) {
+    console.error("[demo] 未找到 apps/agent/src/server.ts，请先 pnpm install");
+    process.exit(1);
+  }
+  // 先起智能体并等 /healthz 就绪，避免 Vite 先可访问而代理目标未监听的窗口
+  const agentChild = start("agent", process.execPath, [agentEntry], ROOT);
+  await waitHealthy("http://127.0.0.1:8809/healthz", "agent", agentChild);
+}
 start("api", venvPython, ["-m", "uvicorn", "app.main:app", "--port", "8808"], resolve(ROOT, "apps/api"));
 start("web", process.execPath, [viteEntry], resolve(ROOT, "apps/web"));
 console.log("[demo] 打开 http://localhost:8888");
+
+async function waitHealthy(url, name, child) {
+  for (let i = 0; i < 100; i++) {
+    if (child.exitCode !== null) process.exit(1); // agent 已退出
+    try {
+      const res = await fetch(url);
+      if (res.ok) return;
+    } catch {
+      /* 还没就绪 */
+    }
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  console.error(`[demo] ${name} 未在时限内就绪`);
+  process.exit(1);
+}
