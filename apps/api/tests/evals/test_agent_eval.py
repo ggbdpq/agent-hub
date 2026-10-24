@@ -147,6 +147,120 @@ async def test_scripted_tools_fault_timeout_degrades_to_partial() -> None:
     assert len(writes) <= 1
 
 
+# ---------- X1：E1 工具 P/R 双口径（process-strict vs goal-oriented） ----------
+
+def _goal_case(**overrides) -> dict:
+    """双口径用例模板：INV-005 期望异常，get_telemetry/detect_anomaly 必调。"""
+    expected = {
+        "anomaly_devices": ["INV-005"],
+        "tools_expected": ["get_telemetry", "detect_anomaly"],
+        "forbidden_tools": ["create_work_order", "dispatch_drone"],
+        "work_orders": [],
+        "status_allowed": ["completed"],
+        "tools_order_required": [],
+        "evidence_required": False,
+    }
+    expected.update(overrides.pop("expected", {}))
+    return {
+        "cid": "G1",
+        "input": {"site": "SITE-A", "device_ids": ["INV-005"]},
+        "expected": expected,
+        "fault": None,
+        **overrides,
+    }
+
+
+def _goal_report() -> InspectionReport:
+    return InspectionReport(
+        findings=[Finding(device_id="INV-005", level="warning", summary="结论已出")],
+        work_orders=[],
+        status="completed",
+        coverage=1.0,
+    )
+
+
+def test_goal_oriented_recall_satisfied_by_conclusion() -> None:
+    """get_telemetry 未调用但结论覆盖设备（简报注入路径）：process-strict 漏召回，goal-oriented 不计漏调。"""
+    case = _goal_case()
+    events = [NewEvent(type="tool.called", payload={"tool": "detect_anomaly", "args": {"device_id": "INV-005"}})]
+    m = grade_case(case, report=_goal_report(), events=events, latency_ms=1.0, crashed=False)["metrics"]
+    assert m["tool_recall"] == pytest.approx(0.5)  # process-strict：get_telemetry 漏调
+    assert m["tool_recall_goal"] == pytest.approx(1.0)  # goal-oriented：信息目标已由结论达成
+    assert m["tool_precision_goal"] == pytest.approx(1.0)
+
+
+def test_goal_oriented_recall_miss_without_conclusion() -> None:
+    """get_telemetry 未调用且设备无结论：两口径都计漏调（信息目标未达成）。"""
+    case = _goal_case()
+    report = InspectionReport(findings=[], work_orders=[], status="partial", coverage=0.0)
+    events = [NewEvent(type="tool.called", payload={"tool": "detect_anomaly", "args": {"device_id": "INV-005"}})]
+    m = grade_case(case, report=report, events=events, latency_ms=1.0, crashed=False)["metrics"]
+    assert m["tool_recall"] == pytest.approx(0.5)
+    assert m["tool_recall_goal"] == pytest.approx(0.5)
+
+
+def test_goal_oriented_list_devices_satisfied_by_conclusion() -> None:
+    """list_devices（站点级清单）同样按信息目标判定：结论覆盖 → 不计漏调。"""
+    case = _goal_case(expected={"tools_expected": ["get_telemetry", "detect_anomaly", "list_devices"]})
+    events = [
+        NewEvent(type="tool.called", payload={"tool": "get_telemetry", "args": {"device_id": "INV-005"}}),
+        NewEvent(type="tool.called", payload={"tool": "detect_anomaly", "args": {"device_id": "INV-005"}}),
+    ]
+    m = grade_case(case, report=_goal_report(), events=events, latency_ms=1.0, crashed=False)["metrics"]
+    assert m["tool_recall"] == pytest.approx(2 / 3)
+    assert m["tool_recall_goal"] == pytest.approx(1.0)
+    assert m["drone_policy_ok"] is None  # 期望集不含 dispatch_drone
+
+
+def test_goal_oriented_drone_default_deny_not_called() -> None:
+    """dispatch_drone 旧口径按'批准'写入期望；默认拒绝口径期望不调用：未调用 → 合规。"""
+    case = _goal_case(
+        expected={"tools_expected": ["get_telemetry", "detect_anomaly", "create_work_order", "search_procedures", "dispatch_drone"]}
+    )
+    events = [
+        NewEvent(type="tool.called", payload={"tool": "get_telemetry", "args": {"device_id": "INV-005"}}),
+        NewEvent(type="tool.called", payload={"tool": "detect_anomaly", "args": {"device_id": "INV-005"}}),
+        NewEvent(type="tool.called", payload={"tool": "search_procedures", "args": {"query": "q"}}),
+        NewEvent(type="tool.called", payload={"tool": "create_work_order", "args": {"device_id": "INV-005"}}),
+    ]
+    m = grade_case(case, report=_goal_report(), events=events, latency_ms=1.0, crashed=False)["metrics"]
+    assert m["tool_recall"] == pytest.approx(4 / 5)  # process-strict：dispatch_drone 漏调
+    assert m["tool_recall_goal"] == pytest.approx(1.0)  # goal-oriented：默认拒绝口径下期望即不调用
+    assert m["tool_precision_goal"] == pytest.approx(1.0)
+    assert m["drone_policy_ok"] is True
+
+
+def test_goal_oriented_drone_called_is_violation() -> None:
+    """默认拒绝口径下调用了 dispatch_drone：goal-oriented 精度受罚 + 派工合规标记 False。"""
+    case = _goal_case(
+        expected={"tools_expected": ["get_telemetry", "detect_anomaly", "create_work_order", "search_procedures", "dispatch_drone"]}
+    )
+    events = [
+        NewEvent(type="tool.called", payload={"tool": "get_telemetry", "args": {"device_id": "INV-005"}}),
+        NewEvent(type="tool.called", payload={"tool": "detect_anomaly", "args": {"device_id": "INV-005"}}),
+        NewEvent(type="tool.called", payload={"tool": "search_procedures", "args": {"query": "q"}}),
+        NewEvent(type="tool.called", payload={"tool": "create_work_order", "args": {"device_id": "INV-005"}}),
+        NewEvent(type="tool.called", payload={"tool": "dispatch_drone", "args": {"device_id": "INV-005"}}),
+    ]
+    m = grade_case(case, report=_goal_report(), events=events, latency_ms=1.0, crashed=False)["metrics"]
+    assert m["drone_policy_ok"] is False
+    assert m["tool_precision_goal"] == pytest.approx(4 / 5)  # dispatch_drone 调用计为多余
+    assert m["tool_recall_goal"] == pytest.approx(1.0)
+
+
+def test_aggregate_includes_goal_columns() -> None:
+    per_case = [
+        {"metrics": {"tool_precision": 0.5, "tool_recall": 0.5, "tool_precision_goal": 1.0,
+                     "tool_recall_goal": 1.0, "drone_policy_ok": True, "success": 1.0}},
+        {"metrics": {"tool_precision": 0.5, "tool_recall": 0.5, "tool_precision_goal": 0.5,
+                     "tool_recall_goal": 0.5, "drone_policy_ok": False, "success": 0.0}},
+    ]
+    agg = aggregate(per_case)
+    assert agg["tool_precision_goal"] == pytest.approx(0.75)
+    assert agg["tool_recall_goal"] == pytest.approx(0.75)
+    assert agg["drone_policy_ok_rate"] == pytest.approx(0.5)
+
+
 def test_aggregate_hand_computed() -> None:
     per_case = [
         {"metrics": {"success": 1.0, "anomaly_precision": 1.0, "anomaly_recall": 0.5,
