@@ -163,3 +163,33 @@ test("Y1 运行中 SIGKILL 重启：页面恢复续跑到终态，写工具不�
 
   await assertWriteToolsExecutedOnce(runId, api!.runsDb);
 });
+
+test("Y2 审批等待期 SIGKILL 重启：审批条恢复 → 批准 → 报告完成，派工只执行一次", async ({ page }) => {
+  // 独立 db：杀掉 Y1 的 API，换 y2 库重新拉起（避免上一条用例的历史 run 干扰）
+  await api!.kill9();
+  await cleanupDb(dbPaths("y2"));
+  api = new ApiProcess(dbPaths("y2"));
+  await api!.start();
+
+  await page.goto(`${WEB_ORIGIN}/runs`);
+  const runId = await startInspection(page);
+
+  // 运行至审批等待：此刻 create_work_order 已完成落账本，interrupt 检查点已持久化
+  await expect(page.getByRole("button", { name: "批准派无人机" })).toBeVisible({ timeout: 20_000 });
+
+  // SIGKILL → 同一 db（runs+checkpoints）重启 → 页面 reload 恢复
+  await api!.kill9();
+  await api!.start();
+  await page.reload();
+
+  // 恢复锚点重放全量事件：未决审批条仍然在（不需要重新发起巡检）
+  await expect(page.getByRole("button", { name: "批准派无人机" })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole("button", { name: "批准派无人机" }).click();
+
+  // 重认领需等旧租约过期（≤15s）+ 恢复执行 → 报告完成
+  await expect(page.getByText("巡检报告")).toBeVisible({ timeout: 45_000 });
+  await expect(page.getByText(/审批通过/).first()).toBeVisible();
+  await expect(page.getByText(/覆盖率 100%/)).toBeVisible();
+
+  await assertWriteToolsExecutedOnce(runId, api!.runsDb);
+});
