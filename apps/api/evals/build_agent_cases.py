@@ -149,9 +149,13 @@ def build() -> dict:
     ]
     for cid, fault_type, batch, extra in faults:
         fault = {"type": fault_type, **extra}
+        # 期望状态白名单按故障语义分档：
+        # - tool_timeout / subtask_failure：能力确定丢失 → partial/failed；
+        # - llm_invalid_output：非法输出可被容错恢复 → completed 也算合格。
+        allowed = ["completed", "partial", "failed"] if fault_type == "llm_invalid_output" else ["partial", "failed"]
         add(cid, "hard", batch, _GOAL_MEDIUM,
             _expected(batch, tools=BASE_TOOLS, forbidden=["dispatch_drone"],
-                      status=["partial", "failed"], derived=derived),
+                      status=allowed, derived=derived),
             fault=fault)
     # H11/H12：异常设备无人机复核（审批路径）
     for cid, dev in (("H11", "BS-001"), ("H12", "WT-002")):

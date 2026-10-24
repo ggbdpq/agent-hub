@@ -1,0 +1,3600 @@
+{
+  "suite": "agent",
+  "runner": "scripted",
+  "generated_at": "2026-10-24T15:17:30.985524+00:00",
+  "label": "仅验证评测流程，不代表模型效果（Scripted 替身，无真实模型）",
+  "aggregates": {
+    "cases": 60,
+    "success_rate": 0.8833333333333333,
+    "anomaly_precision": 0.0,
+    "anomaly_recall": 0.0,
+    "tool_precision": 0.0,
+    "tool_recall": 0.0,
+    "param_accuracy": null,
+    "work_order_accuracy": 0.0,
+    "order_satisfaction": 0.0,
+    "evidence_ok_rate": 0.0,
+    "forbidden_calls_total": 0,
+    "write_cap_violations_total": 0,
+    "crashed_total": 0,
+    "steps_mean": 1.0,
+    "latency_ms_mean": 0.0060923533358921604,
+    "latency_ms_p50": 0.005333014996722341,
+    "latency_ms_p95": 0.008338098996318877,
+    "input_tokens_total": 0,
+    "output_tokens_total": 0,
+    "cost_usd_total": 0.0
+  },
+  "cases": [
+    {
+      "cid": "E01",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.03749999450519681,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E02",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.008416012860834599,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E03",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006582995411008596,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E04",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005332985892891884,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E05",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005167035851627588,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E06",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004875008016824722,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-007",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E07",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004708010237663984,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-008",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E08",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004708999767899513,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E09",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004750036168843508,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E10",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004749977961182594,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E11",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004875008016824722,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E12",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004959001671522856,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E13",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005083042196929455,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E14",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004917033948004246,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E15",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004832982085645199,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E16",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00666698906570673,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E17",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00608398113399744,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-007",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-008",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E18",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005833047907799482,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E19",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00566698145121336,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E20",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005999987479299307,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M01",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00462500611320138,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M02",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005541020072996616,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M03",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005082983989268541,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M04",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004875008016824722,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M05",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004915986210107803,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M06",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005333044100552797,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M07",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006875023245811462,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M08",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005499983672052622,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M09",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005875015631318092,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-007",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-008",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M10",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005249981768429279,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M11",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005959009286016226,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M12",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005708017852157354,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M13",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005541020072996616,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M14",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005915993824601173,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M15",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005375011824071407,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M16",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005292007699608803,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M17",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.007416994776576757,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M18",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005249981768429279,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M19",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005207955837249756,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M20",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005708017852157354,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H01",
+      "difficulty": "hard",
+      "fault": {
+        "type": "tool_timeout",
+        "tool": "get_telemetry"
+      },
+      "crashed": false,
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00462500611320138,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H02",
+      "difficulty": "hard",
+      "fault": {
+        "type": "tool_timeout",
+        "tool": "get_telemetry"
+      },
+      "crashed": false,
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005082983989268541,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H03",
+      "difficulty": "hard",
+      "fault": {
+        "type": "tool_timeout",
+        "tool": "search_procedures"
+      },
+      "crashed": false,
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004708999767899513,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H04",
+      "difficulty": "hard",
+      "fault": {
+        "type": "tool_timeout",
+        "tool": "detect_anomaly"
+      },
+      "crashed": false,
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004666042514145374,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H05",
+      "difficulty": "hard",
+      "fault": {
+        "type": "llm_invalid_output"
+      },
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004542001988738775,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H06",
+      "difficulty": "hard",
+      "fault": {
+        "type": "llm_invalid_output"
+      },
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005375011824071407,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H07",
+      "difficulty": "hard",
+      "fault": {
+        "type": "llm_invalid_output"
+      },
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004749977961182594,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H08",
+      "difficulty": "hard",
+      "fault": {
+        "type": "subtask_failure",
+        "device_id": "INV-005"
+      },
+      "crashed": false,
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005999987479299307,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H09",
+      "difficulty": "hard",
+      "fault": {
+        "type": "subtask_failure",
+        "device_id": "WT-002"
+      },
+      "crashed": false,
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005166977643966675,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H10",
+      "difficulty": "hard",
+      "fault": {
+        "type": "subtask_failure",
+        "device_id": "BS-001"
+      },
+      "crashed": false,
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00566698145121336,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H11",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004458997864276171,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H12",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00458303838968277,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H13",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.008791976142674685,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-007",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-008",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H14",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006250047590583563,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H15",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005541020072996616,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H16",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006874965038150549,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H17",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.008333998266607523,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-007",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-008",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H18",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.0070420210249722,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H19",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005499983672052622,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H20",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00462500611320138,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    }
+  ]
+}

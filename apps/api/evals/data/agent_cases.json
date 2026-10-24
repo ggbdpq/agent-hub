@@ -2119,6 +2119,7 @@
         ],
         "work_orders": [],
         "status_allowed": [
+          "completed",
           "partial",
           "failed"
         ],
@@ -2163,6 +2164,7 @@
         ],
         "work_orders": [],
         "status_allowed": [
+          "completed",
           "partial",
           "failed"
         ],
@@ -2206,6 +2208,7 @@
         ],
         "work_orders": [],
         "status_allowed": [
+          "completed",
           "partial",
           "failed"
         ],
