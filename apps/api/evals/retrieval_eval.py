@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from app.contracts.knowledge import Retriever
 from app.knowledge.chunk_id import parse_chunk_id
 from evals.metrics import mrr, percentile, recall_at_k
+from evals.report import std
 
 Case = tuple[str, str, set[str]]  # (qid, query, relevant_chunk_ids)
 
@@ -48,6 +49,10 @@ class RetrievalReport:
             "latency_ms_p50": percentile(latencies, 50),
             "latency_ms_p95": percentile(latencies, 95),
             "empty_rate": (sum(1 for q in self.per_query if q.n_returned == 0) / n) if n else 0.0,
+            # 方差（C11）：逐条标注上的波动，报告与消融共用
+            "recall_at_5_std": std([q.recall_at_5 for q in self.per_query]),
+            "mrr_std": std([q.mrr for q in self.per_query]),
+            "latency_ms_std": std(latencies),
         }
 
 

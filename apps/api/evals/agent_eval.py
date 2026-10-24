@@ -327,7 +327,6 @@ async def run_agent_suite(
     prices: dict | None = None,
 ) -> dict:
     """``python -m evals.run --suite agent --runner scripted|scripted-tools``。"""
-    import json
     from datetime import UTC, datetime
     from pathlib import Path
 
@@ -335,6 +334,7 @@ async def run_agent_suite(
     from app.knowledge.retriever import HybridRetriever
     from app.knowledge.splitting import split_corpus
     from evals.datasets import corpus_root, load_agent_cases
+    from evals.report import finalize, std, write_report
 
     out_dir = out_dir or Path(__file__).resolve().parent / "reports"
     cases = load_agent_cases()["cases"]
@@ -358,94 +358,105 @@ async def run_agent_suite(
 
     valid_chunk_ids = frozenset(c.chunk_id for c in split_corpus(corpus_root()))
     suite = await run_suite(runner, cases, retriever=retriever, valid_chunk_ids=valid_chunk_ids, prices=prices)
+    agg = suite["aggregates"]
+    now = datetime.now(UTC)
     suite["runner"] = runner_name
     suite["label"] = label
-    suite["generated_at"] = datetime.now(UTC).isoformat()
+    suite["generated_at"] = now.isoformat()
 
-    stamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    serializable = {
-        "suite": "agent",
-        "runner": runner_name,
-        "generated_at": suite["generated_at"],
-        "label": label,
-        "aggregates": suite["aggregates"],
-        "cases": [
-            {k: v for k, v in case.items() if k != "report"}
-            | {
-                "report": (
-                    case["report"].model_dump(mode="json")
-                    if hasattr(case["report"], "model_dump")
-                    else case["report"]
-                )
-            }
-            for case in suite["per_case"]
-        ],
-    }
-    json_path = out_dir / f"agent-{runner_name}-{stamp}.json"
-    json_path.write_text(json.dumps(serializable, ensure_ascii=False, indent=2), encoding="utf-8")
-    md_path = out_dir / f"agent-{runner_name}-{stamp}.md"
-    md_path.write_text(render_agent_markdown(suite), encoding="utf-8")
-    print(f"[agent:{runner_name}] {suite['aggregates']['success_rate']:.1%} 成功；报告：{md_path.name}")
-    return suite
-
-
-def render_agent_markdown(suite: dict) -> str:
-    agg = suite["aggregates"]
-
-    def fmt(key: str, pct: bool = False) -> str:
-        value = agg.get(key)
-        if value is None:
-            return "—"
-        return f"{value:.1%}" if pct else f"{value:.2f}"
+    # 方差（C11）：逐用例指标波动
+    latencies = [c["metrics"]["latency_ms"] for c in suite["per_case"]]
+    steps = [c["metrics"]["steps"] for c in suite["per_case"]]
+    successes = [c["metrics"]["success"] for c in suite["per_case"]]
+    recalls = [c["metrics"]["anomaly_recall"] for c in suite["per_case"] if c["metrics"]["anomaly_recall"] is not None]
 
     by_difficulty: dict[str, list[dict]] = {}
     for case in suite["per_case"]:
         by_difficulty.setdefault(case["difficulty"], []).append(case)
 
-    lines = [
-        f"# 智能体评测报告（C8，runner={suite['runner']}）",
-        "",
-        f"- 生成时间：{suite['generated_at']}",
-        f"- 样本：{agg['cases']} 条用例（easy/medium/hard = "
-        f"{len(by_difficulty.get('easy', []))}/{len(by_difficulty.get('medium', []))}/{len(by_difficulty.get('hard', []))}）",
-        f"- 成本单价：默认离线零单价（真实模型评测需在 C11 报告声明模型/单价/日期）",
-        "",
-        f"> **{suite['label']}**",
-        "",
-        "| 指标 | 数值 |",
-        "|---|---:|",
-        f"| 任务成功率 | {fmt('success_rate', pct=True)} |",
-        f"| 异常识别 Precision / Recall | {fmt('anomaly_precision', pct=True)} / {fmt('anomaly_recall', pct=True)} |",
-        f"| 工具调用 Precision / Recall | {fmt('tool_precision', pct=True)} / {fmt('tool_recall', pct=True)} |",
-        f"| 参数准确率 | {fmt('param_accuracy', pct=True)} |",
-        f"| 工单字段命中率 | {fmt('work_order_accuracy', pct=True)} |",
-        f"| 顺序约束满足率 | {fmt('order_satisfaction', pct=True)} |",
-        f"| 证据有效（要求用例） | {fmt('evidence_ok_rate', pct=True)} |",
-        f"| 越权调用次数（合计） | {agg.get('forbidden_calls_total', 0)} |",
-        f"| 写工具重复执行违规 | {agg.get('write_cap_violations_total', 0)} |",
-        f"| 崩溃 run 数 | {agg.get('crashed_total', 0)} |",
-        f"| 步数均值 | {fmt('steps_mean')} |",
-        f"| 时延 P50 / P95 (ms) | {fmt('latency_ms_p50')} / {fmt('latency_ms_p95')} |",
-        f"| Token（输入/输出，脚本估算） | {agg.get('input_tokens_total', 0)} / {agg.get('output_tokens_total', 0)} |",
-        f"| 成本 (USD) | {agg.get('cost_usd_total', 0.0):.4f} |",
-        "",
-        "## 分难度档成功率",
-        "",
-        "| 难度 | 用例数 | 成功率 |",
-        "|---|---:|---:|",
+    payload = finalize(
+        {
+            "suite": "agent",
+            "runner": runner_name,
+            "label": label,
+            "title": f"智能体评测报告（C8，runner={runner_name}）",
+            "meta": [
+                ("样本", f"{agg['cases']} 条用例（easy/medium/hard = "
+                        f"{len(by_difficulty.get('easy', []))}/{len(by_difficulty.get('medium', []))}/{len(by_difficulty.get('hard', []))}）"),
+                ("成本单价", "离线默认零单价；真实模型评测须在报告中声明模型/单价/日期"),
+            ],
+            "method": [
+                "评测框架只依赖 AgentRunner 契约（app/contracts/agent.py）：构造 RunContext（事件收集、预算、账本、注入的 Retriever）执行单条用例并评分。",
+                "异常识别 P/R 按 finding(level!=normal) 设备集合计算；工具调用 P/R 按 tool.called 事件集合计算；预测空集按 0 计（不虚计满分）。",
+                "顺序约束 = 期望工具对的首次出现次序；证据有效 = 异常 finding 的 chunk_id 非空且全部真实存在。",
+                "每条用例保存完整事件序列（同名 JSON cases[].events）供复盘。",
+            ],
+            "sample_size": {"cases": agg["cases"]},
+            "variance": {
+                "success_std": round(std(successes), 4),
+                "anomaly_recall_std": round(std(recalls), 4),
+                "steps_std": round(std(steps), 2),
+                "latency_ms_std": round(std(latencies), 2),
+            },
+            "known_biases": [
+                "离线口径：成功率验证的是评测流程与契约管道，不代表模型效果。",
+                "Token 为脚本估算值（非模型计费口径）；成本单价默认 0。",
+                "事件 payload 无 Schema（ADR-0008），指标解析按字段容错；runner 未发的事件不计入指标。",
+                "P/R 聚合跳过期望与预测均空的用例（不虚计满分），宏平均对故障注入用例的 0 分敏感。",
+            ],
+            "disclaimer": label,
+            "tables": [
+                {
+                    "caption": "总体指标",
+                    "header": ["指标", "数值"],
+                    "rows": [
+                        ["任务成功率", f"{agg['success_rate']:.1%}"],
+                        ["异常识别 Precision / Recall", f"{_fmt(agg.get('anomaly_precision'), True)} / {_fmt(agg.get('anomaly_recall'), True)}"],
+                        ["工具调用 Precision / Recall", f"{_fmt(agg.get('tool_precision'), True)} / {_fmt(agg.get('tool_recall'), True)}"],
+                        ["参数准确率", _fmt(agg.get("param_accuracy"), True)],
+                        ["工单字段命中率", _fmt(agg.get("work_order_accuracy"), True)],
+                        ["顺序约束满足率", _fmt(agg.get("order_satisfaction"), True)],
+                        ["证据有效率（要求用例）", _fmt(agg.get("evidence_ok_rate"), True)],
+                        ["越权调用次数（合计）", str(agg.get("forbidden_calls_total", 0))],
+                        ["写工具重复执行违规", str(agg.get("write_cap_violations_total", 0))],
+                        ["崩溃 run 数", str(agg.get("crashed_total", 0))],
+                        ["步数均值", f"{agg.get('steps_mean') or 0:.2f}"],
+                        ["时延 P50 / P95 (ms)", f"{agg['latency_ms_p50']:.2f} / {agg['latency_ms_p95']:.2f}"],
+                        ["Token（输入/输出，脚本估算）", f"{agg.get('input_tokens_total', 0)} / {agg.get('output_tokens_total', 0)}"],
+                        ["成本 (USD)", f"{agg.get('cost_usd_total', 0.0):.4f}"],
+                    ],
+                },
+                {
+                    "caption": "分难度档成功率",
+                    "header": ["难度", "用例数", "成功率"],
+                    "rows": [
+                        [difficulty, str(len(by_difficulty[difficulty])),
+                         f"{sum(c['metrics']['success'] for c in by_difficulty[difficulty]) / len(by_difficulty[difficulty]):.1%}"]
+                        for difficulty in ("easy", "medium", "hard") if by_difficulty.get(difficulty)
+                    ],
+                },
+            ],
+        },
+        generated_at=now.isoformat(),
+    )
+    stamp = now.strftime("%Y%m%d-%H%M%S")
+    md_path, json_path = write_report(payload, out_dir, f"agent-{runner_name}-{stamp}")
+    # JSON 附加逐用例明细（含完整事件序列）与数值聚合，Markdown 保持人读摘要
+    import json as _json
+
+    detail = dict(payload)
+    detail["aggregates"] = agg
+    detail["cases"] = [
+        {k: v for k, v in c.items() if k != "report"}
+        | {"report": c["report"].model_dump(mode="json") if hasattr(c["report"], "model_dump") else c["report"]}
+        for c in suite["per_case"]
     ]
-    for difficulty in ("easy", "medium", "hard"):
-        group = by_difficulty.get(difficulty, [])
-        if group:
-            rate = sum(c["metrics"]["success"] for c in group) / len(group)
-            lines.append(f"| {difficulty} | {len(group)} | {rate:.1%} |")
-    lines += [
-        "",
-        "## 已知偏差",
-        "",
-        "- 事件 payload 无 Schema（ADR-0008），指标解析按字段容错；runner 未发的事件不计入指标。",
-        "- Token 为脚本估算值（非模型计费口径）；成本单价默认 0。",
-        "- 每条用例的完整事件序列见同名 JSON（cases[].events），供复盘。",
-    ]
-    return "\n".join(lines) + "\n"
+    json_path.write_text(_json.dumps(detail, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[agent:{runner_name}] {agg['success_rate']:.1%} 成功；报告：{md_path.name}")
+    return suite
+
+
+def _fmt(value: float | None, pct: bool = False) -> str:
+    if value is None:
+        return "—"
+    return f"{value:.1%}" if pct else f"{value:.2f}"

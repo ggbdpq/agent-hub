@@ -20,13 +20,16 @@ def test_retrieval_suite_writes_reports(tmp_path: Path) -> None:
     assert md_files and json_files
     payload = json.loads(json_files[0].read_text(encoding="utf-8"))
     assert payload["suite"] == "retrieval"
-    assert payload["annotations"] == 60
+    assert payload["sample_size"]["queries"] == 60
     assert len(payload["variants"]) == 4
+    assert all("recall_at_5_std" in v["aggregates"] for v in payload["variants"])
     assert "不代表模型效果" in payload["disclaimer"]
     md = md_files[0].read_text(encoding="utf-8")
     assert "## 分词方案结论（U4）" in md
     assert "不代表模型效果" in md
-    assert "| 变体 | Recall@1 | Recall@3 | Recall@5 | MRR | P50 (ms) | P95 (ms) | 空结果率 |" in md
+    assert "| 变体 | Recall@1 | Recall@3 | Recall@5 | Recall@5±σ | MRR | P50 (ms) | P95 (ms) | 空结果率 |" in md
+    assert "## 方差与波动" in md
+    assert "## 已知偏差" in md
 
 
 def test_agent_suite_writes_reports_with_full_event_trace(tmp_path: Path) -> None:
