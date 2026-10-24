@@ -9,17 +9,22 @@ from app.runtime.heartbeat import HeartbeatLoop
 from app.runtime.reclaimer import Reclaimer
 from app.runtime.state_machine import TERMINAL_STATUSES, VALID_TRANSITIONS, can_transition
 from app.runtime.store import Clock, SqliteLedger, SqliteRunStore, from_us, to_us
+from app.runtime.worker import CancelMonitor, RuntimeWorker, WorkerConfig, WorkerPool
 
 __all__ = [
     "TERMINAL_STATUSES",
     "VALID_TRANSITIONS",
+    "CancelMonitor",
     "Claim",
     "Clock",
     "HeartbeatLoop",
     "LeaseLost",
     "Reclaimer",
+    "RuntimeWorker",
     "SqliteLedger",
     "SqliteRunStore",
+    "WorkerConfig",
+    "WorkerPool",
     "can_transition",
     "from_us",
     "to_us",
