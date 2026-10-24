@@ -312,16 +312,29 @@ def _assemble_report(
     work_orders: list[WorkOrder] | None = None,
     approval: dict | None = None,
 ) -> InspectionReport:
-    """汇总 findings/failures/工单/审批 → InspectionReport（partial 时覆盖率与原因可解释）。"""
+    """汇总 findings/failures/工单/审批 → InspectionReport（partial 时覆盖率与原因可解释）。
+
+    R2：coverage 分母统一为**请求的 device_ids**（single_react 同口径）——
+    缩水计划（请求 N 台只计划 M<N 台）不得虚抬覆盖率；缺失设备记入 notes。
+    """
+    request = state.get("request") or {}
+    requested: list[str] = list(request.get("device_ids") or [])
     tasks = state.get("tasks") or []
     findings = [Finding.model_validate(f) for f in state.get("findings") or []]
-    failures = state.get("failures") or []
-    total = len(tasks)
-    coverage = (len(findings) / total) if total else 0.0
+    failures = list(state.get("failures") or [])
+    total = len(requested) if requested else len(tasks)
+    covered = {f.device_id for f in findings}
+    coverage = (len(covered) / total) if total else 0.0
     status = "completed" if not failures else "partial"
     notes_parts = []
     for failure in failures:
         notes_parts.append(f"{failure.get('device_id')}: {failure.get('reason')}")
+    # 计划缺失的请求设备：可解释的失败项（缩水计划不静默）
+    planned = {t.get("device_id") for t in tasks}
+    for device_id in requested:
+        if device_id not in planned:
+            notes_parts.append(f"{device_id}: 未列入计划（计划缩水），未巡检")
+            status = "partial"
     if ctx.cancelled():
         status = "partial"
         notes_parts.append("run 被请求取消，提前结束")
