@@ -57,19 +57,31 @@ class ApprovalHub:
       （消除"事件已发、Future 未注册"窗口内的竞态拒绝）。
     """
 
+    _DECIDED_TTL_S = 600.0  # 决定先行缓冲的存活期（审查 R4：防永不被领取的泄漏）
+
     def __init__(self, timeout_s: float = _APPROVAL_TIMEOUT_S) -> None:
         self._pending: dict[str, asyncio.Future[dict]] = {}
-        self._decided: dict[str, dict] = {}
+        self._decided: dict[str, tuple[dict, float]] = {}  # decision + 存入时刻（monotonic）
         self._consumed: set[str] = set()  # 已送达 runner 的决定（重复 POST 一律 409）
         self._timeout_s = timeout_s
+
+    def _expire_decided(self) -> None:
+        import time as _time
+
+        now = _time.monotonic()
+        stale = [k for k, (_, ts) in self._decided.items() if now - ts > self._DECIDED_TTL_S]
+        for k in stale:
+            self._decided.pop(k, None)
 
     async def approver(self, payload: dict) -> dict:
         approval_id = str(payload.get("approvalId") or payload.get("approval_id") or "")
         if not approval_id:
             return {"approved": False, "approval_id": "", "note": "payload 缺 approval_id，默认拒绝"}
+        self._expire_decided()
         if approval_id in self._decided:
             self._consumed.add(approval_id)
-            return self._decided.pop(approval_id)  # 决定已先行到达
+            decision, _ = self._decided.pop(approval_id)  # 决定已先行到达
+            return decision
         loop = asyncio.get_running_loop()
         fut: asyncio.Future[dict] = loop.create_future()
         self._pending[approval_id] = fut
@@ -97,7 +109,9 @@ class ApprovalHub:
             fut.set_result(decision)
             self._consumed.add(approval_id)
             return True
-        self._decided[approval_id] = decision  # 决定先行：缓冲待领
+        import time as _time
+
+        self._decided[approval_id] = (decision, _time.monotonic())  # 决定先行：缓冲待领
         return True
 
     def shutdown(self) -> None:
@@ -304,19 +318,23 @@ def create_app(
             raise HTTPException(status_code=404, detail="run not found")
         try:
             after_seq = int(request.headers.get("Last-Event-ID", "0") or 0)
-        except ValueError:
+        except (ValueError, OverflowError):
             after_seq = 0
+        # SQLite 整数绑定上限 2^63-1（审查 R3：畸形头防 OverflowError）
+        after_seq = max(0, min(after_seq, 2**63 - 1))
 
         async def gen():
             seq = after_seq
             while True:
                 if await request.is_disconnected():
                     return
-                events = state.store.events_after(run_id, seq)
+                # 审查 R3：store 是同步 SQLite（RLock 等锁可达 busy_timeout），
+                # 在 async gen 内必须经 to_thread，避免阻塞事件循环（心跳/其他 SSE）
+                events = await asyncio.to_thread(state.store.events_after, run_id, seq)
                 for event in events:
                     yield f"id: {event.seq}\nevent: {event.type}\ndata: {event.model_dump_json(by_alias=True)}\n\n"
                     seq = event.seq
-                record = state.store.get(run_id)
+                record = await asyncio.to_thread(state.store.get, run_id)
                 if record is None or record.status in _TERMINAL_STATUSES:
                     return
                 await asyncio.sleep(0.2)
@@ -338,7 +356,7 @@ def create_app(
         note: str | None = None
 
     @app.post("/api/runs/{run_id}/approvals/{approval_id}")
-    def resolve_approval(run_id: str, approval_id: str, body: ApprovalDecision, request: Request) -> dict:
+    async def resolve_approval(run_id: str, approval_id: str, body: ApprovalDecision, request: Request) -> dict:
         state = request.app.state.runs
         decision = {"approved": body.approved, "approvalId": approval_id, "note": body.note}
         if not state.hub.resolve(approval_id, decision):

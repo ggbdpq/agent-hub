@@ -138,3 +138,21 @@ def test_events_404_for_unknown_run(tmp_path) -> None:
     client = _build_client(tmp_path, worker_count=0)
     with client:
         assert client.get("/api/runs/no-such-run").status_code == 404
+
+
+def test_events_last_event_id_overflow_is_clamped(tmp_path) -> None:
+    """审查 R3：畸形 Last-Event-ID（超 SQLite 整数上限）clamp 后不 500。
+
+    clamp 到 2^63-1 后不会有事件可推（seq 全更小），流在 run 终态后由服务端关闭。
+    """
+    client = _build_client(tmp_path, worker_count=2)
+    with client:
+        created = client.post("/api/runs", json=REQUEST.model_dump(by_alias=True))
+        run_id = created.json()["runId"]
+        with client.stream(
+            "GET", f"/api/runs/{run_id}/events", headers={"Last-Event-ID": str(10**30)}
+        ) as resp:
+            assert resp.status_code == 200
+            # 无事件推送；流在 run 终态后由服务端正常关闭，读到底不抛错、无事件行
+            lines = list(resp.iter_lines())
+            assert not any(line.startswith("event:") for line in lines)

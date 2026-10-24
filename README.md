@@ -122,7 +122,7 @@ docker compose up --build   # 打开 http://localhost:8888
 
 单机演示定位：花语侧进程内存储、无鉴权、支付为沙箱模拟（SSE 断线续传已由巡检 /runs 实现）。生产化差距（DB 唯一键 + 分布式锁、平台公钥验签等）在代码注释与 [docs/adr](docs/adr/) 中注明。
 
-巡检侧口径：**fixtures/inspection 全部为合成数据**（生成器 `fixtures/inspection/generate.py` 可复现），检索与评测数字均为离线确定性口径（`evals/reports/` 有方法/样本量/方差/已知偏差声明），**仅验证工程流程，不代表模型效果**；巡检 E2E 覆盖页面刷新恢复与服务端任务续跑（进程重启续跑由 kill -9 故障注入测试覆盖），E2E 不覆盖进程重启；真实模型（`OPENAI_API_KEY`）下 planner/inspector 的输出质量取决于所选模型，离线剧本仅供流程与不变量验证。
+巡检侧口径：**fixtures/inspection 全部为合成数据**（生成器 `fixtures/inspection/generate.py` 可复现），检索与评测数字均为离线确定性口径（`evals/reports/` 有方法/样本量/方差/已知偏差声明），**仅验证工程流程，不代表模型效果**。服务端任务续跑的分层覆盖：store 层进程重启（含 kill -9）由 `tests/runtime/test_kill9_reclaim.py` 覆盖；编排层「审批等待期重启→重认领→从检查点恢复」由 `tests/agents/test_runner_resume.py` 覆盖（回归过 findings 翻倍缺陷）；E2E 覆盖页面刷新恢复与断线续传，不覆盖进程重启。真实模型（`OPENAI_API_KEY`）下 planner/inspector 的输出质量取决于所选模型，离线剧本仅供流程与不变量验证。
 
 任务恢复：页面刷新续追由远端快照保证；后端重启会把 queued / running 任务从快照进度续跑（单测覆盖，E2E 不覆盖进程重启）。记忆为进程内 `MemorySaver`，重启丢失；threadId 由前端生成且未鉴权，上线前需改为服务端签发。证据库是固定演示 fixture，尚无真实顾客数据接入或可信度算法评测。
 
