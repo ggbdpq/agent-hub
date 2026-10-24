@@ -27,7 +27,8 @@ from contextlib import contextmanager
 from datetime import UTC, datetime
 from typing import Any, Iterator
 
-from app.contracts.runtime import RunRecord
+from app.contracts.runtime import Claim, RunRecord
+from app.runtime.state_machine import can_transition
 
 Clock = Callable[[], datetime]
 
@@ -105,7 +106,66 @@ class SqliteRunStore:
         self._configure()
         self._ensure_schema()
 
-    # -- 公共 API（A1 范围：create_run / get；其余方法随 A3~A8 逐个落地）--
+    # -- 公共 API --
+
+    def claim(self, worker_id: str, lease_s: int) -> Claim | None:
+        """认领一个 queued（或租约过期的 running）run；无可认领返回 None。
+
+        单条 UPDATE + 子查询：候选行的筛选与占用在同一写事务内完成，
+        并发认领由 SQLite 写锁串行化——后到者的子查询在锁内重评，必然看到前者
+        的结果（单一胜者）。FIFO 与 fakes 一致：按创建序（冻结时钟同刻时 rowid 决胜）。
+        """
+        with self._lock, self._tx() as conn:
+            now = self._now_us()
+            row = conn.execute(
+                "SELECT * FROM runs"
+                " WHERE status = 'queued'"
+                "    OR (status = 'running' AND lease_expires_at IS NOT NULL AND lease_expires_at <= ?)"
+                " ORDER BY created_at, rowid LIMIT 1",
+                (now,),
+            ).fetchone()
+            if row is None or not can_transition(row["status"], "running"):
+                return None  # 状态机守卫（终态等），与 WHERE 条件双保险
+            resumed = row["status"] == "running"
+            new_token = row["fencing_token"] + 1
+            new_attempt = row["attempt"] + 1
+            conn.execute(
+                "UPDATE runs SET status = 'running', attempt = ?, fencing_token = ?,"
+                " lease_owner = ?, lease_expires_at = ?, updated_at = ?, version = version + 1"
+                " WHERE run_id = ?",
+                (new_attempt, new_token, worker_id, now + lease_s * 1_000_000, now, row["run_id"]),
+            )
+            self._insert_event(
+                conn,
+                row["run_id"],
+                seq=self._next_seq(conn, row["run_id"]),
+                type_="run.resumed" if resumed else "run.started",
+                attempt=new_attempt,
+                ts=now,
+            )
+            return Claim(
+                run_id=row["run_id"],
+                fencing_token=new_token,
+                attempt=new_attempt,
+                kind=row["kind"],
+                input=json.loads(row["input"]),
+            )
+
+    def heartbeat(self, run_id: str, token: int, lease_s: int) -> bool:
+        """续租；False = 已失去租约（被顶替 / 过期 / 终态），调用方应立即停止。
+
+        单语句 CAS：status=running 且 token 是当前值且租约尚未过期才续期。
+        与 fakes 一致：心跳不校验 lease_owner（token 即所有权凭据），失败不改任何状态。
+        """
+        with self._lock:
+            now = self._now_us()
+            cur = self._conn.execute(
+                "UPDATE runs SET lease_expires_at = ?, updated_at = ?"
+                " WHERE run_id = ? AND status = 'running' AND fencing_token = ?"
+                "   AND lease_expires_at IS NOT NULL AND lease_expires_at > ?",
+                (now + lease_s * 1_000_000, now, run_id, token, now),
+            )
+            return cur.rowcount == 1
 
     def create_run(self, kind: str, input: dict, idempotency_key: str | None = None) -> RunRecord:
         input_json = json.dumps(input, ensure_ascii=False)
@@ -183,6 +243,13 @@ class SqliteRunStore:
         # unixepoch('subsec')：3.42+，REAL 秒（毫秒精度），够租约与事件时间戳使用
         seconds = self._conn.execute("SELECT unixepoch('subsec')").fetchone()[0]
         return int(round(seconds * 1_000_000))
+
+    @staticmethod
+    def _next_seq(conn: sqlite3.Connection, run_id: str) -> int:
+        """事务内分配：MAX(seq)+1，保证每个 run 内严格递增无空洞（等价 fakes 锁内 len+1）。"""
+        return conn.execute(
+            "SELECT COALESCE(MAX(seq), 0) + 1 FROM run_events WHERE run_id = ?", (run_id,)
+        ).fetchone()[0]
 
     @staticmethod
     def _insert_event(
