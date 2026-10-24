@@ -6,9 +6,14 @@
 
 import pytest
 
-from app.runtime import SqliteRunStore
+from app.runtime import SqliteLedger, SqliteRunStore
 
 
 @pytest.fixture
 def sqlite_store(clock, sqlite_path) -> SqliteRunStore:
     return SqliteRunStore(sqlite_path, clock=clock)
+
+
+@pytest.fixture
+def sqlite_ledger(clock, sqlite_path) -> SqliteLedger:
+    return SqliteLedger(sqlite_path, clock=clock)

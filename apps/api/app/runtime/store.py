@@ -28,7 +28,7 @@ from datetime import UTC, datetime
 from typing import Any, Iterator
 
 from app.contracts.events import NewEvent, RunEvent
-from app.contracts.runtime import Claim, LeaseLost, RunRecord, TerminalStatus
+from app.contracts.runtime import Claim, LedgerEntry, LeaseLost, RunRecord, TerminalStatus
 from app.runtime.state_machine import TERMINAL_STATUSES, can_transition
 
 _TERMINAL_EVENTS = {
@@ -42,7 +42,7 @@ Clock = Callable[[], datetime]
 
 _SCHEMA_VERSION = 1
 
-_SCHEMA = """
+_RUNS_SCHEMA = """
 CREATE TABLE IF NOT EXISTS runs (
     run_id          TEXT PRIMARY KEY,
     kind            TEXT NOT NULL,
@@ -74,7 +74,9 @@ CREATE TABLE IF NOT EXISTS run_events (
     ts      INTEGER NOT NULL,                   -- 微秒时间戳
     PRIMARY KEY (run_id, seq)
 );
+"""
 
+_LEDGER_SCHEMA = """
 CREATE TABLE IF NOT EXISTS tool_ledger (
     key        TEXT PRIMARY KEY,                -- run_id:node:step:tool_call_id（编排层生成）
     tool       TEXT NOT NULL,
@@ -87,6 +89,10 @@ CREATE TABLE IF NOT EXISTS tool_ledger (
     updated_at INTEGER NOT NULL
 );
 """
+
+# 全库模式由 SqliteRunStore 统一创建并盖 user_version 戳；SqliteLedger 独立初始化
+# 时只自建 tool_ledger（见各自 _ensure / __init__）
+_SCHEMA = _RUNS_SCHEMA + _LEDGER_SCHEMA
 
 
 def to_us(dt: datetime) -> int:
@@ -397,5 +403,100 @@ class SqliteRunStore:
             cancel_requested=bool(row["cancel_requested"]),
             idempotency_key=row["idempotency_key"],
             created_at=from_us(row["created_at"]),
+            updated_at=from_us(row["updated_at"]),
+        )
+
+
+class SqliteLedger:
+    """ToolLedger 契约的 SQLite 实现：写工具幂等账本。
+
+    与 fakes.InMemoryLedger 语义一致：
+    - begin 同键返回原记录（completed 的结果一并返回，调用方不再执行工具）；
+    - fail(retryable=True) → unknown（可能已执行，禁止自动重试）；False → failed；
+    - complete / fail 对不存在的键抛 KeyError（编程错误）。
+
+    表结构随 SqliteRunStore 的迁移一起建（生产路径 worker 先建 store）；本类
+    独立初始化时用 IF NOT EXISTS 自建表、不动 user_version（不参与库级版本管理）。
+    """
+
+    def __init__(self, path: str, *, clock: Clock | None = None, busy_timeout_ms: int = 5000) -> None:
+        self._clock = clock
+        self.busy_timeout_ms = busy_timeout_ms
+        self._conn = sqlite3.connect(
+            path, timeout=busy_timeout_ms / 1000, check_same_thread=False, isolation_level=None
+        )
+        self._conn.row_factory = sqlite3.Row
+        self._lock = threading.RLock()
+        self._conn.execute("PRAGMA journal_mode=WAL")
+        self._conn.execute(f"PRAGMA busy_timeout={self.busy_timeout_ms}")
+        self._conn.execute("PRAGMA synchronous=NORMAL")
+        with self._lock:
+            self._conn.executescript(_LEDGER_SCHEMA)
+
+    def begin(self, key: str, tool: str, args_hash: str) -> LedgerEntry:
+        """登记一次工具调用意图；同键已存在（含崩溃遗留的 in_progress）→ 返回原记录。"""
+        with self._lock, self._tx() as conn:
+            row = conn.execute("SELECT * FROM tool_ledger WHERE key = ?", (key,)).fetchone()
+            if row is not None:
+                return self._entry(row)
+            conn.execute(
+                "INSERT INTO tool_ledger (key, tool, args_hash, status, updated_at)"
+                " VALUES (?, ?, ?, 'in_progress', ?)",
+                (key, tool, args_hash, self._now_us()),
+            )
+            row = conn.execute("SELECT * FROM tool_ledger WHERE key = ?", (key,)).fetchone()
+            assert row is not None
+            return self._entry(row)
+
+    def complete(self, key: str, result: dict) -> None:
+        with self._lock:
+            cur = self._conn.execute(
+                "UPDATE tool_ledger SET status = 'completed', result = ?, error = NULL,"
+                " retryable = NULL, updated_at = ? WHERE key = ?",
+                (json.dumps(result, ensure_ascii=False), self._now_us(), key),
+            )
+            if cur.rowcount != 1:
+                raise KeyError(key)
+
+    def fail(self, key: str, error: str, retryable: bool) -> None:
+        """retryable=True → unknown（可能已执行，禁止自动重试）；False → failed。"""
+        with self._lock:
+            cur = self._conn.execute(
+                "UPDATE tool_ledger SET status = ?, error = ?, retryable = ?, updated_at = ?"
+                " WHERE key = ?",
+                ("unknown" if retryable else "failed", error, int(retryable), self._now_us(), key),
+            )
+            if cur.rowcount != 1:
+                raise KeyError(key)
+
+    def close(self) -> None:
+        with self._lock:
+            self._conn.close()
+
+    @contextmanager
+    def _tx(self) -> Iterator[sqlite3.Connection]:
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            yield self._conn
+        except BaseException:
+            self._conn.execute("ROLLBACK")
+            raise
+        self._conn.execute("COMMIT")
+
+    def _now_us(self) -> int:
+        if self._clock is not None:
+            return to_us(self._clock())
+        seconds = self._conn.execute("SELECT unixepoch('subsec')").fetchone()[0]
+        return int(round(seconds * 1_000_000))
+
+    def _entry(self, row: sqlite3.Row) -> LedgerEntry:
+        return LedgerEntry(
+            key=row["key"],
+            tool=row["tool"],
+            args_hash=row["args_hash"],
+            status=row["status"],
+            result=json.loads(row["result"]) if row["result"] is not None else None,
+            error=row["error"],
+            retryable=bool(row["retryable"]) if row["retryable"] is not None else None,
             updated_at=from_us(row["updated_at"]),
         )
