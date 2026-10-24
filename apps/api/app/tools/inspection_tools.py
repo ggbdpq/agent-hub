@@ -70,8 +70,8 @@ class DispatchDroneOut(BaseModel):
 
 
 # -- 节点权限表（ADR-0009：越权由执行器拒绝，不靠提示词） --
-
-_READ_NODES = {"supervisor", "planner", "inspector", "reporter", "single"}
+# R3：list_devices 是站点级清单——inspector 只读本设备数据（B6 硬规则），不授予。
+_SITE_READ_NODES = {"supervisor", "planner", "reporter", "single"}
 _ANALYSIS_NODES = {"supervisor", "inspector", "single"}
 _WRITE_NODES = {"supervisor", "reporter", "single"}
 
@@ -127,11 +127,11 @@ def build_registry(
     specs = [
         _spec(
             name="list_devices",
-            description="列出站点设备清单，可按站点过滤",
+            description="列出站点设备清单，可按站点过滤（站点级：仅供规划/汇总层，设备子任务不可用）",
             input_schema=ListDevicesArgs,
             output_schema=ListDevicesOut,
             effect="read",
-            allowed_nodes=_READ_NODES,
+            allowed_nodes=_SITE_READ_NODES,
             handler=list_devices,
         ),
         _spec(

@@ -110,16 +110,28 @@ async def test_node_not_allowed_denied_with_event() -> None:
     assert event.node == "inspector"
 
 
-def test_for_node_inspector_is_read_only() -> None:
+def test_for_node_inspector_is_read_only_and_device_scoped() -> None:
+    """R3：inspector 只读本设备数据——list_devices（站点级）不在其权限内。"""
     registry, _, _ = _make_registry()
     inspector_tools = registry.for_node("inspector")
     assert {s.name for s in inspector_tools} == {
-        "list_devices",
         "get_telemetry",
         "detect_anomaly",
         "search_procedures",
     }
     assert all(s.effect == "read" for s in inspector_tools)
+
+
+async def test_inspector_cannot_call_list_devices() -> None:
+    """B6 硬规则的权限面：inspector 调 list_devices → denial + tool.denied 事件。"""
+    registry, ctx, collector = _make_registry()
+    result = await check_call(registry, ctx, node="inspector", name="list_devices")
+    assert result.denied is True
+    assert result.reason == "node_not_allowed"
+    assert collector.of_type("tool.denied")[0].payload["tool"] == "list_devices"
+    # 其余仍可用的节点不受影响
+    ok = await check_call(registry, ctx, node="supervisor", name="list_devices")
+    assert ok.denied is False
 
 
 async def test_detect_anomaly_deterministic() -> None:

@@ -92,8 +92,7 @@ async def run_inspection(
     tools_desc = json.dumps(
         [
             {"name": s.name, "description": s.description}
-            for s in registry.for_node("inspector")
-            if s.name != "list_devices"
+            for s in registry.for_node("inspector")  # 权限面即工具面（R3：list_devices 不在 inspector 节点）
         ],
         ensure_ascii=False,
     )

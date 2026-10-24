@@ -185,3 +185,34 @@ async def test_planner_fallback_plan_used_on_garbage() -> None:
     assert result["plan"]["note"].startswith("默认全量检查计划")
     assert result["report"]["status"] == "completed"
     assert len(result["report"]["findings"]) == 3
+
+
+async def test_shrunken_plan_coverage_uses_requested_denominator() -> None:
+    """R2：coverage 分母 = 请求的 device_ids；计划缺失设备记入 notes 且状态 partial。
+
+    缩水计划（3 台只计划 2 台）不得虚抬覆盖率到 1.0。
+    """
+    request = InspectionRequest(site="SITE-A", device_ids=["INV-001", "INV-002", "INV-003"])
+    scripts = [
+        json.dumps(
+            {
+                "steps": [
+                    {"device_id": "INV-001", "checks": ["遥测比对"]},
+                    {"device_id": "INV-002", "checks": ["遥测比对"]},
+                    # INV-003 缺席：缩水计划
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        _insp_script("INV-001", "normal", "平稳"),
+        _insp_script("INV-002", "normal", "平稳"),
+    ]
+    ctx, collector = make_ctx(llm=sequence_llm_factory(scripts), retriever=StaticRetriever([CHUNK]))
+    tracker = BudgetTracker(ctx.budget)
+    graph = build_inspection_graph(ctx, tracker, fixture_root=FIXTURES)
+    result = await graph.ainvoke({"request": request.model_dump()}, {"configurable": {"thread_id": "t5"}})
+
+    report = result["report"]
+    assert abs(report["coverage"] - 2 / 3) < 5e-4, f"缩水计划虚抬覆盖率: {report['coverage']}"
+    assert report["status"] == "partial"
+    assert "INV-003" in (report["notes"] or "") and "未列入计划" in report["notes"]

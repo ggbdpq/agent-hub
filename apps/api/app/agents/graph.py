@@ -9,7 +9,6 @@ supervisor → planner → (Send 扇出 inspector×N) → reporter（汇总/工�
 
 import asyncio
 import json
-import operator
 import re
 from typing import Annotated, Any, TypedDict
 
@@ -32,6 +31,21 @@ DEFAULT_TASK_TIMEOUT_S = 30.0
 DEFAULT_INSPECTOR_STEPS = 6
 _JSON_FENCE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
 
+
+def _merge_by_device(
+    existing: list[dict[str, Any]], update: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """findings/failures 的 reducer：按 device_id 去重合并，后写覆盖先写。
+
+    R1 加固：任何"检查点存在又带输入重启"的路径（误用/未来回归）下，重跑节点
+    的输出覆盖旧值而不是翻倍——coverage 永不 >1。
+    """
+    merged: dict[str, dict[str, Any]] = {}
+    for item in (*existing, *update):
+        key = item.get("device_id") if isinstance(item, dict) else str(item)
+        merged[str(key)] = item
+    return list(merged.values())
+
 _ORDER_SYSTEM = """你是工单起草员。为异常设备起草检修工单。
 只输出严格 JSON（不要多余文字）：
 {"orders": [{"device_id": "设备编号", "title": "工单标题", "action": "处置措施"}]}
@@ -48,8 +62,8 @@ class InspectionState(TypedDict, total=False):
     plan: dict[str, Any] | None
     plan_meta: dict[str, Any]
     tasks: list[dict[str, Any]]
-    findings: Annotated[list[dict[str, Any]], operator.add]
-    failures: Annotated[list[dict[str, Any]], operator.add]
+    findings: Annotated[list[dict[str, Any]], _merge_by_device]
+    failures: Annotated[list[dict[str, Any]], _merge_by_device]
     work_orders: list[dict[str, Any]]
     report: dict[str, Any] | None
 
@@ -301,16 +315,29 @@ def _assemble_report(
     work_orders: list[WorkOrder] | None = None,
     approval: dict | None = None,
 ) -> InspectionReport:
-    """汇总 findings/failures/工单/审批 → InspectionReport（partial 时覆盖率与原因可解释）。"""
+    """汇总 findings/failures/工单/审批 → InspectionReport（partial 时覆盖率与原因可解释）。
+
+    R2：coverage 分母统一为**请求的 device_ids**（single_react 同口径）——
+    缩水计划（请求 N 台只计划 M<N 台）不得虚抬覆盖率；缺失设备记入 notes。
+    """
+    request = state.get("request") or {}
+    requested: list[str] = list(request.get("device_ids") or [])
     tasks = state.get("tasks") or []
     findings = [Finding.model_validate(f) for f in state.get("findings") or []]
-    failures = state.get("failures") or []
-    total = len(tasks)
-    coverage = (len(findings) / total) if total else 0.0
+    failures = list(state.get("failures") or [])
+    total = len(requested) if requested else len(tasks)
+    covered = {f.device_id for f in findings}
+    coverage = (len(covered) / total) if total else 0.0
     status = "completed" if not failures else "partial"
     notes_parts = []
     for failure in failures:
         notes_parts.append(f"{failure.get('device_id')}: {failure.get('reason')}")
+    # 计划缺失的请求设备：可解释的失败项（缩水计划不静默）
+    planned = {t.get("device_id") for t in tasks}
+    for device_id in requested:
+        if device_id not in planned:
+            notes_parts.append(f"{device_id}: 未列入计划（计划缩水），未巡检")
+            status = "partial"
     if ctx.cancelled():
         status = "partial"
         notes_parts.append("run 被请求取消，提前结束")
