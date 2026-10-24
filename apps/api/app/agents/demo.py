@@ -31,12 +31,13 @@ REQUEST = InspectionRequest(
 
 def _demo_retriever() -> StaticRetriever:
     """把语料阈值篇作为演示 chunk（chunk_id 与 B 契约格式一致）。"""
+    from app.contracts.knowledge import Chunk
     from app.tools.devices import DEFAULT_FIXTURE_ROOT
 
     doc = DEFAULT_FIXTURE_ROOT / "corpus" / "pv_inverter-thresholds.md"
     text = doc.read_text(encoding="utf-8")
     title = text.splitlines()[0].lstrip("# ").strip()
-    chunk = type(_mk_chunk())(
+    chunk = Chunk(
         chunk_id="pv_inverter-thresholds#告警阈值#1",
         doc_id="pv_inverter-thresholds",
         title=title,
@@ -44,12 +45,6 @@ def _demo_retriever() -> StaticRetriever:
         source_path="fixtures/inspection/corpus/pv_inverter-thresholds.md",
     )
     return StaticRetriever([chunk])
-
-
-def _mk_chunk():
-    from app.contracts.knowledge import Chunk
-
-    return Chunk(chunk_id="", doc_id="", title="", text="", source_path="")
 
 
 def _scripts() -> list:

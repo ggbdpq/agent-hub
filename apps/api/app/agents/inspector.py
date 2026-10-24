@@ -62,13 +62,13 @@ async def run_inspection(
     *,
     max_steps: int = DEFAULT_MAX_STEPS,
     fixture_root=None,
-    timeout_s: float | None = None,
     skills: list[Skill] | None = None,
 ) -> InspectorResult:
     """单个设备子任务的 ReAct 循环。永不抛异常：失败转 failure_reason（B5 记 partial）。
 
-    skills（B10）：白名单取各 Skill allowed_tools 的并集（声明之外不可用），
-    系统提示追加 Skill 片段；不传则全量读工具可用（行为同 B4）。
+    超时强制在图节点层（asyncio.wait_for，B5）；skills（B10）：白名单取各 Skill
+    allowed_tools 的并集（声明之外不可用），系统提示追加 Skill 片段；
+    不传则全量读工具可用（行为同 B4）。
     """
     result = InspectorResult(device_id=device_id)
     executor = ToolExecutor(
