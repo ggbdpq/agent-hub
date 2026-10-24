@@ -39,6 +39,9 @@ def no_llm() -> Any:
 def sequence_llm_factory(responses: list) -> Any:
     """逐次推进的 ChatModelFactory：每次 build() 消耗一条脚本（区别于 FakeLLM.factory 的重放）。
 
+    脚本项可以是：
+    - str / AIMessage：单轮回复；
+    - list[AIMessage|str]：多轮回复（同一实例内多次 ainvoke 依次消耗，ReAct 用）。
     用于"每次尝试调 ctx.llm() 取新实例"的组件（B3 planner 重试、B5 扇出中
     planner/inspector/reporter 的先后差异脚本）。
     """
@@ -48,14 +51,18 @@ def sequence_llm_factory(responses: list) -> Any:
     queue = list(responses)
     build_count = {"n": 0}
 
+    def _as_message(raw: Any) -> AIMessage:
+        return raw if isinstance(raw, AIMessage) else AIMessage(content=raw)
+
     def build() -> GenericFakeChatModel:
         build_count["n"] += 1
         if queue:
-            raw = queue.pop(0)
+            item = queue.pop(0)
         else:  # 脚本耗尽：返回空内容（调用方按解析失败处理）
-            raw = ""
-        msg = raw if isinstance(raw, AIMessage) else AIMessage(content=raw)
-        return GenericFakeChatModel(messages=iter([msg]))
+            item = ""
+        if isinstance(item, list):
+            return GenericFakeChatModel(messages=iter([_as_message(m) for m in item]))
+        return GenericFakeChatModel(messages=iter([_as_message(item)]))
 
     build.build_count = build_count  # type: ignore[attr-defined]
     return build
