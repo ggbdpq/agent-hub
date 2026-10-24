@@ -20,6 +20,8 @@ from app.tools.devices import (
 # 防御性截断指标名与检查项，完整遥测序列永远不进简报）
 MAX_TELEMETRY_METRICS = 12
 MAX_CHECKS = 6
+# 简报 Token 上限（estimate_tokens 口径）；CI 用例对全部 20 台设备断言
+BRIEF_TOKEN_LIMIT = 600
 
 
 def build_subtask_brief(

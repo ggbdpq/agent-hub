@@ -68,6 +68,38 @@ def sequence_llm_factory(responses: list) -> Any:
     return build
 
 
+def recording_llm_factory(responses: list) -> tuple[Any, list]:
+    """sequence_llm_factory + 输入记录：返回 (factory, received)。
+
+    received 收集每次 ainvoke 的输入消息列表（list[BaseMessage]），
+    用于断言子任务上下文隔离（B6：只看得到本设备简报）。
+    """
+    from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
+    from langchain_core.messages import AIMessage
+
+    received: list = []
+    queue = list(responses)
+
+    def _as_message(raw):
+        return raw if isinstance(raw, AIMessage) else AIMessage(content=raw)
+
+    def build():
+        item = queue.pop(0) if queue else ""
+
+        class RecordingModel(GenericFakeChatModel):
+            async def _agenerate(self, messages, stop=None, run_manager=None, **kwargs):
+                received.append(list(messages))
+                return await super()._agenerate(messages, stop=stop, run_manager=run_manager, **kwargs)
+
+        if isinstance(item, list):
+            script = iter([_as_message(m) for m in item])
+        else:
+            script = iter([_as_message(item)])
+        return RecordingModel(messages=script)
+
+    return build, received
+
+
 def make_ctx(
     *,
     budget: Budget | None = None,
