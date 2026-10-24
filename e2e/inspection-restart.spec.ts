@@ -25,16 +25,9 @@ import {
  * （与既有"刷新恢复"用例同口径；页内 Last-Event-ID 自动重连在 API 掉线窗口内
  * 会因 getRun 失败而中止，这是页面层已知边界，不在本 spec 范围）。
  *
- * 门闩：审批等待期重启依赖 runner.py 的 pending-interrupt approver await 补丁
- * （见 docs/integration-requests/Y.md，红测试即该缺陷的复现）。补丁合入前默认
- * 跳过以保持 `pnpm test:e2e` 全绿；用 `pnpm test:e2e:restart`（或设
- * AGENT_HUB_E2E_RESTART=1）显式启用。
+ * R-Y1 补丁已合入（runner pending-interrupt 分支 await 异步 approver），
+ * 门闩已移除（R-Y3）：默认随 pnpm test:e2e 常驻；pnpm test:e2e:restart 可单独跑。
  */
-test.skip(
-  !process.env.AGENT_HUB_E2E_RESTART,
-  "需 runner 审批恢复补丁 + 独立编排：scripts/e2e-restart/ 与 docs/integration-requests/Y.md",
-);
-
 test.setTimeout(150_000);
 
 let api: ApiProcess | null = null;

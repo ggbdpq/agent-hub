@@ -87,6 +87,11 @@ class InspectionAgentRunner:
         if pending is not None:
             # 审批决定仍经 approver 路由：重启后由新进程的 approver 接管一次性消费
             decision = self._approver(pending)
+            # 与下方 in-process 循环的 I5 使能同一语义：异步 approver（生产
+            # ApprovalHub 形态）必须 await，否则协程对象进 Command(resume)
+            # 在检查点序列化时 TypeError（R-Y1，E2E 重启场景揪出）
+            if inspect.isawaitable(decision):
+                decision = await decision
             result = await graph.ainvoke(Command(resume=decision), config)
         else:
             result = await graph.ainvoke({"request": input.model_dump()}, config)

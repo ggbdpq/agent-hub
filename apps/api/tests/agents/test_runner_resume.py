@@ -112,3 +112,40 @@ async def test_reclaimed_run_resumes_from_checkpoint_not_rerun(tmp_path) -> None
     deduped = [e for e in collector.of_type("tool.deduplicated") if e.payload["tool"] == "create_work_order"]
     assert len(created) == 1 and len(deduped) == 1
     assert "重启后人工复核" in (report.notes or "")
+
+
+async def test_reclaimed_run_with_async_approver(tmp_path) -> None:
+    """R-Y1 回归：进程 2 的 approver 是 async（生产 ApprovalHub 形态）也必须能恢复。
+
+    修复前 pending 分支 `decision = self._approver(pending)` 未 await → 协程对象
+    进入 Command(resume) → langgraph msgpack 序列化 TypeError → run.failed。
+    """
+    db = str(tmp_path / "ckpt-async.sqlite")
+    run_id = "run-async-appr"
+
+    # 进程 1：approver 崩溃模拟 kill，停在审批中断（脚本与首个回归用例相同）
+    async with AsyncSqliteSaver.from_conn_string(db) as saver:
+        ctx, collector = make_ctx(llm=sequence_llm_factory(_scripts()), retriever=StaticRetriever([CHUNK]))
+        runner = InspectionAgentRunner(
+            checkpointer=saver,
+            approver=lambda payload: (_ for _ in ()).throw(RuntimeError("kill")),
+        )
+        try:
+            await runner.run(run_id, REQUEST, ctx)
+            raise AssertionError("进程 1 应停在审批中断")
+        except RuntimeError:
+            pass
+
+    # 进程 2：async approver（生产 ApprovalHub 形态）恢复
+    async def async_approver(payload: dict) -> dict:
+        return {"approved": False, "approvalId": "", "note": "异步审批：拒绝"}
+
+    async with AsyncSqliteSaver.from_conn_string(db) as saver:
+        ctx2, _ = make_ctx(llm=sequence_llm_factory(_scripts()), retriever=StaticRetriever([CHUNK]))
+        runner2 = InspectionAgentRunner(checkpointer=saver, approver=async_approver)
+        report = await runner2.run(run_id, REQUEST, ctx2)
+
+    assert report.status == "completed", f"async approver 恢复失败: {report.notes}"
+    assert report.coverage == 1.0
+    assert len(report.findings) == 3, f"findings 翻倍: {len(report.findings)}"
+    assert "异步审批" in (report.notes or "")
