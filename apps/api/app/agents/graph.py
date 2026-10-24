@@ -14,6 +14,7 @@ import re
 from typing import Annotated, Any, TypedDict
 
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Send, interrupt
 from pydantic import ValidationError
@@ -166,7 +167,7 @@ def build_inspection_graph(
         )
         return {"failures": [{"device_id": device_id, "reason": reason}]}
 
-    async def reporter(state: InspectionState, config: dict | None = None) -> dict:
+    async def reporter(state: InspectionState, config: RunnableConfig | None = None) -> dict:
         """汇总 → 工单起草与幂等执行 → critical 审批 interrupt（单点设计，ADR-0007）→ 报告。
 
         interrupt 恢复时本节点从头重跑：工单因可复现账本键（run_id:reporter:wo:<device>）
