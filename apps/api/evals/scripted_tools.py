@@ -48,6 +48,8 @@ class ScriptedToolAgentRunner:
         self._degraded = False
 
     async def run(self, run_id: str, input: InspectionRequest, ctx: RunContext) -> InspectionReport:
+        readonly = "不生成工单" in (input.goal or "")  # goal 契约：只诊断，禁写
+        drone = "无人机" in (input.goal or "")  # goal 契约：异常设备需无人机复核（dangerous，需审批）
         await ctx.emit(NewEvent(type="node.started", node="planner", payload={"devices": len(input.device_ids)}))
         if len(input.device_ids) > 1:
             await self._call_tool(ctx, "list_devices", {"count": len(input.device_ids)})
@@ -56,7 +58,7 @@ class ScriptedToolAgentRunner:
         failed_subtasks = 0
         for device_id in input.device_ids:
             try:
-                finding, order = await self._inspect_device(ctx, device_id)
+                finding, order = await self._inspect_device(ctx, device_id, readonly=readonly, drone=drone)
             except _SubtaskFailure:
                 failed_subtasks += 1
                 await ctx.emit(
@@ -86,7 +88,7 @@ class ScriptedToolAgentRunner:
 
     # ---- 单设备子任务 ----
 
-    async def _inspect_device(self, ctx: RunContext, device_id: str):
+    async def _inspect_device(self, ctx: RunContext, device_id: str, *, readonly: bool = False, drone: bool = False):
         fault = self._fault or {}
         if fault.get("type") == "subtask_failure" and fault.get("device_id") == device_id:
             self._degraded = True
@@ -115,7 +117,24 @@ class ScriptedToolAgentRunner:
             f"按规程处置：{device_id} 触发 {level_info['level']} 级异常（{', '.join(metrics)}），"
             f"判定依据证据 {', '.join(evidence_ids) or '无'}"
         )
+        if readonly:
+            # goal 契约：只诊断。给出结论与依据，不开工单、不派无人机。
+            return (
+                Finding(
+                    device_id=device_id,
+                    level="critical" if level_info["level"] == "critical" else "warning",
+                    summary=f"{device_id} 异常：{', '.join(metrics)}",
+                    evidence_chunk_ids=evidence_ids,
+                    metrics={m: level_info["level"] for m in metrics},
+                ),
+                None,
+            )
         await self._call_tool(ctx, "create_work_order", {"device_id": device_id, "title": title, "action": action})
+        if drone:
+            # dangerous 工具：审批路径（offline 脚本自审自批，事件流完整可复盘）
+            await ctx.emit(NewEvent(type="approval.required", node="inspector", payload={"tool": "dispatch_drone", "device_id": device_id}))
+            await ctx.emit(NewEvent(type="approval.resolved", node="inspector", payload={"tool": "dispatch_drone", "device_id": device_id, "approved": True}))
+            await self._call_tool(ctx, "dispatch_drone", {"device_id": device_id, "purpose": "现场复核"})
         finding = Finding(
             device_id=device_id,
             level="critical" if level_info["level"] == "critical" else "warning",
@@ -159,6 +178,8 @@ class ScriptedToolAgentRunner:
             return [c.model_dump(mode="json") for c in await ctx.retriever.search(args["query"], args.get("k", 3))]
         if tool == "create_work_order":
             return {"work_order_id": f"WO-{args.get('device_id', 'X')}"}
+        if tool == "dispatch_drone":
+            return {"drone_id": "UAV-01", "status": "dispatched(simulated)"}
         raise ValueError(f"未知工具：{tool}")
 
 
