@@ -58,7 +58,9 @@ class CreateWorkOrderOut(BaseModel):
 class DispatchDroneArgs(BaseModel):
     device_id: str
     reason: str
-    approval_id: str  # dangerous 工具必须带审批凭证；缺省由执行器拒绝
+    # 审批凭证：Schema 允许缺省（空），由执行器强制非空（B2 第 6 步）——
+    # 权限凭证是执行器职责，入参 Schema 只描述形状
+    approval_id: str = ""
 
 
 class DispatchDroneOut(BaseModel):
