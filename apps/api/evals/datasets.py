@@ -27,3 +27,8 @@ def fixtures_root() -> Path:
 def load_retrieval_annotations() -> dict:
     """C0 检索评测标注：{"version", "note", "queries": [{qid, query, relevant_chunk_ids}]}。"""
     return json.loads(ANNOTATIONS_FILE.read_text(encoding="utf-8"))
+
+
+def load_agent_cases() -> dict:
+    """C7 智能体评测集：{"version", "note", "derivation", "cases": [...60 条...]}。"""
+    return json.loads(AGENT_CASES_FILE.read_text(encoding="utf-8"))
