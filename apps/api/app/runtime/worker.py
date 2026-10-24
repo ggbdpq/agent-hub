@@ -180,7 +180,7 @@ class RuntimeWorker:
             if not finished or lost.is_set():
                 # 租约关系已断：终态被拒（被顶替/终态）或心跳失联后勉强写入
                 self._metrics.lease_lost += 1
-            elif finished:
+            else:
                 self._metrics.finished += 1
         if finished:
             log_event(

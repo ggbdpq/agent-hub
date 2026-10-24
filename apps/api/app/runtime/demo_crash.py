@@ -26,8 +26,13 @@ import sys
 import tempfile
 
 from app.contracts.fakes import ScriptedAgentRunner
-from app.runtime import Reclaimer, RuntimeWorker, SqliteLedger, SqliteRunStore
-from app.runtime.worker import WorkerConfig
+from app.runtime import (
+    Reclaimer,
+    RuntimeWorker,
+    SqliteLedger,
+    SqliteRunStore,
+    WorkerConfig,
+)
 
 _API_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _LEASE_S = 2  # 演示用短租约，崩溃后 ~2s 内即可被接管
