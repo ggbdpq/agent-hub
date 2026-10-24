@@ -63,8 +63,12 @@ def build_inspection_graph(
     task_timeout_s: float = DEFAULT_TASK_TIMEOUT_S,
     inspector_max_steps: int = DEFAULT_INSPECTOR_STEPS,
     checkpointer=None,
+    inspector_skills: list | None = None,
 ):
-    """编译巡检图。ctx/tracker 为 run 级共享（预算跨节点强制）。"""
+    """编译巡检图。ctx/tracker 为 run 级共享（预算跨节点强制）。
+
+    inspector_skills（B10）：传入 Skill 实例列表 → inspector 白名单并集 + 提示片段。
+    """
     reg = registry if registry is not None else build_registry(ctx, fixture_root=fixture_root)
     reporter_tools = ToolExecutor(reg, ctx, node="reporter", tracker=tracker)
 
@@ -130,6 +134,7 @@ def build_inspection_graph(
                     tracker,
                     max_steps=inspector_max_steps,
                     fixture_root=fixture_root,
+                    skills=inspector_skills,
                 ),
                 timeout=task_timeout_s,
             )
