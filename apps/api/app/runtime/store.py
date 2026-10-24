@@ -27,8 +27,16 @@ from contextlib import contextmanager
 from datetime import UTC, datetime
 from typing import Any, Iterator
 
-from app.contracts.runtime import Claim, RunRecord
-from app.runtime.state_machine import can_transition
+from app.contracts.events import NewEvent, RunEvent
+from app.contracts.runtime import Claim, LeaseLost, RunRecord, TerminalStatus
+from app.runtime.state_machine import TERMINAL_STATUSES, can_transition
+
+_TERMINAL_EVENTS = {
+    "completed": "run.completed",
+    "failed": "run.failed",
+    "cancelled": "run.cancelled",
+    "partial": "run.partial",
+}
 
 Clock = Callable[[], datetime]
 
@@ -195,10 +203,100 @@ class SqliteRunStore:
             self._insert_event(conn, run_id, seq=1, type_="run.queued", attempt=0, ts=now)
             return self._record(conn.execute("SELECT * FROM runs WHERE run_id = ?", (run_id,)).fetchone())
 
+    def append_event(self, run_id: str, token: int, event: NewEvent) -> RunEvent:
+        """CAS 追加事件：token 是当前值且 status=running 才接受，否则 LeaseLost。
+
+        seq 与事件插入在同一写事务内（MAX(seq)+1），锁内串行，无空洞无重复。
+        租约过期但未被接管时 token 仍是当前值 → 放行（fencing 精确语义，ADR-0008 第 5 条）。
+        """
+        with self._lock, self._tx() as conn:
+            run = conn.execute(
+                "SELECT status, fencing_token, attempt FROM runs WHERE run_id = ?", (run_id,)
+            ).fetchone()
+            if run is None:
+                raise KeyError(run_id)
+            if run["status"] != "running" or run["fencing_token"] != token:
+                raise LeaseLost(f"run {run_id} 不再接受 token={token} 的写入")
+            seq = self._next_seq(conn, run_id)
+            ts = self._now_us()
+            self._insert_event(
+                conn, run_id, seq=seq, type_=event.type, attempt=run["attempt"], ts=ts,
+                node=event.node, payload=event.payload,
+            )
+            return RunEvent(
+                **event.model_dump(),
+                run_id=run_id,
+                seq=seq,
+                attempt=run["attempt"],
+                ts=from_us(ts),
+            )
+
+    def finish(
+        self,
+        run_id: str,
+        token: int,
+        status: TerminalStatus,
+        result: dict | None = None,
+        error: str | None = None,
+    ) -> bool:
+        """CAS 写终态；False = 写入被拒（token 失效或已被终态）。
+
+        UPDATE ... WHERE status='running' AND fencing_token=? 影响行数为 0 即失去
+        所有权；终态事件与状态变更同事务落盘（崩溃不会出现"状态已终态但无事件"）。
+        """
+        if status not in TERMINAL_STATUSES:
+            raise ValueError(f"finish 只接受终态 {TERMINAL_STATUSES}，收到 {status!r}")
+        with self._lock, self._tx() as conn:
+            now = self._now_us()
+            cur = conn.execute(
+                "UPDATE runs SET status = ?, result = ?, error = ?, lease_owner = NULL,"
+                " lease_expires_at = NULL, updated_at = ?, version = version + 1"
+                " WHERE run_id = ? AND status = 'running' AND fencing_token = ?",
+                (
+                    status,
+                    json.dumps(result, ensure_ascii=False) if result is not None else None,
+                    error,
+                    now,
+                    run_id,
+                    token,
+                ),
+            )
+            if cur.rowcount != 1:
+                return False
+            attempt = conn.execute(
+                "SELECT attempt FROM runs WHERE run_id = ?", (run_id,)
+            ).fetchone()["attempt"]
+            self._insert_event(
+                conn, run_id, seq=self._next_seq(conn, run_id),
+                type_=_TERMINAL_EVENTS[status], attempt=attempt, ts=now,
+                payload={"error": error},
+            )
+            return True
+
     def get(self, run_id: str) -> RunRecord | None:
         with self._lock:
             row = self._conn.execute("SELECT * FROM runs WHERE run_id = ?", (run_id,)).fetchone()
             return self._record(row) if row is not None else None
+
+    def events_after(self, run_id: str, after_seq: int) -> list[RunEvent]:
+        """after_seq 之后的事件按 seq 升序返回，支撑 SSE Last-Event-ID 断点续传。"""
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM run_events WHERE run_id = ? AND seq > ? ORDER BY seq",
+                (run_id, after_seq),
+            ).fetchall()
+            return [
+                RunEvent(
+                    type=row["type"],
+                    node=row["node"],
+                    payload=json.loads(row["payload"]),
+                    run_id=row["run_id"],
+                    seq=row["seq"],
+                    attempt=row["attempt"],
+                    ts=from_us(row["ts"]),
+                )
+                for row in rows
+            ]
 
     def close(self) -> None:
         with self._lock:
