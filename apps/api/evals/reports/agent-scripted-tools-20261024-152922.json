@@ -26,7 +26,7 @@
     "success_std": 0.0,
     "anomaly_recall_std": 0.3343,
     "steps_std": 4.77,
-    "latency_ms_std": 0.47
+    "latency_ms_std": 0.42
   },
   "known_biases": [
     "离线口径：成功率验证的是评测流程与契约管道，不代表模型效果。",
@@ -89,7 +89,7 @@
         ],
         [
           "时延 P50 / P95 (ms)",
-          "0.47 / 1.34"
+          "0.45 / 1.15"
         ],
         [
           "Token（输入/输出，脚本估算）",
@@ -127,7 +127,7 @@
       ]
     }
   ],
-  "generated_at": "2026-10-24T15:28:09.389229+00:00",
+  "generated_at": "2026-10-24T15:29:22.356831+00:00",
   "aggregates": {
     "cases": 60,
     "success_rate": 1.0,
@@ -143,9 +143,9 @@
     "write_cap_violations_total": 0,
     "crashed_total": 0,
     "steps_mean": 7.383333333333334,
-    "latency_ms_mean": 0.5351555126253515,
-    "latency_ms_p50": 0.4674379888456315,
-    "latency_ms_p95": 1.3351461384445422,
+    "latency_ms_mean": 0.4871382048198332,
+    "latency_ms_p50": 0.4462704819161445,
+    "latency_ms_p95": 1.1490517936181275,
     "input_tokens_total": 15480,
     "output_tokens_total": 7740,
     "cost_usd_total": 0.0
@@ -200,7 +200,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.3190839779563248,
+        "latency_ms": 0.2097500255331397,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -486,7 +486,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.15154201537370682,
+        "latency_ms": 0.15999999595806003,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -772,7 +772,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.1367080258205533,
+        "latency_ms": 0.13641698751598597,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -1058,7 +1058,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.13020902406424284,
+        "latency_ms": 0.12441602302715182,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -1344,7 +1344,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.1242499565705657,
+        "latency_ms": 0.11812499724328518,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -1630,7 +1630,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.12779200915247202,
+        "latency_ms": 0.11812499724328518,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -1916,7 +1916,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.12320798123255372,
+        "latency_ms": 0.12024998432025313,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -2202,7 +2202,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.14608300989493728,
+        "latency_ms": 0.13512495206668973,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -2512,7 +2512,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.14633301179856062,
+        "latency_ms": 0.1341670285910368,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -2822,7 +2822,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.13862497871741652,
+        "latency_ms": 0.13587501598522067,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -3132,7 +3132,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.12787501327693462,
+        "latency_ms": 0.13699999544769526,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -3418,7 +3418,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.1306250342167914,
+        "latency_ms": 0.1247500185854733,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -3704,7 +3704,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.13554200995713472,
+        "latency_ms": 0.13341702288016677,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -3966,7 +3966,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.11408299906179309,
+        "latency_ms": 0.11429103324189782,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -4228,7 +4228,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.11333299335092306,
+        "latency_ms": 0.11187500786036253,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -4493,7 +4493,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 8,
-        "latency_ms": 0.3418329870328307,
+        "latency_ms": 0.3230420406907797,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -5201,7 +5201,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 8,
-        "latency_ms": 0.32666599145159125,
+        "latency_ms": 0.3215419710613787,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -5909,7 +5909,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 8,
-        "latency_ms": 0.3701660316437483,
+        "latency_ms": 0.36020902916789055,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -6688,7 +6688,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 6,
-        "latency_ms": 0.7947499980218709,
+        "latency_ms": 0.632665993180126,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -7197,7 +7197,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 8,
-        "latency_ms": 0.2828330034390092,
+        "latency_ms": 0.28541695792227983,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -7847,7 +7847,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 5,
-        "latency_ms": 0.6298329681158066,
+        "latency_ms": 0.5753749865107238,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -8280,7 +8280,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 5,
-        "latency_ms": 0.5505000008270144,
+        "latency_ms": 0.5220830207690597,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -8777,7 +8777,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 5,
-        "latency_ms": 0.45429100282490253,
+        "latency_ms": 0.45074999798089266,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -9204,7 +9204,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 5,
-        "latency_ms": 0.4730420187115669,
+        "latency_ms": 0.45549997594207525,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -9629,7 +9629,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 5,
-        "latency_ms": 0.606333022005856,
+        "latency_ms": 0.4499579663388431,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -10068,7 +10068,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 8,
-        "latency_ms": 0.6647079717367887,
+        "latency_ms": 0.5377500201575458,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -10725,7 +10725,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 12,
-        "latency_ms": 0.777500041294843,
+        "latency_ms": 0.7364169578067958,
         "input_tokens": 480,
         "output_tokens": 240,
         "cost_usd": 0.0
@@ -11778,7 +11778,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 8,
-        "latency_ms": 0.5402499809861183,
+        "latency_ms": 0.5265419604256749,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -12434,7 +12434,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 10,
-        "latency_ms": 0.8732089772820473,
+        "latency_ms": 0.6387920002453029,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -13288,7 +13288,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 8,
-        "latency_ms": 0.6434579845517874,
+        "latency_ms": 0.5853339680470526,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -14032,7 +14032,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 10,
-        "latency_ms": 0.7001250050961971,
+        "latency_ms": 0.6884579779580235,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -14999,7 +14999,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 10,
-        "latency_ms": 0.666000007186085,
+        "latency_ms": 0.6361249834299088,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -15847,7 +15847,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 8,
-        "latency_ms": 0.5403750110417604,
+        "latency_ms": 0.526249990798533,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -16471,7 +16471,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 10,
-        "latency_ms": 0.5970829515717924,
+        "latency_ms": 0.6396250100806355,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -17269,7 +17269,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 8,
-        "latency_ms": 0.5667919758707285,
+        "latency_ms": 0.5330840358510613,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -17904,7 +17904,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 8,
-        "latency_ms": 0.5224170163273811,
+        "latency_ms": 0.5094580119475722,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -18578,7 +18578,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 22,
-        "latency_ms": 2.208458026871085,
+        "latency_ms": 2.086791966576129,
         "input_tokens": 600,
         "output_tokens": 300,
         "cost_usd": 0.0
@@ -20409,7 +20409,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 10,
-        "latency_ms": 0.9160000481642783,
+        "latency_ms": 0.86116703459993,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -21266,7 +21266,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 10,
-        "latency_ms": 0.8713749703019857,
+        "latency_ms": 0.8424580446444452,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -22055,7 +22055,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 14,
-        "latency_ms": 1.5912499511614442,
+        "latency_ms": 1.219708996359259,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -23152,7 +23152,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 2,
-        "latency_ms": 0.017834012396633625,
+        "latency_ms": 0.015125027857720852,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -23274,7 +23274,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 7,
-        "latency_ms": 0.46183395897969604,
+        "latency_ms": 0.42333302553743124,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -23746,7 +23746,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 5,
-        "latency_ms": 0.17987494356930256,
+        "latency_ms": 0.16520899953320622,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -24201,7 +24201,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.07245899178087711,
+        "latency_ms": 0.06483303150162101,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -24490,7 +24490,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 6,
-        "latency_ms": 0.45370799489319324,
+        "latency_ms": 0.433625013101846,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -24931,7 +24931,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 9,
-        "latency_ms": 0.5431660101749003,
+        "latency_ms": 0.5032910266891122,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -25559,7 +25559,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 6,
-        "latency_ms": 0.4509169957600534,
+        "latency_ms": 0.43045799247920513,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -26005,7 +26005,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 6,
-        "latency_ms": 0.253707985393703,
+        "latency_ms": 0.2275830483995378,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -26528,7 +26528,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 4,
-        "latency_ms": 0.14600000577047467,
+        "latency_ms": 0.13175001367926598,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -26877,7 +26877,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 6,
-        "latency_ms": 0.20295800641179085,
+        "latency_ms": 0.19558402709662914,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -27359,7 +27359,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 6,
-        "latency_ms": 0.5681249895133078,
+        "latency_ms": 0.4425829974934459,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -27835,7 +27835,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 6,
-        "latency_ms": 0.5159160355105996,
+        "latency_ms": 0.456834037322551,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0
@@ -28367,7 +28367,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 19,
-        "latency_ms": 1.2187089887447655,
+        "latency_ms": 1.1168749770149589,
         "input_tokens": 960,
         "output_tokens": 480,
         "cost_usd": 0.0
@@ -30174,7 +30174,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 11,
-        "latency_ms": 0.8979580015875399,
+        "latency_ms": 0.8152500377036631,
         "input_tokens": 480,
         "output_tokens": 240,
         "cost_usd": 0.0
@@ -31333,7 +31333,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 10,
-        "latency_ms": 0.6689999718219042,
+        "latency_ms": 0.6258750217966735,
         "input_tokens": 360,
         "output_tokens": 180,
         "cost_usd": 0.0
@@ -32193,7 +32193,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 16,
-        "latency_ms": 1.137249986641109,
+        "latency_ms": 1.0912910220213234,
         "input_tokens": 600,
         "output_tokens": 300,
         "cost_usd": 0.0
@@ -33504,7 +33504,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 20,
-        "latency_ms": 1.3216669904068112,
+        "latency_ms": 1.1453329934738576,
         "input_tokens": 960,
         "output_tokens": 480,
         "cost_usd": 0.0
@@ -35392,7 +35392,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 22,
-        "latency_ms": 2.3759579635225236,
+        "latency_ms": 2.058040990959853,
         "input_tokens": 600,
         "output_tokens": 300,
         "cost_usd": 0.0
@@ -37222,7 +37222,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 12,
-        "latency_ms": 0.8423329563811421,
+        "latency_ms": 0.8233329863287508,
         "input_tokens": 240,
         "output_tokens": 120,
         "cost_usd": 0.0
@@ -38064,7 +38064,7 @@
         "forbidden_calls": 0,
         "write_cap_violations": 0,
         "steps": 3,
-        "latency_ms": 0.10541698429733515,
+        "latency_ms": 0.10400003520771861,
         "input_tokens": 120,
         "output_tokens": 60,
         "cost_usd": 0.0

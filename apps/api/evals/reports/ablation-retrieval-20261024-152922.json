@@ -1,6 +1,6 @@
 {
   "suite": "ablation-retrieval",
-  "generated_at": "2026-10-24T15:28:09.808962+00:00",
+  "generated_at": "2026-10-24T15:29:22.741144+00:00",
   "disclaimer": "合成语料 + 人工标注的离线消融：量化确定性检索管道各组件的边际贡献，仅验证评测流程，不代表真实业务检索效果，不代表模型效果。",
   "baseline": "ablation-hybrid-bigram",
   "configs": [
@@ -17,15 +17,15 @@
         "recall_at_3": 0.7916666666666666,
         "recall_at_5": 0.9083333333333333,
         "mrr": 0.7516666666666667,
-        "latency_ms_mean": 0.3014880348928273,
-        "latency_ms_p50": 0.2786874829325825,
-        "latency_ms_p95": 0.4257309250533579,
+        "latency_ms_mean": 0.29444374958984554,
+        "latency_ms_p50": 0.28206201386637986,
+        "latency_ms_p95": 0.4036603873828426,
         "empty_rate": 0.0,
         "recall_at_5_std": 0.28124228384477007,
         "mrr_std": 0.3663597200081424,
-        "latency_ms_std": 0.06832856995864935
+        "latency_ms_std": 0.048228014699364316
       },
-      "suite_wall_ms": 18.23
+      "suite_wall_ms": 17.78
     },
     {
       "config": {
@@ -40,15 +40,15 @@
         "recall_at_3": 0.8916666666666667,
         "recall_at_5": 0.9416666666666667,
         "mrr": 0.7922222222222222,
-        "latency_ms_mean": 0.3427395024724926,
-        "latency_ms_p50": 0.3182494838256389,
-        "latency_ms_p95": 0.4539892717730254,
+        "latency_ms_mean": 0.3162318151832248,
+        "latency_ms_p50": 0.30449999030679464,
+        "latency_ms_p95": 0.41802880878094584,
         "empty_rate": 0.0,
         "recall_at_5_std": 0.22530843057659625,
         "mrr_std": 0.3215193483416273,
-        "latency_ms_std": 0.07475131754153415
+        "latency_ms_std": 0.04599865401559062
       },
-      "suite_wall_ms": 20.73
+      "suite_wall_ms": 19.08
     },
     {
       "config": {
@@ -63,15 +63,15 @@
         "recall_at_3": 0.8416666666666667,
         "recall_at_5": 0.925,
         "mrr": 0.795,
-        "latency_ms_mean": 0.1862972159869969,
-        "latency_ms_p50": 0.1707920164335519,
-        "latency_ms_p95": 0.2574604819528758,
+        "latency_ms_mean": 0.1727430964820087,
+        "latency_ms_p50": 0.1638329995330423,
+        "latency_ms_p95": 0.256652373354882,
         "empty_rate": 0.0,
         "recall_at_5_std": 0.25535922410074274,
         "mrr_std": 0.34038785067756,
-        "latency_ms_std": 0.06358391576191037
+        "latency_ms_std": 0.03732427086934455
       },
-      "suite_wall_ms": 11.3
+      "suite_wall_ms": 10.47
     },
     {
       "config": {
@@ -86,15 +86,15 @@
         "recall_at_3": 0.8416666666666667,
         "recall_at_5": 0.8916666666666667,
         "mrr": 0.8227777777777778,
-        "latency_ms_mean": 0.2072833817995464,
-        "latency_ms_p50": 0.18722901586443186,
-        "latency_ms_p95": 0.34212224127259105,
+        "latency_ms_mean": 0.19451045081950724,
+        "latency_ms_p50": 0.1865000231191516,
+        "latency_ms_p95": 0.2843100810423493,
         "empty_rate": 0.0,
         "recall_at_5_std": 0.30402393911591163,
         "mrr_std": 0.3480762829688804,
-        "latency_ms_std": 0.06555498635251589
+        "latency_ms_std": 0.03981766138372965
       },
-      "suite_wall_ms": 12.56
+      "suite_wall_ms": 11.77
     },
     {
       "config": {
@@ -109,15 +109,15 @@
         "recall_at_3": 0.775,
         "recall_at_5": 0.8583333333333333,
         "mrr": 0.6747222222222222,
-        "latency_ms_mean": 0.06600072956643999,
-        "latency_ms_p50": 0.06427097832784057,
-        "latency_ms_p95": 0.07839343743398784,
+        "latency_ms_mean": 0.06778536286825936,
+        "latency_ms_p50": 0.06770799518562853,
+        "latency_ms_p95": 0.07673327345401049,
         "empty_rate": 0.0,
         "recall_at_5_std": 0.34268141991586815,
         "mrr_std": 0.3922217304057351,
-        "latency_ms_std": 0.009570035020089079
+        "latency_ms_std": 0.005379299214334477
       },
-      "suite_wall_ms": 4.08
+      "suite_wall_ms": 4.17
     },
     {
       "config": {
@@ -132,15 +132,15 @@
         "recall_at_3": 0.775,
         "recall_at_5": 0.8583333333333333,
         "mrr": 0.6747222222222222,
-        "latency_ms_mean": 0.06951329899796595,
-        "latency_ms_p50": 0.06977052544243634,
-        "latency_ms_p95": 0.07839163590688258,
+        "latency_ms_mean": 0.0673819372120003,
+        "latency_ms_p50": 0.06827097968198359,
+        "latency_ms_p95": 0.07394376152660698,
         "empty_rate": 0.0,
         "recall_at_5_std": 0.34268141991586815,
         "mrr_std": 0.3922217304057351,
-        "latency_ms_std": 0.00787756329211719
+        "latency_ms_std": 0.004506546519395165
       },
-      "suite_wall_ms": 4.29
+      "suite_wall_ms": 4.15
     }
   ]
 }
