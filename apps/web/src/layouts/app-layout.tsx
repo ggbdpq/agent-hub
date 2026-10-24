@@ -1,11 +1,12 @@
 import { Outlet } from "react-router";
-import { Flower2, ListChecks, ReceiptText } from "lucide-react";
+import { Flower2, ListChecks, Radar, ReceiptText } from "lucide-react";
 import { NavLink } from "react-router";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { to: "/", title: "花语顾问", icon: Flower2, end: true },
   { to: "/tasks", title: "养护方案", icon: ListChecks },
+  { to: "/runs", title: "设备巡检", icon: Radar },
   { to: "/orders", title: "订单支付", icon: ReceiptText },
 ];
 

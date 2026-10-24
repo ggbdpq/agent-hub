@@ -3,6 +3,7 @@ import { AppLayout } from "@/layouts/app-layout";
 import { ChatPage } from "@/features/chat/chat-page";
 import { TasksPage } from "@/features/tasks/tasks-page";
 import { OrdersPage } from "@/features/orders/orders-page";
+import { RunsPage } from "@/features/runs/runs-page";
 import NotFound from "@/pages/not-found";
 
 export const router = createBrowserRouter([
@@ -12,6 +13,7 @@ export const router = createBrowserRouter([
       { path: "/", element: <ChatPage /> },
       { path: "/tasks", element: <TasksPage /> },
       { path: "/orders", element: <OrdersPage /> },
+      { path: "/runs", element: <RunsPage /> },
     ],
   },
   { path: "/404", element: <NotFound /> },
