@@ -21,11 +21,16 @@ def test_retrieval_suite_writes_reports(tmp_path: Path) -> None:
     payload = json.loads(json_files[0].read_text(encoding="utf-8"))
     assert payload["suite"] == "retrieval"
     assert payload["sample_size"]["queries"] == 60
-    assert len(payload["variants"]) == 4
+    names = [v["name"] for v in payload["variants"]]
+    assert {"hybrid-bigram", "hybrid-unigram", "bm25-only-bigram", "vector-only-bigram"} <= set(names)
+    assert len(payload["variants"]) in (4, 6), f"jieba 可装时应为 6 变体，实际 {names}"
+    if len(payload["variants"]) == 6:
+        assert {"hybrid-jieba", "bm25-only-jieba"} <= set(names)
+        assert "U4 关闭" in md_files[0].read_text(encoding="utf-8") or "建议主线程批准" in md_files[0].read_text(encoding="utf-8")
     assert all("recall_at_5_std" in v["aggregates"] for v in payload["variants"])
     assert "不代表模型效果" in payload["disclaimer"]
     md = md_files[0].read_text(encoding="utf-8")
-    assert "## 分词方案结论（U4）" in md
+    assert "## 分词方案结论（U4" in md
     assert "不代表模型效果" in md
     assert "| 变体 | Recall@1 | Recall@3 | Recall@5 | Recall@5±σ | MRR | P50 (ms) | P95 (ms) | 空结果率 |" in md
     assert "## 方差与波动" in md

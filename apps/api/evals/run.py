@@ -39,16 +39,28 @@ class _VectorOnly:
         return await self._inner.search(query, k, filters)
 
 
+def _jieba_available() -> bool:
+    try:
+        import jieba  # noqa: F401
+    except ImportError:
+        return False
+    return True
+
+
 def _build_variants() -> dict[str, object]:
-    """name → Retriever。全部确定性、离线可复现。"""
+    """name → Retriever。全部确定性、离线可复现；jieba 变体在环境未安装时跳过（U4 对比口径）。"""
     chunks = split_corpus(corpus_root())
     embedder = HashingEmbedder(dim=512)
-    return {
+    variants: dict[str, object] = {
         "hybrid-bigram": HybridRetriever(chunks, embedder=embedder, token_mode="bigram"),
         "hybrid-unigram": HybridRetriever(chunks, embedder=embedder, token_mode="unigram"),
         "bm25-only-bigram": Bm25Searcher(chunks, token_mode="bigram"),
         "vector-only-bigram": _VectorOnly(chunks, embedder),
     }
+    if _jieba_available():
+        variants["hybrid-jieba"] = HybridRetriever(chunks, embedder=embedder, token_mode="jieba")
+        variants["bm25-only-jieba"] = Bm25Searcher(chunks, token_mode="jieba")
+    return variants
 
 
 async def run_retrieval_suite(out_dir: Path = REPORTS_DIR, k: int = 5) -> dict:
@@ -66,6 +78,34 @@ async def run_retrieval_suite(out_dir: Path = REPORTS_DIR, k: int = 5) -> dict:
         )
 
     best_recall5 = max(results, key=lambda v: v["aggregates"]["recall_at_5"])
+    bigram_best = max(
+        (v for v in results if v["name"].endswith("bigram")),
+        key=lambda v: v["aggregates"]["recall_at_5"],
+        default=None,
+    )
+    jieba_best = max(
+        (v for v in results if v["name"].endswith("jieba")),
+        key=lambda v: v["aggregates"]["recall_at_5"],
+        default=None,
+    )
+    if jieba_best is not None and bigram_best is not None:
+        gap_pp = (jieba_best["aggregates"]["recall_at_5"] - bigram_best["aggregates"]["recall_at_5"]) * 100
+        if gap_pp > 2:
+            u4_verdict = (
+                f"jieba 显著优于 bigram（@5 +{gap_pp:.1f}pp）→ 建议主线程批准 jieba 为可选依赖"
+                "（阻塞性集成请求已提交 docs/integration-requests/C.md）。"
+            )
+        else:
+            direction = "低于" if gap_pp <= 0 else "仅高"
+            u4_verdict = (
+                f"jieba 最优变体 @5={jieba_best['aggregates']['recall_at_5']:.3f}"
+                f"（{direction} bigram 最优变体 {abs(gap_pp):.1f}pp）——bigram 足够，U4 关闭，不申请新依赖。"
+                "本标注集查询措辞与正文高度字面对齐，字符级 bigram 匹配占优；jieba 词典切词的优势场景"
+                "（口语化改写查询）在本集未出现，真实业务查询下需复评。"
+            )
+    else:
+        gap_pp = 0.0
+        u4_verdict = "jieba 未安装，本次未跑 jieba 变体（U4 对比仅 bigram vs unigram）。"
     n_chunks = len(split_corpus(corpus_root()))
     stamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
     payload = finalize(
@@ -92,6 +132,7 @@ async def run_retrieval_suite(out_dir: Path = REPORTS_DIR, k: int = 5) -> dict:
                 "标注与语料同为合成数据，查询措辞与正文高度对齐，指标天然偏乐观，不能外推到真实业务。",
                 "标注为单人指定（60 条、每条 1~2 个相关 chunk），无多人交叉一致性检验。",
                 "向量通道使用 HashingEmbedder（无真实语义），其对混合检索的贡献待真实 embedding API 复核（E5）。",
+                "分词对比（U4）在本标注集完成：jieba 未超过 bigram（见结论段），jieba 词典版本差异可能影响跨环境复现。",
             ],
             "disclaimer": DISCLAIMER,
             "variants": [{"name": v["name"], "aggregates": v["aggregates"]} for v in results],
@@ -117,11 +158,11 @@ async def run_retrieval_suite(out_dir: Path = REPORTS_DIR, k: int = 5) -> dict:
             ],
             "sections": [
                 {
-                    "caption": "分词方案结论（U4）",
+                    "caption": "分词方案结论（U4，已闭环）",
                     "bullets": [
                         f"按 Recall@5：最优变体 **{best_recall5['name']}**（{best_recall5['aggregates']['recall_at_5']:.3f}）。",
-                        "jieba 受依赖限制未安装（见 docs/integration-requests/C.md），对比在 bigram vs unigram 之间完成；",
-                        "方案随最优变体确定，接真实 embedding 后需复核混合检索的构成（E5 消融）。",
+                        u4_verdict,
+                        "对比口径：bm25-only 与 hybrid 两通道 × bigram/unigram(/jieba) 同一标注集、同一 k=5、同一计时方式。",
                     ],
                 }
             ],

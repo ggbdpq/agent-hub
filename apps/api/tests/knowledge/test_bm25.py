@@ -11,6 +11,8 @@ API_ROOT = Path(__file__).resolve().parents[2]
 if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
+import pytest  # noqa: E402
+
 from evals.datasets import corpus_root  # noqa: E402
 from app.knowledge.bm25 import Bm25Searcher  # noqa: E402
 from app.knowledge.splitting import load_corpus_docs, split_corpus  # noqa: E402
@@ -29,6 +31,17 @@ def test_tokenize_mixed_cjk_ascii() -> None:
 def test_tokenize_deterministic() -> None:
     q = "风电振动超限处理"
     assert tokenize(q) == tokenize(q)
+
+
+def test_tokenize_jieba_mode() -> None:
+    """U4 闭环：jieba 模式与 bigram/unigram 同口径——ASCII 整词保留，CJK 段交 jieba。"""
+    pytest.importorskip("jieba", reason="jieba 未安装（见 docs/integration-requests/C.md）")
+    tokens = tokenize("光伏逆变器柜温 cabinet_temp_c > 85 时立即上报", mode="jieba")
+    assert "cabinet_temp_c" in tokens  # ASCII 标识符整词保留（与 bigram/unigram 同口径）
+    assert "85" in tokens
+    assert "逆变器" in tokens and "立即" in tokens  # jieba 词典切词
+    assert "光伏逆变器柜温" not in tokens  # 不再是整段
+    assert tokenize("风机振动超限处理", mode="jieba") == tokenize("风机振动超限处理", mode="jieba")
 
 
 def test_bm25_keyword_hit_in_top3() -> None:

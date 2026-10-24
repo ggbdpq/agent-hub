@@ -6,6 +6,7 @@
 
 ## 待处理
 
-- [2026-10-24] `apps/api/pyproject.toml` / 新增 `jieba` 可选依赖（建议 extras：`dev` 或 `eval`）/ 原因：计划 §7.3-C2 与 U4 要求中文分词在 jieba 与字符 bigram 间按 Recall@5 对比后定论；jieba 未安装且 C 无权改 pyproject，本轮对比只能在 bigram vs unigram 之间完成（结论已写入 evals/reports/retrieval-*.md 的「分词方案结论（U4）」：混合+unigram 最优 0.942，bm25-only-bigram 0.925 次之，向量单路 0.858 最弱；HashingEmbedder 无真实语义，向量通道对融合是负贡献，接真实 embedding API 后需复核）。/ **不阻塞**：bigram 起步可满足 P0 验收，jieba 对比留待依赖到位后补跑。
+- [2026-10-24] ~~`apps/api/pyproject.toml` / 新增 `jieba` 可选依赖~~ → **已结案（2026-10-24，U4 闭环）**：主线程直接装入了 worktree venv（jieba 0.42.1，未进 pyproject），C 已按同口径补跑三轴对比——jieba 最优变体 @5=0.892，**低于** bigram 最优变体 0.925（-3.3pp），未满足">2pp 才申请依赖"条件。结论：**bigram 足够，U4 关闭，不申请把 jieba 写进 pyproject**（venv 中的 jieba 仅为环境残留，套件在无 jieba 环境会自动跳过 jieba 变体，不影响 CI）。详见 evals/reports/retrieval-20261024-153400.md 结论段。
 - [2026-10-24] `apps/api/app/contracts/fakes.py`（只读反馈，非改动请求）/ 原因：`ScriptedAgentRunner` 不发 `tool.called`/`metric.usage` 事件，评测框架用它跑 agent 套件时工具调用 P/R、参数准确率、Token 指标恒为空/0（诚实口径，已标注）。C 已自建 `evals/scripted_tools.py`（实现同一 AgentRunner 契约、发完整事件流、支持故障注入）绕过，未改契约。/ **不阻塞**：若主线程后续愿意给 fakes 增加工具事件能力，C 的评测框架无需改动即可消费。
+
 
