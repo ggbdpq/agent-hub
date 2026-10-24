@@ -54,32 +54,26 @@ export class ApiProcess {
 
   get running() {
     // SIGKILL 退出时 exitCode 为 null、signalCode 非空——两者都算已退出
-    return (
-      this.child !== null && this.child.exitCode === null && this.child.signalCode === null
-    );
+    return this.child !== null && this.child.exitCode === null && this.child.signalCode === null;
   }
 
   async start() {
     if (this.running) throw new Error("API 已在运行，先 kill9 再重启");
-    const child = spawn(
-      venvPython,
-      ["-m", "uvicorn", "app.main:app", "--port", String(API_PORT)],
-      {
-        cwd: resolve(ROOT, "apps/api"),
-        env: {
-          ...process.env,
-          AGENT_HUB_RUNS_DB: this.runsDb,
-          AGENT_HUB_CHECKPOINTS: this.checkpoints,
-          AGENT_HUB_LLM: "scripted", // 离线确定性剧本（E2E 不碰真实模型）
-          OPENAI_API_KEY: "",
-          OPENAI_PROVIDER: "",
-          NO_PROXY: "localhost,127.0.0.1",
-          no_proxy: "localhost,127.0.0.1",
-        },
-        stdio: ["ignore", "pipe", "pipe"],
-        shell: false,
+    const child = spawn(venvPython, ["-m", "uvicorn", "app.main:app", "--port", String(API_PORT)], {
+      cwd: resolve(ROOT, "apps/api"),
+      env: {
+        ...process.env,
+        AGENT_HUB_RUNS_DB: this.runsDb,
+        AGENT_HUB_CHECKPOINTS: this.checkpoints,
+        AGENT_HUB_LLM: "scripted", // 离线确定性剧本（E2E 不碰真实模型）
+        OPENAI_API_KEY: "",
+        OPENAI_PROVIDER: "",
+        NO_PROXY: "localhost,127.0.0.1",
+        no_proxy: "localhost,127.0.0.1",
       },
-    );
+      stdio: ["ignore", "pipe", "pipe"],
+      shell: false,
+    });
     this.child = child;
     const pipe = (chunk) => {
       this.output += chunk.toString();
@@ -151,10 +145,10 @@ export async function startWeb() {
 
 /** 终态后拉取完整事件序列（服务端排空后关流；直连 API，不经代理） */
 export async function collectRunEvents(runId, { timeoutMs = 20_000 } = {}) {
-  const res = await fetch(
-    `${API_ORIGIN}/api/runs/${encodeURIComponent(runId)}/events`,
-    { headers: { accept: "text/event-stream" }, signal: AbortSignal.timeout(timeoutMs) },
-  );
+  const res = await fetch(`${API_ORIGIN}/api/runs/${encodeURIComponent(runId)}/events`, {
+    headers: { accept: "text/event-stream" },
+    signal: AbortSignal.timeout(timeoutMs),
+  });
   if (!res.ok) throw new Error(`events 请求失败：HTTP ${res.status}`);
   const text = await res.text();
   const events = [];

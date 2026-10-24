@@ -30,7 +30,10 @@ import {
  * 跳过以保持 `pnpm test:e2e` 全绿；用 `pnpm test:e2e:restart`（或设
  * AGENT_HUB_E2E_RESTART=1）显式启用。
  */
-test.skip(!process.env.AGENT_HUB_E2E_RESTART, "需 runner 审批恢复补丁 + 独立编排：scripts/e2e-restart/ 与 docs/integration-requests/Y.md");
+test.skip(
+  !process.env.AGENT_HUB_E2E_RESTART,
+  "需 runner 审批恢复补丁 + 独立编排：scripts/e2e-restart/ 与 docs/integration-requests/Y.md",
+);
 
 test.setTimeout(150_000);
 
@@ -86,7 +89,10 @@ async function assertWriteToolsExecutedOnce(runId: string, runsDb: string): Prom
   // 终态到达：事件流含 run.completed（而非 run.failed）
   expect(
     events.some((e) => e.type === "run.completed"),
-    `终态应为 run.completed，实际：${events.filter((e) => e.type.startsWith("run.")).map((e) => e.type).join(", ")}`,
+    `终态应为 run.completed，实际：${events
+      .filter((e) => e.type.startsWith("run."))
+      .map((e) => e.type)
+      .join(", ")}`,
   ).toBeTruthy();
 
   // 续跑痕迹：重启后新 worker 重认领（run.resumed，attempt ≥ 2）
@@ -123,7 +129,11 @@ async function assertWriteToolsExecutedOnce(runId: string, runsDb: string): Prom
   }
   // 账本 create_work_order 键数 == 真实执行与去重命中的设备并集（无账本外执行）
   const dedupDevices = new Set(
-    deduped.map((e) => String(e.payload.ledger_key ?? "").split(":").pop()),
+    deduped.map((e) =>
+      String(e.payload.ledger_key ?? "")
+        .split(":")
+        .pop(),
+    ),
   );
   const union = new Set([...executed.keys(), ...dedupDevices]);
   expect(rows.filter((r) => String(r.tool) === "create_work_order").length).toBe(union.size);
@@ -164,7 +174,9 @@ test("Y1 运行中 SIGKILL 重启：页面恢复续跑到终态，写工具不�
   await assertWriteToolsExecutedOnce(runId, api!.runsDb);
 });
 
-test("Y2 审批等待期 SIGKILL 重启：审批条恢复 → 批准 → 报告完成，派工只执行一次", async ({ page }) => {
+test("Y2 审批等待期 SIGKILL 重启：审批条恢复 → 批准 → 报告完成，派工只执行一次", async ({
+  page,
+}) => {
   // 独立 db：杀掉 Y1 的 API，换 y2 库重新拉起（避免上一条用例的历史 run 干扰）
   await api!.kill9();
   await cleanupDb(dbPaths("y2"));
