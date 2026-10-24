@@ -5,6 +5,8 @@
 """
 
 from app.contracts.runtime import Claim, LeaseLost
+from app.runtime.heartbeat import HeartbeatLoop
+from app.runtime.reclaimer import Reclaimer
 from app.runtime.state_machine import TERMINAL_STATUSES, VALID_TRANSITIONS, can_transition
 from app.runtime.store import Clock, SqliteRunStore, from_us, to_us
 
@@ -13,7 +15,9 @@ __all__ = [
     "VALID_TRANSITIONS",
     "Claim",
     "Clock",
+    "HeartbeatLoop",
     "LeaseLost",
+    "Reclaimer",
     "SqliteRunStore",
     "can_transition",
     "from_us",

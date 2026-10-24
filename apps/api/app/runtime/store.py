@@ -278,6 +278,21 @@ class SqliteRunStore:
             row = self._conn.execute("SELECT * FROM runs WHERE run_id = ?", (run_id,)).fetchone()
             return self._record(row) if row is not None else None
 
+    def list_expired(self) -> list[RunRecord]:
+        """status=running 且租约已过期的 run（回收器扫描用）。
+
+        queued 不在列——它由 claim 直接认领；本方法只读，不迁移、不回收状态。
+        """
+        with self._lock:
+            now = self._now_us()
+            rows = self._conn.execute(
+                "SELECT * FROM runs"
+                " WHERE status = 'running' AND lease_expires_at IS NOT NULL AND lease_expires_at <= ?"
+                " ORDER BY created_at, rowid",
+                (now,),
+            ).fetchall()
+            return [self._record(row) for row in rows]
+
     def events_after(self, run_id: str, after_seq: int) -> list[RunEvent]:
         """after_seq 之后的事件按 seq 升序返回，支撑 SSE Last-Event-ID 断点续传。"""
         with self._lock:
