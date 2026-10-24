@@ -19,6 +19,7 @@ from pydantic import ValidationError
 from app.agents.briefs import brief_json, load_brief
 from app.contracts.agent import Finding, RunContext
 from app.contracts.events import NewEvent
+from app.skills.base import Skill, resolve_allowed_tools, skill_prompt_fragments
 from app.tools.anomaly import AnomalyResult
 from app.tools.budget import BudgetTracker, usage_from_message
 from app.tools.executor import ToolExecutor, ToolOutcome
@@ -62,10 +63,21 @@ async def run_inspection(
     max_steps: int = DEFAULT_MAX_STEPS,
     fixture_root=None,
     timeout_s: float | None = None,
+    skills: list[Skill] | None = None,
 ) -> InspectorResult:
-    """单个设备子任务的 ReAct 循环。永不抛异常：失败转 failure_reason（B5 记 partial）。"""
+    """单个设备子任务的 ReAct 循环。永不抛异常：失败转 failure_reason（B5 记 partial）。
+
+    skills（B10）：白名单取各 Skill allowed_tools 的并集（声明之外不可用），
+    系统提示追加 Skill 片段；不传则全量读工具可用（行为同 B4）。
+    """
     result = InspectorResult(device_id=device_id)
-    executor = ToolExecutor(registry, ctx, node="inspector", tracker=tracker)
+    executor = ToolExecutor(
+        registry,
+        ctx,
+        node="inspector",
+        tracker=tracker,
+        allowed=resolve_allowed_tools(skills),
+    )
 
     observed_chunks: set[str] = set()
     anomaly: AnomalyResult | None = None
@@ -86,6 +98,9 @@ async def run_inspection(
         ensure_ascii=False,
     )
     system = _SYSTEM_TEMPLATE.format(tools=tools_desc, max_steps=max_steps)
+    fragments = skill_prompt_fragments(skills)
+    if fragments:
+        system = f"{system}\n\n{fragments}"
     messages: list = [SystemMessage(system), HumanMessage(brief_json(brief))]
 
     try:

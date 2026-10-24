@@ -252,12 +252,19 @@ async def _draft_work_orders(
         return []
     drafted: dict[str, tuple[str, str]] = {}
     try:
+        from app.skills.base import get_skill
+
+        # B10：起草守则以 Skill 片段注入（协议部分仍由 _ORDER_SYSTEM 提供）
+        system = _ORDER_SYSTEM + "\n\n" + get_skill("work-order-drafting").system_prompt
+    except Exception:
+        system = _ORDER_SYSTEM  # Skill 缺失退内置守则（不阻断流程）
+    try:
         model = ctx.llm()
         payload = json.dumps(
             [{"device_id": f.device_id, "level": f.level, "summary": f.summary} for f in targets],
             ensure_ascii=False,
         )
-        reply = await model.ainvoke([SystemMessage(_ORDER_SYSTEM), HumanMessage(payload)])
+        reply = await model.ainvoke([SystemMessage(system), HumanMessage(payload)])
         if tracker.consume_tokens(usage_from_message(reply)):
             text = reply.content.strip()
             fenced = _JSON_FENCE.search(text)
