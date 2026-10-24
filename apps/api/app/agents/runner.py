@@ -78,8 +78,19 @@ class InspectionAgentRunner:
             inspector_skills=self._inspector_skills,
         )
         config = {"configurable": {"thread_id": run_id}}  # thread_id = run_id（B8）
-        result = await graph.ainvoke({"request": input.model_dump()}, config)
-        # interrupt 循环：每次中断取一次审批决定并恢复（审批事件由 reporter 节点发）
+
+        # R1：生产重认领路径。若该 thread 已停在审批中断（服务端重启后 worker 重认领），
+        # 必须以 Command(resume) 恢复检查点，绝不能带输入重启——否则整图从 START 重跑，
+        # findings（operator.add）翻倍、planner/inspector 重复执行。
+        pending = await _pending_interrupt_payload(graph, config)
+        if pending is not None:
+            # 审批决定仍经 approver 路由：重启后由新进程的 approver 接管一次性消费
+            decision = self._approver(pending)
+            result = await graph.ainvoke(Command(resume=decision), config)
+        else:
+            result = await graph.ainvoke({"request": input.model_dump()}, config)
+
+        # in-process interrupt 循环：本轮启动后新出现的中断逐次续跑
         guard = 0
         while "__interrupt__" in result:
             guard += 1
@@ -102,6 +113,19 @@ class InspectionAgentRunner:
         if report is None:
             raise RuntimeError(f"编排未产出报告（run_id={run_id}）")
         return InspectionReport.model_validate(report)
+
+
+async def _pending_interrupt_payload(graph, config: dict) -> dict | None:
+    """检查点存在 pending interrupt 时返回其 payload（供 approver 决策），否则 None。"""
+    state = await graph.aget_state(config)
+    if not getattr(state, "next", None):
+        return None
+    for task in getattr(state, "tasks", ()) or ():
+        interrupts = getattr(task, "interrupts", ()) or ()
+        if interrupts:
+            value = interrupts[0].value
+            return value if isinstance(value, dict) else {"value": value}
+    return None
 
 
 def build_context_from_claim(
