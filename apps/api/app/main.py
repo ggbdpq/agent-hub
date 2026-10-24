@@ -335,7 +335,14 @@ def create_app(
                     yield f"id: {event.seq}\nevent: {event.type}\ndata: {event.model_dump_json(by_alias=True)}\n\n"
                     seq = event.seq
                 record = await asyncio.to_thread(state.store.get, run_id)
-                if record is None or record.status in _TERMINAL_STATUSES:
+                if record is None:
+                    return
+                if record.status in _TERMINAL_STATUSES:
+                    # 竞态修补：终态事件与终态状态同事务落库，但本批 events_after 可能在
+                    # 状态可见之前读取（批次与状态检查之间有窗口）——退出前补排空一次，
+                    # 保证 Last-Event-ID 消费方能收到含终态事件的完整序列
+                    for event in await asyncio.to_thread(state.store.events_after, run_id, seq):
+                        yield f"id: {event.seq}\nevent: {event.type}\ndata: {event.model_dump_json(by_alias=True)}\n\n"
                     return
                 await asyncio.sleep(0.2)
 
