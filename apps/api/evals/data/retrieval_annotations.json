@@ -1,0 +1,427 @@
+{
+  "version": 1,
+  "note": "合成数据检索评测标注：问题 → 相关 chunk_id。语料见 fixtures/inspection/corpus/，仅供离线评测。",
+  "queries": [
+    {
+      "qid": "R01",
+      "query": "光伏逆变器的输出功率和柜温正常运行范围是多少？",
+      "relevant_chunk_ids": [
+        "pv_inverter-thresholds#光伏逆变器异常判据与告警阈值/正常运行范围#1"
+      ]
+    },
+    {
+      "qid": "R02",
+      "query": "光伏逆变器柜温超过多少摄氏度就要立即上报并启动异常处理？",
+      "relevant_chunk_ids": [
+        "pv_inverter-thresholds#光伏逆变器异常判据与告警阈值/告警阈值#1"
+      ]
+    },
+    {
+      "qid": "R03",
+      "query": "连续多个采样点单调偏离正常范围，怎么判定是不是漂移类异常？",
+      "relevant_chunk_ids": [
+        "pv_inverter-thresholds#光伏逆变器异常判据与告警阈值/判读方法#1"
+      ]
+    },
+    {
+      "qid": "R04",
+      "query": "判定光伏逆变器异常之后，生成工单上报时需要注明哪些内容？",
+      "relevant_chunk_ids": [
+        "pv_inverter-thresholds#光伏逆变器异常判据与告警阈值/上报要求#1"
+      ]
+    },
+    {
+      "qid": "R05",
+      "query": "临港园区光伏电站的逆变器日常巡检前要准备什么？",
+      "relevant_chunk_ids": [
+        "pv_inverter-daily#光伏逆变器日常巡检规程/巡检准备#1"
+      ]
+    },
+    {
+      "qid": "R06",
+      "query": "光伏逆变器日常巡检有哪些巡检项目？",
+      "relevant_chunk_ids": [
+        "pv_inverter-daily#光伏逆变器日常巡检规程/巡检项目#1"
+      ]
+    },
+    {
+      "qid": "R07",
+      "query": "光伏逆变器巡检中发现参数越限，记录与处理的要求是什么？",
+      "relevant_chunk_ids": [
+        "pv_inverter-daily#光伏逆变器日常巡检规程/巡检记录#1",
+        "pv_inverter-thresholds#光伏逆变器异常判据与告警阈值/上报要求#1"
+      ]
+    },
+    {
+      "qid": "R08",
+      "query": "光伏逆变器多久做一次定期维护，各周期做哪些项目？",
+      "relevant_chunk_ids": [
+        "pv_inverter-maintenance#光伏逆变器定期维护周期表/维护周期#1"
+      ]
+    },
+    {
+      "qid": "R09",
+      "query": "逆变器超期未维护怎么处理？",
+      "relevant_chunk_ids": [
+        "pv_inverter-maintenance#光伏逆变器定期维护周期表/记录要求#1"
+      ]
+    },
+    {
+      "qid": "R10",
+      "query": "光伏逆变器停电作业前要满足哪些安全前提？",
+      "relevant_chunk_ids": [
+        "pv_inverter-safety#光伏逆变器作业安全规程/作业前提#1"
+      ]
+    },
+    {
+      "qid": "R11",
+      "query": "逆变器检修现场的作业要求有哪些？",
+      "relevant_chunk_ids": [
+        "pv_inverter-safety#光伏逆变器作业安全规程/现场要求#1"
+      ]
+    },
+    {
+      "qid": "R12",
+      "query": "新装光伏逆变器验收前要检查哪些内容？",
+      "relevant_chunk_ids": [
+        "pv_inverter-acceptance#光伏逆变器安装验收规程/验收前检查#1"
+      ]
+    },
+    {
+      "qid": "R13",
+      "query": "风电机组正常运行时振动和转速的范围是多少？",
+      "relevant_chunk_ids": [
+        "wind_turbine-thresholds#风力发电机组异常判据与告警阈值/正常运行范围#1"
+      ]
+    },
+    {
+      "qid": "R14",
+      "query": "风机振动速度超过多少要立即上报？",
+      "relevant_chunk_ids": [
+        "wind_turbine-thresholds#风力发电机组异常判据与告警阈值/告警阈值#1"
+      ]
+    },
+    {
+      "qid": "R15",
+      "query": "相邻采样点变化幅度超过正常波动 3 倍算什么异常？",
+      "relevant_chunk_ids": [
+        "wind_turbine-thresholds#风力发电机组异常判据与告警阈值/判读方法#1"
+      ]
+    },
+    {
+      "qid": "R16",
+      "query": "风电机组判定异常后上报要求是什么？",
+      "relevant_chunk_ids": [
+        "wind_turbine-thresholds#风力发电机组异常判据与告警阈值/上报要求#1"
+      ]
+    },
+    {
+      "qid": "R17",
+      "query": "沿海风电场风机日常巡检前要确认什么？",
+      "relevant_chunk_ids": [
+        "wind_turbine-daily#风力发电机组日常巡检规程/巡检准备#1"
+      ]
+    },
+    {
+      "qid": "R18",
+      "query": "风电机组日常巡检要做哪些检查项目？",
+      "relevant_chunk_ids": [
+        "wind_turbine-daily#风力发电机组日常巡检规程/巡检项目#1"
+      ]
+    },
+    {
+      "qid": "R19",
+      "query": "风电机组巡检记录怎么写？",
+      "relevant_chunk_ids": [
+        "wind_turbine-daily#风力发电机组日常巡检规程/巡检记录#1"
+      ]
+    },
+    {
+      "qid": "R20",
+      "query": "风力发电机组维护周期是怎么安排的？",
+      "relevant_chunk_ids": [
+        "wind_turbine-maintenance#风力发电机组定期维护周期表/维护周期#1"
+      ]
+    },
+    {
+      "qid": "R21",
+      "query": "风机维护记录有什么要求，超期未维护怎么办？",
+      "relevant_chunk_ids": [
+        "wind_turbine-maintenance#风力发电机组定期维护周期表/记录要求#1"
+      ]
+    },
+    {
+      "qid": "R22",
+      "query": "风机作业为什么要执行两票制度？",
+      "relevant_chunk_ids": [
+        "wind_turbine-safety#风力发电机组作业安全规程/作业前提#1"
+      ]
+    },
+    {
+      "qid": "R23",
+      "query": "沿海风电场现场作业有哪些安全要求？",
+      "relevant_chunk_ids": [
+        "wind_turbine-safety#风力发电机组作业安全规程/现场要求#1"
+      ]
+    },
+    {
+      "qid": "R24",
+      "query": "风电机组安装验收测试包括什么？",
+      "relevant_chunk_ids": [
+        "wind_turbine-acceptance#风力发电机组安装验收规程/验收测试#1"
+      ]
+    },
+    {
+      "qid": "R25",
+      "query": "储能变流器输出功率的正常范围是多少？",
+      "relevant_chunk_ids": [
+        "storage_pcs-thresholds#储能变流器异常判据与告警阈值/正常运行范围#1"
+      ]
+    },
+    {
+      "qid": "R26",
+      "query": "储能 PCS 功率骤降百分比超过多少触发告警？",
+      "relevant_chunk_ids": [
+        "storage_pcs-thresholds#储能变流器异常判据与告警阈值/告警阈值#1"
+      ]
+    },
+    {
+      "qid": "R27",
+      "query": "单点越限应该怎么复核？",
+      "relevant_chunk_ids": [
+        "storage_pcs-thresholds#储能变流器异常判据与告警阈值/判读方法#1"
+      ]
+    },
+    {
+      "qid": "R28",
+      "query": "储能电站异常上报要注明什么？",
+      "relevant_chunk_ids": [
+        "storage_pcs-thresholds#储能变流器异常判据与告警阈值/上报要求#1"
+      ]
+    },
+    {
+      "qid": "R29",
+      "query": "储能变流器日常巡检准备做什么？",
+      "relevant_chunk_ids": [
+        "storage_pcs-daily#储能变流器日常巡检规程/巡检准备#1"
+      ]
+    },
+    {
+      "qid": "R30",
+      "query": "储能 PCS 日常巡检检查哪些项目？",
+      "relevant_chunk_ids": [
+        "storage_pcs-daily#储能变流器日常巡检规程/巡检项目#1"
+      ]
+    },
+    {
+      "qid": "R31",
+      "query": "储能变流器巡检记录的要求是什么？",
+      "relevant_chunk_ids": [
+        "storage_pcs-daily#储能变流器日常巡检规程/巡检记录#1"
+      ]
+    },
+    {
+      "qid": "R32",
+      "query": "储能变流器维护周期表里月度、季度、年度各做什么？",
+      "relevant_chunk_ids": [
+        "storage_pcs-maintenance#储能变流器定期维护周期表/维护周期#1"
+      ]
+    },
+    {
+      "qid": "R33",
+      "query": "储能设备超期未维护在巡检中如何标注？",
+      "relevant_chunk_ids": [
+        "storage_pcs-maintenance#储能变流器定期维护周期表/记录要求#1"
+      ]
+    },
+    {
+      "qid": "R34",
+      "query": "储能电站作业前的安全前提有哪些？",
+      "relevant_chunk_ids": [
+        "storage_pcs-safety#储能变流器作业安全规程/作业前提#1"
+      ]
+    },
+    {
+      "qid": "R35",
+      "query": "储能变流器现场作业有什么要求？",
+      "relevant_chunk_ids": [
+        "storage_pcs-safety#储能变流器作业安全规程/现场要求#1"
+      ]
+    },
+    {
+      "qid": "R36",
+      "query": "储能变流器安装验收前要核对什么？",
+      "relevant_chunk_ids": [
+        "storage_pcs-acceptance#储能变流器安装验收规程/验收前检查#1"
+      ]
+    },
+    {
+      "qid": "R37",
+      "query": "变电站间隔负载率和油温的正常范围是多少？",
+      "relevant_chunk_ids": [
+        "substation_bay-thresholds#变电站间隔异常判据与告警阈值/正常运行范围#1"
+      ]
+    },
+    {
+      "qid": "R38",
+      "query": "变电站油温超过多少度要立即上报？",
+      "relevant_chunk_ids": [
+        "substation_bay-thresholds#变电站间隔异常判据与告警阈值/告警阈值#1"
+      ]
+    },
+    {
+      "qid": "R39",
+      "query": "趋势越限的判定标准是什么？",
+      "relevant_chunk_ids": [
+        "substation_bay-thresholds#变电站间隔异常判据与告警阈值/判读方法#1"
+      ]
+    },
+    {
+      "qid": "R40",
+      "query": "变电站间隔异常工单要写明什么？",
+      "relevant_chunk_ids": [
+        "substation_bay-thresholds#变电站间隔异常判据与告警阈值/上报要求#1"
+      ]
+    },
+    {
+      "qid": "R41",
+      "query": "变电站间隔日常巡检前准备什么？",
+      "relevant_chunk_ids": [
+        "substation_bay-daily#变电站间隔日常巡检规程/巡检准备#1"
+      ]
+    },
+    {
+      "qid": "R42",
+      "query": "变电站间隔日常巡检包含哪些项目？",
+      "relevant_chunk_ids": [
+        "substation_bay-daily#变电站间隔日常巡检规程/巡检项目#1"
+      ]
+    },
+    {
+      "qid": "R43",
+      "query": "变电站间隔巡检记录怎么填写？",
+      "relevant_chunk_ids": [
+        "substation_bay-daily#变电站间隔日常巡检规程/巡检记录#1"
+      ]
+    },
+    {
+      "qid": "R44",
+      "query": "变电站间隔多久维护一次？",
+      "relevant_chunk_ids": [
+        "substation_bay-maintenance#变电站间隔定期维护周期表/维护周期#1"
+      ]
+    },
+    {
+      "qid": "R45",
+      "query": "变电站设备维护记录怎么管理？",
+      "relevant_chunk_ids": [
+        "substation_bay-maintenance#变电站间隔定期维护周期表/记录要求#1"
+      ]
+    },
+    {
+      "qid": "R46",
+      "query": "变电站间隔作业的安全前提是什么？",
+      "relevant_chunk_ids": [
+        "substation_bay-safety#变电站间隔作业安全规程/作业前提#1"
+      ]
+    },
+    {
+      "qid": "R47",
+      "query": "城区变电站现场作业有哪些要求？",
+      "relevant_chunk_ids": [
+        "substation_bay-safety#变电站间隔作业安全规程/现场要求#1"
+      ]
+    },
+    {
+      "qid": "R48",
+      "query": "变电站间隔验收测试要做什么？",
+      "relevant_chunk_ids": [
+        "substation_bay-acceptance#变电站间隔安装验收规程/验收测试#1"
+      ]
+    },
+    {
+      "qid": "R49",
+      "query": "桥梁监测传感位移和温度的正常范围是多少？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-thresholds#桥梁监测传感异常判据与告警阈值/正常运行范围#1"
+      ]
+    },
+    {
+      "qid": "R50",
+      "query": "桥梁传感器位移超过多少毫米要立即上报？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-thresholds#桥梁监测传感异常判据与告警阈值/告警阈值#1"
+      ]
+    },
+    {
+      "qid": "R51",
+      "query": "阶跃越限和漂移越限分别怎么判定？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-thresholds#桥梁监测传感异常判据与告警阈值/判读方法#1"
+      ]
+    },
+    {
+      "qid": "R52",
+      "query": "桥梁监测异常上报有什么要求？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-thresholds#桥梁监测传感异常判据与告警阈值/上报要求#1"
+      ]
+    },
+    {
+      "qid": "R53",
+      "query": "桥梁传感器日常巡检前要做什么准备？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-daily#桥梁监测传感日常巡检规程/巡检准备#1"
+      ]
+    },
+    {
+      "qid": "R54",
+      "query": "桥梁监测传感日常巡检有哪些项目？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-daily#桥梁监测传感日常巡检规程/巡检项目#1"
+      ]
+    },
+    {
+      "qid": "R55",
+      "query": "桥梁传感器巡检记录的要求？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-daily#桥梁监测传感日常巡检规程/巡检记录#1"
+      ]
+    },
+    {
+      "qid": "R56",
+      "query": "桥梁监测传感维护周期是怎么规定的？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-maintenance#桥梁监测传感定期维护周期表/维护周期#1"
+      ]
+    },
+    {
+      "qid": "R57",
+      "query": "桥梁传感器维护记录有什么要求？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-maintenance#桥梁监测传感定期维护周期表/记录要求#1"
+      ]
+    },
+    {
+      "qid": "R58",
+      "query": "桥梁上作业的安全前提有哪些？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-safety#桥梁监测传感作业安全规程/作业前提#1"
+      ]
+    },
+    {
+      "qid": "R59",
+      "query": "桥梁监测传感现场作业要求是什么？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-safety#桥梁监测传感作业安全规程/现场要求#1"
+      ]
+    },
+    {
+      "qid": "R60",
+      "query": "桥梁监测传感安装后资料移交包含什么？",
+      "relevant_chunk_ids": [
+        "bridge_sensor-acceptance#桥梁监测传感安装验收规程/资料移交#1"
+      ]
+    }
+  ]
+}
