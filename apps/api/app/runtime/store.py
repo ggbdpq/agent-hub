@@ -18,9 +18,11 @@
 
 from __future__ import annotations
 
+import functools
 import json
 import sqlite3
 import threading
+import time
 import uuid
 from collections.abc import Callable
 from contextlib import contextmanager
@@ -105,6 +107,66 @@ def from_us(us: int) -> datetime:
     return datetime.fromtimestamp(us // 1_000_000, tz=UTC).replace(microsecond=us % 1_000_000)
 
 
+# -- database is locked 的有限退避重试（R1，对抗审查 P2）--
+
+# 初始尝试 + 3 次重试，指数退避 50ms / 100ms / 200ms
+LOCK_RETRY_ATTEMPTS = 4
+LOCK_RETRY_BASE_S = 0.05
+
+
+def _sleep(seconds: float) -> None:
+    """退避睡眠（模块级间接：测试可注入假时钟）。"""
+    time.sleep(seconds)
+
+
+def _is_busy_error(exc: sqlite3.OperationalError) -> bool:
+    """仅 SQLITE_BUSY(5) / SQLITE_LOCKED(6)（含扩展码，掩码 0xFF）视为瞬态锁错。
+
+    手工构造的异常缺 sqlite_errorcode 属性时按消息兜底判定。
+    """
+    code = getattr(exc, "sqlite_errorcode", None)
+    if isinstance(code, int):
+        return code & 0xFF in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED)
+    message = str(exc).lower()
+    return "database is locked" in message or "table is locked" in message
+
+
+def _retry_on_locked(op: Callable, *, attempts: int = LOCK_RETRY_ATTEMPTS,
+                     base_delay_s: float = LOCK_RETRY_BASE_S) -> Callable:
+    """对 database is locked 做有限次指数退避重试；其余异常原样上抛。
+
+    不重试的异常：LeaseLost / KeyError / ValueError 等业务异常（非 OperationalError）；
+    IntegrityError（唯一约束冲突，重试必然再撞）；非 BUSY 错误码的 OperationalError
+    （如 no such table，重试不会自愈）。
+    """
+    @functools.wraps(op)
+    def wrapper(*args, **kwargs):
+        for i in range(attempts):
+            try:
+                return op(*args, **kwargs)
+            except sqlite3.OperationalError as exc:
+                if not _is_busy_error(exc) or i == attempts - 1:
+                    raise
+                _sleep(base_delay_s * (2**i))
+
+    return wrapper
+
+
+def _retry_public_methods_on_locked(cls):
+    """类装饰器：给 store / ledger 的全部公共方法整体包一层 BUSY 重试。
+
+    整体重试的安全性：BEGIN IMMEDIATE 的 BUSY 发生在任何语句执行前（无部分写入）；
+    单语句写在 autocommit 下失败即无副作用；WAL + IMMEDIATE 事务内不再出现写锁
+    竞争，故"整个方法重跑"不会产生部分状态。
+    """
+    for name, attr in list(vars(cls).items()):
+        if name.startswith("_") or not callable(attr):
+            continue
+        setattr(cls, name, _retry_on_locked(attr))
+    return cls
+
+
+@_retry_public_methods_on_locked
 class SqliteRunStore:
     """RunStore 契约的 SQLite 实现（多语句操作经 BEGIN IMMEDIATE 保持原子）。"""
 
@@ -395,7 +457,10 @@ class SqliteRunStore:
         try:
             yield self._conn
         except BaseException:
-            self._conn.execute("ROLLBACK")
+            try:
+                self._conn.execute("ROLLBACK")
+            except sqlite3.OperationalError:
+                pass  # BUSY 发生在 BEGIN 阶段时事务未开启：无可回滚，让原始错误上抛
             raise
         self._conn.execute("COMMIT")
 
@@ -451,6 +516,7 @@ class SqliteRunStore:
         )
 
 
+@_retry_public_methods_on_locked
 class SqliteLedger:
     """ToolLedger 契约的 SQLite 实现：写工具幂等账本。
 
@@ -523,7 +589,10 @@ class SqliteLedger:
         try:
             yield self._conn
         except BaseException:
-            self._conn.execute("ROLLBACK")
+            try:
+                self._conn.execute("ROLLBACK")
+            except sqlite3.OperationalError:
+                pass  # BUSY 发生在 BEGIN 阶段时事务未开启：无可回滚，让原始错误上抛
             raise
         self._conn.execute("COMMIT")
 
