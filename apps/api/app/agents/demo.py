@@ -12,6 +12,8 @@ create_run → claim（租约/fencing token）→ InspectionAgentRunner 全流�
 import argparse
 import asyncio
 import json
+import tempfile
+from pathlib import Path
 
 from langgraph.checkpoint.memory import InMemorySaver
 
@@ -19,7 +21,7 @@ from app.agents.models import env_chat_model_factory
 from app.agents.runner import InspectionAgentRunner, build_context_from_claim
 from app.contracts.agent import Budget, InspectionRequest
 from app.contracts.events import RunEvent
-from app.contracts.fakes import InMemoryLedger, InMemoryRunStore, StaticRetriever
+from app.runtime.store import SqliteLedger, SqliteRunStore
 
 REQUEST = InspectionRequest(
     site="SITE-A",
@@ -29,26 +31,23 @@ REQUEST = InspectionRequest(
 )
 
 
-def _demo_retriever() -> StaticRetriever:
-    """把语料阈值篇作为演示 chunk（chunk_id 与 B 契约格式一致）。"""
-    from app.contracts.knowledge import Chunk
+def _demo_retriever():
+    """真实检索（I3 接线）：C 的语料切分 + 确定性 Hashing 嵌入 + BM25/向量 RRF 融合。"""
+    from app.knowledge.embedding import HashingEmbedder
+    from app.knowledge.retriever import HybridRetriever
+    from app.knowledge.splitting import split_corpus
     from app.tools.devices import DEFAULT_FIXTURE_ROOT
 
-    doc = DEFAULT_FIXTURE_ROOT / "corpus" / "pv_inverter-thresholds.md"
-    text = doc.read_text(encoding="utf-8")
-    title = text.splitlines()[0].lstrip("# ").strip()
-    chunk = Chunk(
-        chunk_id="pv_inverter-thresholds#告警阈值#1",
-        doc_id="pv_inverter-thresholds",
-        title=title,
-        text=text[:500],
-        source_path="fixtures/inspection/corpus/pv_inverter-thresholds.md",
+    return HybridRetriever(
+        split_corpus(DEFAULT_FIXTURE_ROOT / "corpus"), embedder=HashingEmbedder(dim=512)
     )
-    return StaticRetriever([chunk])
 
 
-def _scripts() -> list:
-    """FakeLLM 脚本：planner 1 + inspector 3（判读→检索→结论）+ reporter 起草 ×2（审批恢复重跑）。"""
+def _scripts(evidence_chunk_id: str) -> list:
+    """FakeLLM 脚本：planner 1 + inspector 3（判读→检索→结论）+ reporter 起草 ×2（审批恢复重跑）。
+
+    结论引用的 chunk_id 来自接线后的真实检索（先查一次语料取回），保证证据链可回溯。
+    """
     from langchain_core.messages import AIMessage
 
     def insp(device_id: str) -> list:
@@ -60,7 +59,7 @@ def _scripts() -> list:
                     {
                         "final": {
                             "summary": f"{device_id}：结合确定性判读与规程条款给出结论",
-                            "evidence_chunk_ids": ["pv_inverter-thresholds#告警阈值#1"],
+                            "evidence_chunk_ids": [evidence_chunk_id],
                             "metrics": {},
                         }
                     },
@@ -126,14 +125,20 @@ def _sequence_factory(responses: list):
 
 
 async def main_async(use_fake_llm: bool) -> int:
+    db_path = Path(tempfile.gettempdir()) / "agent-hub-demo-runs.sqlite"
+    if db_path.exists():
+        db_path.unlink()  # 演示用固定幂等键，每次全新库避免历史 run 干扰重复演示
+    store = SqliteRunStore(str(db_path))
+    ledger = SqliteLedger(str(db_path))
+    retriever = _demo_retriever()
+    hits = await retriever.search("柜温 告警阈值", k=1)
+    evidence_chunk_id = hits[0].chunk_id if hits else ""
+    print(f"检索接线自检：语料命中 chunk_id = {evidence_chunk_id or '（无命中）'}")
+
     if use_fake_llm:
-        llm_factory = _sequence_factory(_scripts())
+        llm_factory = _sequence_factory(_scripts(evidence_chunk_id))
     else:
         llm_factory = env_chat_model_factory()  # 未配置 OPENAI_API_KEY 时显式报错
-
-    store = InMemoryRunStore()
-    ledger = InMemoryLedger()
-    retriever = _demo_retriever()
 
     record = store.create_run("inspection", REQUEST.model_dump(), idempotency_key="demo-inspection-1")
     claim = store.claim(worker_id="demo", lease_s=600)
