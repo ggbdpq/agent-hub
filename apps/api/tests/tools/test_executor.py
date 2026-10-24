@@ -46,9 +46,9 @@ async def test_happy_path_read_tool_emits_called_and_result() -> None:
 async def test_budget_tool_calls_exhausted_denies() -> None:
     """超预算：max_tool_calls=1，第二次调用被拒且发 tool.denied。"""
     ex, _, collector = _executor(budget=Budget(max_tool_calls=1))
-    first = await ex.call("list_devices", {})
+    first = await ex.call("get_telemetry", {"device_id": "INV-001"})
     assert first.status == "ok"
-    second = await ex.call("list_devices", {})
+    second = await ex.call("get_telemetry", {"device_id": "INV-001"})
     assert second.status == "denied"
     assert second.reason == "budget_tool_calls"
     assert collector.of_type("tool.denied")[-1].payload["reason"] == "budget_tool_calls"
@@ -58,7 +58,7 @@ async def test_budget_deadline_exceeded_denies() -> None:
     """超预算：deadline 已过 → 拒绝执行。"""
     past = datetime.now(UTC) - timedelta(seconds=1)
     ex, _, _ = _executor(budget=Budget(deadline=past))
-    outcome = await ex.call("list_devices", {})
+    outcome = await ex.call("get_telemetry", {"device_id": "INV-001"})
     assert outcome.status == "denied"
     assert outcome.reason == "deadline_exceeded"
 
@@ -190,7 +190,7 @@ async def test_allowlist_narrows_skill_scope() -> None:
 
 async def test_cancelled_context_denies() -> None:
     ex, _, _ = _executor(cancelled=True)
-    outcome = await ex.call("list_devices", {})
+    outcome = await ex.call("get_telemetry", {"device_id": "INV-001"})
     assert outcome.status == "denied"
     assert outcome.reason == "cancelled"
 
