@@ -1,0 +1,6325 @@
+{
+  "suite": "agent",
+  "runner": "scripted",
+  "label": "仅验证评测流程，不代表模型效果（Scripted 替身，无真实模型）",
+  "title": "智能体评测报告（C8，runner=scripted）",
+  "meta": [
+    [
+      "样本",
+      "60 条用例（easy/medium/hard = 20/20/20）"
+    ],
+    [
+      "成本单价",
+      "离线默认零单价；真实模型评测须在报告中声明模型/单价/日期"
+    ]
+  ],
+  "method": [
+    "评测框架只依赖 AgentRunner 契约（app/contracts/agent.py）：构造 RunContext（事件收集、预算、账本、注入的 Retriever）执行单条用例并评分。",
+    "异常识别 P/R 按 finding(level!=normal) 设备集合计算；工具调用 P/R 按 tool.called 事件集合计算；预测空集按 0 计（不虚计满分）。",
+    "顺序约束 = 期望工具对的首次出现次序；证据有效 = 异常 finding 的 chunk_id 非空且全部真实存在。",
+    "每条用例保存完整事件序列（同名 JSON cases[].events）供复盘。"
+  ],
+  "sample_size": {
+    "cases": 60
+  },
+  "variance": {
+    "success_std": 0.321,
+    "anomaly_recall_std": 0.0,
+    "steps_std": 0.0,
+    "latency_ms_std": 0.0
+  },
+  "known_biases": [
+    "离线口径：成功率验证的是评测流程与契约管道，不代表模型效果。",
+    "Token 为脚本估算值（非模型计费口径）；成本单价默认 0。",
+    "事件 payload 无 Schema（ADR-0008），指标解析按字段容错；runner 未发的事件不计入指标。",
+    "P/R 聚合跳过期望与预测均空的用例（不虚计满分），宏平均对故障注入用例的 0 分敏感。"
+  ],
+  "disclaimer": "仅验证评测流程，不代表模型效果（Scripted 替身，无真实模型）",
+  "tables": [
+    {
+      "caption": "总体指标",
+      "header": [
+        "指标",
+        "数值"
+      ],
+      "rows": [
+        [
+          "任务成功率",
+          "88.3%"
+        ],
+        [
+          "异常识别 Precision / Recall",
+          "0.0% / 0.0%"
+        ],
+        [
+          "工具调用 Precision / Recall",
+          "0.0% / 0.0%"
+        ],
+        [
+          "参数准确率",
+          "—"
+        ],
+        [
+          "工单字段命中率",
+          "0.0%"
+        ],
+        [
+          "顺序约束满足率",
+          "0.0%"
+        ],
+        [
+          "证据有效率（要求用例）",
+          "0.0%"
+        ],
+        [
+          "越权调用次数（合计）",
+          "0"
+        ],
+        [
+          "写工具重复执行违规",
+          "0"
+        ],
+        [
+          "崩溃 run 数",
+          "0"
+        ],
+        [
+          "步数均值",
+          "1.00"
+        ],
+        [
+          "时延 P50 / P95 (ms)",
+          "0.01 / 0.01"
+        ],
+        [
+          "Token（输入/输出，脚本估算）",
+          "0 / 0"
+        ],
+        [
+          "成本 (USD)",
+          "0.0000"
+        ]
+      ]
+    },
+    {
+      "caption": "分难度档成功率",
+      "header": [
+        "难度",
+        "用例数",
+        "成功率"
+      ],
+      "rows": [
+        [
+          "easy",
+          "20",
+          "100.0%"
+        ],
+        [
+          "medium",
+          "20",
+          "100.0%"
+        ],
+        [
+          "hard",
+          "20",
+          "65.0%"
+        ]
+      ]
+    }
+  ],
+  "generated_at": "2026-10-24T15:28:52.059233+00:00",
+  "aggregates": {
+    "cases": 60,
+    "success_rate": 0.8833333333333333,
+    "anomaly_precision": 0.0,
+    "anomaly_recall": 0.0,
+    "tool_precision": 0.0,
+    "tool_recall": 0.0,
+    "param_accuracy": null,
+    "work_order_accuracy": 0.0,
+    "order_satisfaction": 0.0,
+    "evidence_ok_rate": 0.0,
+    "forbidden_calls_total": 0,
+    "write_cap_violations_total": 0,
+    "crashed_total": 0,
+    "steps_mean": 1.0,
+    "latency_ms_mean": 0.006129166771036883,
+    "latency_ms_p50": 0.005332985892891884,
+    "latency_ms_p95": 0.008556575630791485,
+    "input_tokens_total": 0,
+    "output_tokens_total": 0,
+    "cost_usd_total": 0.0
+  },
+  "cases": [
+    {
+      "cid": "E01",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.03762502456083894,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E02",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.008834002073854208,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E03",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-003"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006500049494206905,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E04",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-004"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005332985892891884,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E05",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-006"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005334033630788326,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E06",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-007"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004915986210107803,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-007",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E07",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-008"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004875008016824722,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-008",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E08",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004792003892362118,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E09",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-003"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004916975740343332,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E10",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-004"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00462500611320138,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E11",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-C",
+        "device_ids": [
+          "PCS-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004832982085645199,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E12",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-C",
+        "device_ids": [
+          "PCS-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005166977643966675,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E13",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "SW-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004915986210107803,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E14",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "SW-003"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004749977961182594,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E15",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "BS-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004875008016824722,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E16",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-001",
+          "INV-002",
+          "INV-003"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006499991286545992,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E17",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-006",
+          "INV-007",
+          "INV-008"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006083049811422825,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-007",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-008",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E18",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-001",
+          "WT-003",
+          "WT-004"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005999987479299307,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E19",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-C",
+        "device_ids": [
+          "PCS-001",
+          "PCS-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005500041879713535,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "E20",
+      "difficulty": "easy",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "SW-001",
+          "SW-003",
+          "BS-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "例行巡检：核对遥测是否越限，无异常只出结论，不开工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006125017534941435,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M01",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "INV-005",
+            "must_mention": [
+              "INV-005",
+              "cabinet_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00462500611320138,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M02",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "WT-002"
+        ],
+        "anomaly_levels": {
+          "WT-002": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "WT-002",
+            "must_mention": [
+              "WT-002",
+              "vibration_mm_s"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004915986210107803,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M03",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-C",
+        "device_ids": [
+          "PCS-003"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "PCS-003"
+        ],
+        "anomaly_levels": {
+          "PCS-003": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "PCS-003",
+            "must_mention": [
+              "PCS-003",
+              "output_kw"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004792003892362118,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M04",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "SW-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "SW-002"
+        ],
+        "anomaly_levels": {
+          "SW-002": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "SW-002",
+            "must_mention": [
+              "SW-002",
+              "oil_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004832982085645199,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M05",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "BS-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "BS-001"
+        ],
+        "anomaly_levels": {
+          "BS-001": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "BS-001",
+            "must_mention": [
+              "BS-001",
+              "displacement_mm"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004708999767899513,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M06",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005",
+          "INV-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "INV-005",
+            "must_mention": [
+              "INV-005",
+              "cabinet_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005332985892891884,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M07",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005",
+          "INV-002",
+          "INV-003",
+          "INV-004"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "INV-005",
+            "must_mention": [
+              "INV-005",
+              "cabinet_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006708025466650724,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M08",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005",
+          "INV-006"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "INV-005",
+            "must_mention": [
+              "INV-005",
+              "cabinet_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005334033630788326,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M09",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005",
+          "INV-007",
+          "INV-008"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "INV-005",
+            "must_mention": [
+              "INV-005",
+              "cabinet_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005792011506855488,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-007",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-008",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M10",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-002",
+          "WT-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "WT-002"
+        ],
+        "anomaly_levels": {
+          "WT-002": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "WT-002",
+            "must_mention": [
+              "WT-002",
+              "vibration_mm_s"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005292007699608803,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M11",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-002",
+          "WT-003",
+          "WT-004"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "WT-002"
+        ],
+        "anomaly_levels": {
+          "WT-002": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "WT-002",
+            "must_mention": [
+              "WT-002",
+              "vibration_mm_s"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005999987479299307,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M12",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-C",
+        "device_ids": [
+          "PCS-003",
+          "PCS-001",
+          "PCS-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "PCS-003"
+        ],
+        "anomaly_levels": {
+          "PCS-003": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "PCS-003",
+            "must_mention": [
+              "PCS-003",
+              "output_kw"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005957961548119783,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M13",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "SW-002",
+          "SW-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "SW-002"
+        ],
+        "anomaly_levels": {
+          "SW-002": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "SW-002",
+            "must_mention": [
+              "SW-002",
+              "oil_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005541020072996616,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M14",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "SW-002",
+          "SW-003",
+          "BS-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "SW-002"
+        ],
+        "anomaly_levels": {
+          "SW-002": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "SW-002",
+            "must_mention": [
+              "SW-002",
+              "oil_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005792011506855488,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M15",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "BS-001",
+          "BS-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "BS-001"
+        ],
+        "anomaly_levels": {
+          "BS-001": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "BS-001",
+            "must_mention": [
+              "BS-001",
+              "displacement_mm"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005292007699608803,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M16",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "BS-001",
+          "SW-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "BS-001"
+        ],
+        "anomaly_levels": {
+          "BS-001": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "BS-001",
+            "must_mention": [
+              "BS-001",
+              "displacement_mm"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005375011824071407,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M17",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005",
+          "WT-002",
+          "PCS-003",
+          "SW-002",
+          "BS-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005",
+          "WT-002",
+          "PCS-003",
+          "SW-002",
+          "BS-001"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical",
+          "WT-002": "critical",
+          "PCS-003": "critical",
+          "SW-002": "critical",
+          "BS-001": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "INV-005",
+            "must_mention": [
+              "INV-005",
+              "cabinet_temp_c"
+            ]
+          },
+          {
+            "device_id": "WT-002",
+            "must_mention": [
+              "WT-002",
+              "vibration_mm_s"
+            ]
+          },
+          {
+            "device_id": "PCS-003",
+            "must_mention": [
+              "PCS-003",
+              "output_kw"
+            ]
+          },
+          {
+            "device_id": "SW-002",
+            "must_mention": [
+              "SW-002",
+              "oil_temp_c"
+            ]
+          },
+          {
+            "device_id": "BS-001",
+            "must_mention": [
+              "BS-001",
+              "displacement_mm"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.0074579729698598385,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M18",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005",
+          "WT-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005",
+          "WT-002"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical",
+          "WT-002": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "INV-005",
+            "must_mention": [
+              "INV-005",
+              "cabinet_temp_c"
+            ]
+          },
+          {
+            "device_id": "WT-002",
+            "must_mention": [
+              "WT-002",
+              "vibration_mm_s"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005416979547590017,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M19",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-C",
+        "device_ids": [
+          "PCS-003",
+          "SW-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "PCS-003",
+          "SW-002"
+        ],
+        "anomaly_levels": {
+          "PCS-003": "critical",
+          "SW-002": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "PCS-003",
+            "must_mention": [
+              "PCS-003",
+              "output_kw"
+            ]
+          },
+          {
+            "device_id": "SW-002",
+            "must_mention": [
+              "SW-002",
+              "oil_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005291018169373274,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "M20",
+      "difficulty": "medium",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005",
+          "BS-001",
+          "SW-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005",
+          "BS-001",
+          "SW-002"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical",
+          "BS-001": "critical",
+          "SW-002": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "INV-005",
+            "must_mention": [
+              "INV-005",
+              "cabinet_temp_c"
+            ]
+          },
+          {
+            "device_id": "BS-001",
+            "must_mention": [
+              "BS-001",
+              "displacement_mm"
+            ]
+          },
+          {
+            "device_id": "SW-002",
+            "must_mention": [
+              "SW-002",
+              "oil_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005791021976619959,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H01",
+      "difficulty": "hard",
+      "fault": {
+        "type": "tool_timeout",
+        "tool": "get_telemetry"
+      },
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "partial",
+          "failed"
+        ],
+        "evidence_required": false,
+        "max_write_calls_per_device": 1
+      },
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004708010237663984,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H02",
+      "difficulty": "hard",
+      "fault": {
+        "type": "tool_timeout",
+        "tool": "get_telemetry"
+      },
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-001",
+          "INV-005"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "partial",
+          "failed"
+        ],
+        "evidence_required": false,
+        "max_write_calls_per_device": 1
+      },
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005082983989268541,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H03",
+      "difficulty": "hard",
+      "fault": {
+        "type": "tool_timeout",
+        "tool": "search_procedures"
+      },
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "WT-002"
+        ],
+        "anomaly_levels": {
+          "WT-002": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "partial",
+          "failed"
+        ],
+        "evidence_required": false,
+        "max_write_calls_per_device": 1
+      },
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004749977961182594,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H04",
+      "difficulty": "hard",
+      "fault": {
+        "type": "tool_timeout",
+        "tool": "detect_anomaly"
+      },
+      "crashed": false,
+      "input": {
+        "site": "SITE-C",
+        "device_ids": [
+          "PCS-003"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "PCS-003"
+        ],
+        "anomaly_levels": {
+          "PCS-003": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "partial",
+          "failed"
+        ],
+        "evidence_required": false,
+        "max_write_calls_per_device": 1
+      },
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00462500611320138,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H05",
+      "difficulty": "hard",
+      "fault": {
+        "type": "llm_invalid_output"
+      },
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed",
+          "partial",
+          "failed"
+        ],
+        "evidence_required": false,
+        "max_write_calls_per_device": 1
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004749977961182594,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H06",
+      "difficulty": "hard",
+      "fault": {
+        "type": "llm_invalid_output"
+      },
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "SW-002",
+          "SW-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "SW-002"
+        ],
+        "anomaly_levels": {
+          "SW-002": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed",
+          "partial",
+          "failed"
+        ],
+        "evidence_required": false,
+        "max_write_calls_per_device": 1
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005167035851627588,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H07",
+      "difficulty": "hard",
+      "fault": {
+        "type": "llm_invalid_output"
+      },
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "BS-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "BS-001"
+        ],
+        "anomaly_levels": {
+          "BS-001": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed",
+          "partial",
+          "failed"
+        ],
+        "evidence_required": false,
+        "max_write_calls_per_device": 1
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004749977961182594,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H08",
+      "difficulty": "hard",
+      "fault": {
+        "type": "subtask_failure",
+        "device_id": "INV-005"
+      },
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-004",
+          "INV-005",
+          "INV-006"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "partial",
+          "failed"
+        ],
+        "evidence_required": false,
+        "max_write_calls_per_device": 1
+      },
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006209011189639568,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H09",
+      "difficulty": "hard",
+      "fault": {
+        "type": "subtask_failure",
+        "device_id": "WT-002"
+      },
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-001",
+          "WT-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "WT-002"
+        ],
+        "anomaly_levels": {
+          "WT-002": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "partial",
+          "failed"
+        ],
+        "evidence_required": false,
+        "max_write_calls_per_device": 1
+      },
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005208014044910669,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H10",
+      "difficulty": "hard",
+      "fault": {
+        "type": "subtask_failure",
+        "device_id": "BS-001"
+      },
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "BS-001",
+          "BS-002",
+          "SW-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "BS-001"
+        ],
+        "anomaly_levels": {
+          "BS-001": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "partial",
+          "failed"
+        ],
+        "evidence_required": false,
+        "max_write_calls_per_device": 1
+      },
+      "metrics": {
+        "success": 0.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005709007382392883,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H11",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "BS-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并对异常设备安排无人机现场复核（需审批），同时按规程生成工单。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "BS-001"
+        ],
+        "anomaly_levels": {
+          "BS-001": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [],
+        "work_orders": [
+          {
+            "device_id": "BS-001",
+            "must_mention": [
+              "BS-001",
+              "displacement_mm"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004582980182021856,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H12",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并对异常设备安排无人机现场复核（需审批），同时按规程生成工单。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "WT-002"
+        ],
+        "anomaly_levels": {
+          "WT-002": "critical"
+        },
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [],
+        "work_orders": [
+          {
+            "device_id": "WT-002",
+            "must_mention": [
+              "WT-002",
+              "vibration_mm_s"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004499976057559252,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H13",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-001",
+          "INV-002",
+          "INV-003",
+          "INV-004",
+          "INV-005",
+          "INV-006",
+          "INV-007",
+          "INV-008"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "只诊断不生成工单：输出异常结论与依据，禁止创建工单。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.009457988198846579,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-007",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-008",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H14",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-B",
+        "device_ids": [
+          "WT-001",
+          "WT-002",
+          "WT-003",
+          "WT-004"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "只诊断不生成工单：输出异常结论与依据，禁止创建工单。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "WT-002"
+        ],
+        "anomaly_levels": {
+          "WT-002": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006582995411008596,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "WT-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H15",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-C",
+        "device_ids": [
+          "PCS-001",
+          "PCS-002",
+          "PCS-003"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "PCS-003"
+        ],
+        "anomaly_levels": {
+          "PCS-003": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "PCS-003",
+            "must_mention": [
+              "PCS-003",
+              "output_kw"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.005875015631318092,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "PCS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H16",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "SW-001",
+          "SW-002",
+          "SW-003",
+          "BS-001",
+          "BS-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "SW-002",
+          "BS-001"
+        ],
+        "anomaly_levels": {
+          "SW-002": "critical",
+          "BS-001": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "SW-002",
+            "must_mention": [
+              "SW-002",
+              "oil_temp_c"
+            ]
+          },
+          {
+            "device_id": "BS-001",
+            "must_mention": [
+              "BS-001",
+              "displacement_mm"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00708398874849081,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "SW-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H17",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-001",
+          "INV-002",
+          "INV-003",
+          "INV-004",
+          "INV-005",
+          "INV-006",
+          "INV-007",
+          "INV-008"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "INV-005",
+            "must_mention": [
+              "INV-005",
+              "cabinet_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.008541974239051342,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-004",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-006",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-007",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "INV-008",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H18",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-A",
+        "device_ids": [
+          "INV-005",
+          "WT-002",
+          "PCS-003",
+          "SW-002",
+          "BS-001"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "INV-005",
+          "WT-002",
+          "PCS-003",
+          "SW-002",
+          "BS-001"
+        ],
+        "anomaly_levels": {
+          "INV-005": "critical",
+          "WT-002": "critical",
+          "PCS-003": "critical",
+          "SW-002": "critical",
+          "BS-001": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [
+          "dispatch_drone"
+        ],
+        "work_orders": [
+          {
+            "device_id": "INV-005",
+            "must_mention": [
+              "INV-005",
+              "cabinet_temp_c"
+            ]
+          },
+          {
+            "device_id": "WT-002",
+            "must_mention": [
+              "WT-002",
+              "vibration_mm_s"
+            ]
+          },
+          {
+            "device_id": "PCS-003",
+            "must_mention": [
+              "PCS-003",
+              "output_kw"
+            ]
+          },
+          {
+            "device_id": "SW-002",
+            "must_mention": [
+              "SW-002",
+              "oil_temp_c"
+            ]
+          },
+          {
+            "device_id": "BS-001",
+            "must_mention": [
+              "BS-001",
+              "displacement_mm"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.006833986844867468,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "INV-005",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "WT-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "PCS-003",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H19",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "BS-001",
+          "SW-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "巡检并对异常设备安排无人机现场复核（需审批），同时按规程生成工单。"
+      },
+      "expected": {
+        "anomaly_devices": [
+          "BS-001",
+          "SW-002"
+        ],
+        "anomaly_levels": {
+          "BS-001": "critical",
+          "SW-002": "critical"
+        },
+        "tools_expected": [
+          "list_devices",
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures",
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ],
+          [
+            "detect_anomaly",
+            "create_work_order"
+          ]
+        ],
+        "forbidden_tools": [],
+        "work_orders": [
+          {
+            "device_id": "BS-001",
+            "must_mention": [
+              "BS-001",
+              "displacement_mm"
+            ]
+          },
+          {
+            "device_id": "SW-002",
+            "must_mention": [
+              "SW-002",
+              "oil_temp_c"
+            ]
+          }
+        ],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": true
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": 0.0,
+        "anomaly_recall": 0.0,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": 0.0,
+        "order_satisfaction": 0.0,
+        "evidence_ok": false,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.00566698145121336,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-001",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          },
+          {
+            "device_id": "SW-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    },
+    {
+      "cid": "H20",
+      "difficulty": "hard",
+      "fault": null,
+      "crashed": false,
+      "input": {
+        "site": "SITE-D",
+        "device_ids": [
+          "BS-002"
+        ],
+        "window": "2026-10-23 00:00~23:00Z",
+        "goal": "深度诊断：给出运行评价与规程依据，禁止创建工单。"
+      },
+      "expected": {
+        "anomaly_devices": [],
+        "anomaly_levels": {},
+        "tools_expected": [
+          "get_telemetry",
+          "detect_anomaly",
+          "search_procedures"
+        ],
+        "tools_order_required": [
+          [
+            "get_telemetry",
+            "detect_anomaly"
+          ]
+        ],
+        "forbidden_tools": [
+          "create_work_order",
+          "dispatch_drone"
+        ],
+        "work_orders": [],
+        "status_allowed": [
+          "completed"
+        ],
+        "evidence_required": false
+      },
+      "metrics": {
+        "success": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_precision": 0.0,
+        "tool_recall": 0.0,
+        "param_accuracy": null,
+        "work_order_accuracy": null,
+        "order_satisfaction": 0.0,
+        "evidence_ok": null,
+        "forbidden_calls": 0,
+        "write_cap_violations": 0,
+        "steps": 1,
+        "latency_ms": 0.004915986210107803,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "events": [
+        {
+          "type": "node.started",
+          "node": "inspector",
+          "payload": {}
+        },
+        {
+          "type": "node.completed",
+          "node": "inspector",
+          "payload": {}
+        }
+      ],
+      "report": {
+        "findings": [
+          {
+            "device_id": "BS-002",
+            "level": "normal",
+            "summary": "遥测平稳，未见异常",
+            "evidence_chunk_ids": [],
+            "metrics": {}
+          }
+        ],
+        "work_orders": [],
+        "status": "completed",
+        "coverage": 1.0,
+        "notes": null
+      }
+    }
+  ]
+}
