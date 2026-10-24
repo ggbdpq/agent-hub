@@ -279,6 +279,31 @@ class SqliteRunStore:
             )
             return True
 
+    def request_cancel(self, run_id: str) -> RunRecord:
+        """协作式取消：只置标记，不改状态与租约；终态幂等返回原记录（不置标记）。
+
+        终态由持有租约的 worker 写入（cancelled）；标记检查发生在编排层的节点边界
+        与工具调用前。标记判定与写入同事务（BEGIN IMMEDIATE），与跨实例的 finish
+        竞争时不会把终态 run 污染上取消标记。
+        """
+        with self._lock, self._tx() as conn:
+            row = conn.execute("SELECT status FROM runs WHERE run_id = ?", (run_id,)).fetchone()
+            if row is None:
+                raise KeyError(run_id)
+            if row["status"] in ("queued", "running"):
+                conn.execute(
+                    "UPDATE runs SET cancel_requested = 1, updated_at = ? WHERE run_id = ?",
+                    (self._now_us(), run_id),
+                )
+            return self._record(conn.execute("SELECT * FROM runs WHERE run_id = ?", (run_id,)).fetchone())
+
+    def is_cancel_requested(self, run_id: str) -> bool:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT cancel_requested FROM runs WHERE run_id = ?", (run_id,)
+            ).fetchone()
+            return row is not None and bool(row["cancel_requested"])
+
     def get(self, run_id: str) -> RunRecord | None:
         with self._lock:
             row = self._conn.execute("SELECT * FROM runs WHERE run_id = ?", (run_id,)).fetchone()
