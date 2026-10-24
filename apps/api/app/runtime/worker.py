@@ -100,10 +100,24 @@ class RuntimeWorker:
         return self._cfg.worker_id
 
     async def run_forever(self, stop: asyncio.Event | None = None) -> None:
-        """循环认领执行；stop 置位后在当前 run 结束后的下一次轮询前退出。"""
+        """循环认领执行；stop 置位后退出。
+
+        单轮容错（R2）：单轮内逃逸的异常（如锁错耗尽 R1 重试后的 OperationalError、
+        存储层意外错误）记结构化日志后继续下一轮，不让瞬态错误静默杀死 worker 协程
+        造成池降级无告警。CancelledError 不在捕获范围（BaseException），外部取消
+        仍正常传播。
+        """
         stop = stop if stop is not None else asyncio.Event()
         while not stop.is_set():
-            worked = await self.run_one()
+            try:
+                worked = await self.run_one()
+            except Exception as exc:  # noqa: BLE001 - 单轮容错：见 docstring
+                log_event(
+                    logger, logging.ERROR, "worker.iteration_failed",
+                    worker_id=self._cfg.worker_id,
+                    error=f"{type(exc).__name__}: {exc}",
+                )
+                worked = False
             if not worked:
                 try:
                     await asyncio.wait_for(stop.wait(), timeout=self._cfg.poll_interval_s)
