@@ -11,7 +11,11 @@ from datetime import datetime
 from typing import Any, Literal, Protocol
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.alias_generators import to_camel
+
+# JSON 形状对齐仓库惯例（camelCase）；populate_by_name 保持内部名（I6 集成补丁）
+_CAMEL = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
 from app.contracts.events import NewEvent
 from app.contracts.knowledge import Retriever
@@ -31,6 +35,8 @@ class Budget(BaseModel):
 
 
 class InspectionRequest(BaseModel):
+    model_config = _CAMEL
+
     site: str
     device_ids: list[str] = Field(min_length=1)
     window: str | None = None  # 巡检时间窗（演示用自由文本）
@@ -38,6 +44,8 @@ class InspectionRequest(BaseModel):
 
 
 class Finding(BaseModel):
+    model_config = _CAMEL
+
     device_id: str
     level: Literal["normal", "warning", "critical"]
     summary: str
@@ -46,6 +54,8 @@ class Finding(BaseModel):
 
 
 class WorkOrder(BaseModel):
+    model_config = _CAMEL
+
     device_id: str
     title: str
     action: str
@@ -54,6 +64,8 @@ class WorkOrder(BaseModel):
 
 
 class InspectionReport(BaseModel):
+    model_config = _CAMEL
+
     findings: list[Finding]
     work_orders: list[WorkOrder] = Field(default_factory=list)
     status: Literal["completed", "partial", "failed"]

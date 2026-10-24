@@ -1,7 +1,15 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
-import { AgentStreamEvent, ChatRequest, FlowerCardPayload, Order, TaskSnapshot } from "./contracts.ts";
+import {
+  AgentStreamEvent,
+  ChatRequest,
+  FlowerCardPayload,
+  InspectionReport,
+  Order,
+  RunEvent,
+  TaskSnapshot,
+} from "./contracts.ts";
 
 /**
  * 契约双镜像对账：fixtures/contract-example.json 同时被
@@ -49,4 +57,24 @@ test("契约示例：对话请求（ChatRequest 双端对账，threadId 可选�
   assert.equal(ChatRequest.parse({ message: "日常自用来点花" }).threadId, undefined);
   // threadId 长度边界：过短拒绝
   assert.throws(() => ChatRequest.parse({ message: "hi", threadId: "short" }));
+});
+
+test("契约示例：巡检 RunEvent 双端对账（camelCase）", () => {
+  const approval = RunEvent.parse(example["runEventApprovalRequired"]);
+  assert.equal(approval.runId, "r-demo-0001");
+  assert.equal(approval.seq, 12);
+  assert.equal(approval.node, "reporter");
+  assert.equal((approval.payload as Record<string, unknown>).approvalId, "r-demo-0001:approval:1");
+
+  const completed = RunEvent.parse(example["runEventCompleted"]);
+  assert.equal(completed.type, "run.completed");
+  assert.equal(completed.node, null);
+});
+
+test("契约示例：巡检报告（findings/工单/覆盖率）", () => {
+  const report = InspectionReport.parse(example["inspectionReport"]);
+  assert.equal(report.status, "completed");
+  assert.equal(report.coverage, 1.0);
+  assert.equal(report.findings[1].level, "critical");
+  assert.equal(report.workOrders[0].status, "draft");
 });

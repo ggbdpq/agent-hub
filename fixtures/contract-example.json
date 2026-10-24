@@ -75,5 +75,74 @@
   "chatRequest": {
     "message": "想给妈妈送生日礼物",
     "threadId": "t-0123456789"
+  },
+  "runEventApprovalRequired": {
+    "runId": "r-demo-0001",
+    "seq": 12,
+    "type": "approval.required",
+    "node": "reporter",
+    "attempt": 1,
+    "payload": {
+      "question": "是否派无人机现场复核 1 台 critical 设备？",
+      "devices": [
+        "INV-005"
+      ],
+      "workOrders": [
+        {
+          "deviceId": "INV-005",
+          "title": "柜温超限现场检查",
+          "action": "检查散热与柜体密封",
+          "status": "draft",
+          "approvalId": null
+        }
+      ],
+      "approvalId": "r-demo-0001:approval:1"
+    },
+    "ts": "2026-10-24T12:00:00Z"
+  },
+  "runEventCompleted": {
+    "runId": "r-demo-0001",
+    "seq": 18,
+    "type": "run.completed",
+    "node": null,
+    "attempt": 1,
+    "payload": {
+      "error": null
+    },
+    "ts": "2026-10-24T12:00:05Z"
+  },
+  "inspectionReport": {
+    "findings": [
+      {
+        "deviceId": "INV-001",
+        "level": "normal",
+        "summary": "遥测平稳",
+        "evidenceChunkIds": [
+          "pv_inverter-thresholds#光伏逆变器异常判据与告警阈值/告警阈值#1"
+        ],
+        "metrics": {}
+      },
+      {
+        "deviceId": "INV-005",
+        "level": "critical",
+        "summary": "柜温漂移超阈值",
+        "evidenceChunkIds": [],
+        "metrics": {
+          "cabinet_temp_c_max": 92.0
+        }
+      }
+    ],
+    "workOrders": [
+      {
+        "deviceId": "INV-005",
+        "title": "柜温超限现场检查",
+        "action": "检查散热与柜体密封",
+        "status": "draft",
+        "approvalId": null
+      }
+    ],
+    "status": "completed",
+    "coverage": 1.0,
+    "notes": "工单 1 份（draft，待人工确认执行）；审批通过：无人机派工已模拟执行（approval_id=r-demo-0001:approval:1）"
   }
 }

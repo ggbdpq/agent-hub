@@ -66,8 +66,8 @@ def test_create_run_idempotency(tmp_path) -> None:
         b = client.post("/api/runs", json=body, headers={"Idempotency-Key": "idem-1"})
         c = client.post("/api/runs", json=body, headers={"Idempotency-Key": "idem-2"})
         assert a.status_code == 201 and b.status_code == 201
-        assert a.json()["run_id"] == b.json()["run_id"]
-        assert a.json()["run_id"] != c.json()["run_id"]
+        assert a.json()["runId"] == b.json()["runId"]
+        assert a.json()["runId"] != c.json()["runId"]
         assert a.json()["status"] == "queued"
 
 
@@ -80,8 +80,8 @@ def test_approval_flow_with_last_event_id_resume(tmp_path) -> None:
     """
     client = _build_client(tmp_path)
     with client:
-        created = client.post("/api/runs", json=REQUEST.model_dump(), headers={"Idempotency-Key": "flow-1"})
-        run_id = created.json()["run_id"]
+        created = client.post("/api/runs", json=REQUEST.model_dump(by_alias=True), headers={"Idempotency-Key": "flow-1"})
+        run_id = created.json()["runId"]
         approval_id = f"{run_id}:approval:1"
 
         time.sleep(1.0)  # 等 FakeLLM 编排走到审批点；早到的决定由 hub 缓冲，不会丢
@@ -124,11 +124,11 @@ def test_cancel_without_worker_sets_flag(tmp_path) -> None:
     """
     client = _build_client(tmp_path, worker_count=0)
     with client:
-        created = client.post("/api/runs", json=REQUEST.model_dump())
-        run_id = created.json()["run_id"]
+        created = client.post("/api/runs", json=REQUEST.model_dump(by_alias=True))
+        run_id = created.json()["runId"]
         cancelled = client.post(f"/api/runs/{run_id}/cancel")
         assert cancelled.status_code == 200
-        assert cancelled.json()["cancel_requested"] is True
+        assert cancelled.json()["cancelRequested"] is True
         assert cancelled.json()["status"] == "queued"  # 未被认领，终态不由 API 写
         # 终态 run 的取消是幂等返回原记录（不污染终态）
         assert client.get(f"/api/runs/{run_id}").json()["status"] == "queued"

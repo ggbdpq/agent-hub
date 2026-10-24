@@ -12,7 +12,11 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal, Protocol
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
+
+# JSON 形状对齐仓库惯例（camelCase）；populate_by_name 保持内部名（I6 集成补丁）
+_CAMEL = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
 from app.contracts.events import NewEvent, RunEvent
 
@@ -26,6 +30,8 @@ class LeaseLost(Exception):
 
 
 class RunRecord(BaseModel):
+    model_config = _CAMEL
+
     run_id: str
     kind: str
     status: RunStatus
@@ -43,6 +49,8 @@ class RunRecord(BaseModel):
 
 
 class Claim(BaseModel):
+    model_config = _CAMEL
+
     """认领成功凭据：worker 在租约内持 fencing_token 写入事件与终态。"""
 
     run_id: str
@@ -83,6 +91,8 @@ class RunStore(Protocol):
 
 
 class LedgerEntry(BaseModel):
+    model_config = _CAMEL
+
     key: str  # run_id:node:step:tool_call_id，由编排层生成且续跑可复现
     tool: str
     args_hash: str

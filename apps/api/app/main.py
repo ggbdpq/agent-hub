@@ -266,7 +266,7 @@ def create_app(
         state = request.app.state.runs
         idem = request.headers.get("Idempotency-Key")
         record = state.store.create_run("inspection", body.model_dump(), idempotency_key=idem)
-        return record.model_dump(mode="json")
+        return record.model_dump(mode="json", by_alias=True)
 
     @app.get("/api/runs/{run_id}")
     def get_run(run_id: str, request: Request) -> dict:
@@ -274,7 +274,7 @@ def create_app(
         record = state.store.get(run_id)
         if record is None:
             raise HTTPException(status_code=404, detail="run not found")
-        return record.model_dump(mode="json")
+        return record.model_dump(mode="json", by_alias=True)
 
     @app.get("/api/runs/{run_id}/events")
     async def stream_events(run_id: str, request: Request) -> StreamingResponse:
@@ -294,7 +294,7 @@ def create_app(
                     return
                 events = state.store.events_after(run_id, seq)
                 for event in events:
-                    yield f"id: {event.seq}\nevent: {event.type}\ndata: {event.model_dump_json()}\n\n"
+                    yield f"id: {event.seq}\nevent: {event.type}\ndata: {event.model_dump_json(by_alias=True)}\n\n"
                     seq = event.seq
                 record = state.store.get(run_id)
                 if record is None or record.status in _TERMINAL_STATUSES:
@@ -311,7 +311,7 @@ def create_app(
             record = state.store.request_cancel(run_id)
         except KeyError:
             raise HTTPException(status_code=404, detail="run not found") from None
-        return record.model_dump(mode="json")
+        return record.model_dump(mode="json", by_alias=True)
 
     class ApprovalDecision(BaseModel):
         approved: bool

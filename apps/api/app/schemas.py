@@ -72,3 +72,18 @@ class PaymentNotify(BaseModel):
     orderId: str
     channel: PaymentChannel
     sign: str
+
+
+# -- 巡检多智能体契约（I6） --
+# Python 侧单一事实源在 app/contracts/**（pydantic）；此处 re-export 供契约对账
+# （tests/test_contracts.py 与 packages/shared/src/contracts.test.ts 同源解析
+# fixtures/contract-example.json 的 runEvent*/inspectionReport 样例）。
+# JSON 字段为 camelCase（alias_generator=to_camel，I6 集成补丁，ADR-0008）。
+from app.contracts.agent import (  # noqa: E402
+    Finding as InspectionFinding,
+    InspectionReport as InspectionReportModel,
+    InspectionRequest as InspectionRequestModel,
+    WorkOrder as InspectionWorkOrder,
+)
+from app.contracts.events import RunEvent as RunEventModel  # noqa: E402
+from app.contracts.runtime import RunRecord as RunRecordModel  # noqa: E402

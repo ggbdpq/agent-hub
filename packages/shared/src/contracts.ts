@@ -162,3 +162,106 @@ export const PaymentNotify = z.object({
   sign: z.string(),
 });
 export type PaymentNotify = z.infer<typeof PaymentNotify>;
+
+/* ------------------------- 巡检多智能体（/api/runs） ------------------------ */
+/**
+ * 与 apps/api/app/contracts/events.py（pydantic）对账；fixtures/contract-example.json
+ * 的 runEvent* 样例两端同源解析。事件由 SSE 携带：event: <type> + data: <RunEvent JSON>
+ * （单行完整 JSON，CLAUDE.md 铁律 4）；id: seq 供 Last-Event-ID 断点续传。
+ */
+export const RunEventType = z.enum([
+  "run.queued",
+  "run.started",
+  "run.resumed",
+  "run.completed",
+  "run.failed",
+  "run.cancelled",
+  "run.partial",
+  "node.started",
+  "node.completed",
+  "node.failed",
+  "tool.called",
+  "tool.result",
+  "tool.denied",
+  "tool.deduplicated",
+  "plan.created",
+  "evidence.attached",
+  "approval.required",
+  "approval.resolved",
+  "metric.usage",
+]);
+export type RunEventType = z.infer<typeof RunEventType>;
+
+export const RunEvent = z.object({
+  runId: z.string(),
+  /** 每个 run 内严格递增、无空洞（RunStore 事务内分配），对应 SSE 的 id 头 */
+  seq: z.number().int().nonnegative(),
+  type: RunEventType,
+  /** supervisor / planner / inspector / reporter */
+  node: z.string().nullish(),
+  /** 第几次执行（续跑后递增） */
+  attempt: z.number().int().nonnegative(),
+  payload: z.record(z.string(), z.unknown()),
+  ts: z.string(),
+});
+export type RunEvent = z.infer<typeof RunEvent>;
+
+export const RunStatus = z.enum(["queued", "running", "completed", "failed", "cancelled", "partial"]);
+export type RunStatus = z.infer<typeof RunStatus>;
+
+export const RunRecord = z.object({
+  runId: z.string(),
+  kind: z.string(),
+  status: RunStatus,
+  input: z.record(z.string(), z.unknown()),
+  result: z.record(z.string(), z.unknown()).nullish(),
+  error: z.string().nullish(),
+  attempt: z.number().int().nonnegative(),
+  fencingToken: z.number().int().nonnegative(),
+  leaseOwner: z.string().nullish(),
+  leaseExpiresAt: z.string().nullish(),
+  cancelRequested: z.boolean(),
+  idempotencyKey: z.string().nullish(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type RunRecord = z.infer<typeof RunRecord>;
+
+/** 巡检请求（POST /api/runs body） */
+export const InspectionRequest = z.object({
+  site: z.string(),
+  deviceIds: z.array(z.string()).min(1),
+  window: z.string().nullish(),
+  goal: z.string().nullish(),
+});
+export type InspectionRequest = z.infer<typeof InspectionRequest>;
+
+/** 巡检发现：结论必须引用真实存在的证据 chunk_id（B4 剔除未观测引用） */
+export const Finding = z.object({
+  deviceId: z.string(),
+  level: z.enum(["normal", "warning", "critical"]),
+  summary: z.string(),
+  evidenceChunkIds: z.array(z.string()),
+  metrics: z.record(z.string(), z.unknown()),
+});
+export type Finding = z.infer<typeof Finding>;
+
+export const WorkOrder = z.object({
+  deviceId: z.string(),
+  title: z.string(),
+  action: z.string(),
+  status: z.enum(["draft", "approved", "rejected", "executed"]).default("draft"),
+  approvalId: z.string().nullish(),
+});
+export type WorkOrder = z.infer<typeof WorkOrder>;
+
+/** 巡检报告（run 终态后的 result 字段） */
+export const InspectionReport = z.object({
+  findings: z.array(Finding),
+  workOrders: z.array(WorkOrder),
+  status: z.enum(["completed", "partial", "failed"]),
+  /** 0-1：已完成子任务 / 计划子任务 */
+  coverage: z.number(),
+  notes: z.string().nullish(),
+});
+export type InspectionReport = z.infer<typeof InspectionReport>;

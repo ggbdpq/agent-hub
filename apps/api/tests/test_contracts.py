@@ -54,3 +54,29 @@ def test_invalid_status_rejected():
                 "progress": 100,
             }
         )
+
+
+def test_run_event_approval_required(example):
+    """I6：巡检 RunEvent 双端对账（camelCase JSON；ts ISO 字符串）。"""
+    from app.contracts.events import RunEvent
+
+    event = RunEvent.model_validate(example["runEventApprovalRequired"])
+    assert event.run_id == "r-demo-0001"
+    assert event.seq == 12
+    assert event.payload["approvalId"] == "r-demo-0001:approval:1"
+
+    completed = RunEvent.model_validate(example["runEventCompleted"])
+    assert completed.type == "run.completed"
+    assert completed.node is None  # pydantic None → JSON null（CLAUDE.md 已知坑）
+
+
+def test_inspection_report(example):
+    from app.contracts.agent import InspectionReport
+
+    report = InspectionReport.model_validate(example["inspectionReport"])
+    assert report.coverage == 1.0
+    assert report.work_orders[0].status == "draft"
+    assert report.findings[1].level == "critical"
+    # 序列化输出 camelCase（by_alias）——前端消费的形状
+    dumped = report.model_dump(by_alias=True)
+    assert "evidenceChunkIds" in dumped["findings"][0]

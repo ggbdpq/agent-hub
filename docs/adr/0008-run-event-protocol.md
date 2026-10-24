@@ -32,3 +32,14 @@
 - 第 4 阶段 I6 才把 `RunEvent` 镜像进 `contracts.ts` / `schemas.py`（契约双镜像铁律届时同步）。
 - 事件 payload 不定 Schema（dict）：评测与前端只依赖 type 分发；代价是 payload 内部字段
   无契约保护，由消费方容错——demo 项目可接受（YAGNI）。
+
+## I6 追记（2026-10-24）：JSON 形状对齐仓库惯例（camelCase）
+
+- `RunEvent` / `RunRecord` / `Claim` / `LedgerEntry` / `InspectionRequest` / `Finding` /
+  `WorkOrder` / `InspectionReport` 统一 `alias_generator=to_camel, populate_by_name=True`：
+  JSON 输出 camelCase（`runId`/`cancelRequested`），Python 内部命名不变（`run_id`）。
+  花语契约（`taskId`/`priceFen`）与 TS 双镜像均为 camelCase，巡检沿用（CLAUDE.md 铁律 1）。
+- 序列化端点（API 响应、SSE `data:`）一律 `by_alias=True`；向后兼容：`populate_by_name`
+  使两种命名均可解析，B/C 内部调用零影响（全量 pytest 回归通过）。
+- `fixtures/contract-example.json` 追加 `runEventApprovalRequired` / `runEventCompleted` /
+  `inspectionReport` 样例；`contracts.test.ts` 与 `test_contracts.py` 同源对账（只追加原则）。
