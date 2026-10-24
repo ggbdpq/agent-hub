@@ -1,0 +1,174 @@
+{
+  "deviceId": "WT-003",
+  "window": "2026-10-23 00:00~23:00Z",
+  "points": [
+    {
+      "ts": "2026-10-23T00:00:00Z",
+      "output_kw": 876.69,
+      "nacelle_temp_c": 33.27,
+      "vibration_mm_s": 1.67,
+      "rotor_rpm": 10.93
+    },
+    {
+      "ts": "2026-10-23T01:00:00Z",
+      "output_kw": 879.13,
+      "nacelle_temp_c": 33.93,
+      "vibration_mm_s": 1.73,
+      "rotor_rpm": 10.68
+    },
+    {
+      "ts": "2026-10-23T02:00:00Z",
+      "output_kw": 893.64,
+      "nacelle_temp_c": 33.84,
+      "vibration_mm_s": 1.85,
+      "rotor_rpm": 11.06
+    },
+    {
+      "ts": "2026-10-23T03:00:00Z",
+      "output_kw": 968.94,
+      "nacelle_temp_c": 35.72,
+      "vibration_mm_s": 1.93,
+      "rotor_rpm": 11.67
+    },
+    {
+      "ts": "2026-10-23T04:00:00Z",
+      "output_kw": 1019.25,
+      "nacelle_temp_c": 38.73,
+      "vibration_mm_s": 2.14,
+      "rotor_rpm": 12.31
+    },
+    {
+      "ts": "2026-10-23T05:00:00Z",
+      "output_kw": 1065.09,
+      "nacelle_temp_c": 41.61,
+      "vibration_mm_s": 2.35,
+      "rotor_rpm": 13.15
+    },
+    {
+      "ts": "2026-10-23T06:00:00Z",
+      "output_kw": 1163.61,
+      "nacelle_temp_c": 44.82,
+      "vibration_mm_s": 2.47,
+      "rotor_rpm": 14.01
+    },
+    {
+      "ts": "2026-10-23T07:00:00Z",
+      "output_kw": 1224.64,
+      "nacelle_temp_c": 48.2,
+      "vibration_mm_s": 2.65,
+      "rotor_rpm": 14.66
+    },
+    {
+      "ts": "2026-10-23T08:00:00Z",
+      "output_kw": 1305.34,
+      "nacelle_temp_c": 50.29,
+      "vibration_mm_s": 2.84,
+      "rotor_rpm": 15.65
+    },
+    {
+      "ts": "2026-10-23T09:00:00Z",
+      "output_kw": 1329.9,
+      "nacelle_temp_c": 54.1,
+      "vibration_mm_s": 3.11,
+      "rotor_rpm": 16.23
+    },
+    {
+      "ts": "2026-10-23T10:00:00Z",
+      "output_kw": 1397.89,
+      "nacelle_temp_c": 55.43,
+      "vibration_mm_s": 3.18,
+      "rotor_rpm": 16.84
+    },
+    {
+      "ts": "2026-10-23T11:00:00Z",
+      "output_kw": 1437.72,
+      "nacelle_temp_c": 57.45,
+      "vibration_mm_s": 3.23,
+      "rotor_rpm": 17.28
+    },
+    {
+      "ts": "2026-10-23T12:00:00Z",
+      "output_kw": 1411.63,
+      "nacelle_temp_c": 56.95,
+      "vibration_mm_s": 3.32,
+      "rotor_rpm": 17.0
+    },
+    {
+      "ts": "2026-10-23T13:00:00Z",
+      "output_kw": 1416.0,
+      "nacelle_temp_c": 56.51,
+      "vibration_mm_s": 3.24,
+      "rotor_rpm": 16.91
+    },
+    {
+      "ts": "2026-10-23T14:00:00Z",
+      "output_kw": 1390.38,
+      "nacelle_temp_c": 55.57,
+      "vibration_mm_s": 3.22,
+      "rotor_rpm": 16.76
+    },
+    {
+      "ts": "2026-10-23T15:00:00Z",
+      "output_kw": 1336.63,
+      "nacelle_temp_c": 52.67,
+      "vibration_mm_s": 3.04,
+      "rotor_rpm": 16.37
+    },
+    {
+      "ts": "2026-10-23T16:00:00Z",
+      "output_kw": 1301.93,
+      "nacelle_temp_c": 51.25,
+      "vibration_mm_s": 2.9,
+      "rotor_rpm": 15.49
+    },
+    {
+      "ts": "2026-10-23T17:00:00Z",
+      "output_kw": 1237.28,
+      "nacelle_temp_c": 47.96,
+      "vibration_mm_s": 2.75,
+      "rotor_rpm": 14.85
+    },
+    {
+      "ts": "2026-10-23T18:00:00Z",
+      "output_kw": 1142.22,
+      "nacelle_temp_c": 44.96,
+      "vibration_mm_s": 2.5,
+      "rotor_rpm": 14.1
+    },
+    {
+      "ts": "2026-10-23T19:00:00Z",
+      "output_kw": 1095.27,
+      "nacelle_temp_c": 42.08,
+      "vibration_mm_s": 2.29,
+      "rotor_rpm": 13.3
+    },
+    {
+      "ts": "2026-10-23T20:00:00Z",
+      "output_kw": 1004.73,
+      "nacelle_temp_c": 39.36,
+      "vibration_mm_s": 2.14,
+      "rotor_rpm": 12.42
+    },
+    {
+      "ts": "2026-10-23T21:00:00Z",
+      "output_kw": 933.7,
+      "nacelle_temp_c": 36.67,
+      "vibration_mm_s": 1.97,
+      "rotor_rpm": 11.71
+    },
+    {
+      "ts": "2026-10-23T22:00:00Z",
+      "output_kw": 886.85,
+      "nacelle_temp_c": 33.85,
+      "vibration_mm_s": 1.83,
+      "rotor_rpm": 11.42
+    },
+    {
+      "ts": "2026-10-23T23:00:00Z",
+      "output_kw": 894.54,
+      "nacelle_temp_c": 33.37,
+      "vibration_mm_s": 1.69,
+      "rotor_rpm": 11.0
+    }
+  ]
+}

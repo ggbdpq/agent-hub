@@ -1,0 +1,225 @@
+{
+  "note": "合成数据：仅供离线评测与演示",
+  "devices": [
+    {
+      "deviceId": "INV-001",
+      "site": "SITE-A",
+      "siteName": "临港园区光伏电站",
+      "type": "pv_inverter",
+      "typeLabel": "光伏逆变器",
+      "model": "SG320HX",
+      "capacityKw": 320,
+      "commissionedAt": "2020-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "INV-002",
+      "site": "SITE-A",
+      "siteName": "临港园区光伏电站",
+      "type": "pv_inverter",
+      "typeLabel": "光伏逆变器",
+      "model": "SG320HX",
+      "capacityKw": 320,
+      "commissionedAt": "2024-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "INV-003",
+      "site": "SITE-A",
+      "siteName": "临港园区光伏电站",
+      "type": "pv_inverter",
+      "typeLabel": "光伏逆变器",
+      "model": "SG110CX",
+      "capacityKw": 110,
+      "commissionedAt": "2024-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "INV-004",
+      "site": "SITE-A",
+      "siteName": "临港园区光伏电站",
+      "type": "pv_inverter",
+      "typeLabel": "光伏逆变器",
+      "model": "SG110CX",
+      "capacityKw": 110,
+      "commissionedAt": "2022-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "INV-005",
+      "site": "SITE-A",
+      "siteName": "临港园区光伏电站",
+      "type": "pv_inverter",
+      "typeLabel": "光伏逆变器",
+      "model": "SG320HX",
+      "capacityKw": 320,
+      "commissionedAt": "2021-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "INV-006",
+      "site": "SITE-A",
+      "siteName": "临港园区光伏电站",
+      "type": "pv_inverter",
+      "typeLabel": "光伏逆变器",
+      "model": "SG320HX",
+      "capacityKw": 320,
+      "commissionedAt": "2023-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "INV-007",
+      "site": "SITE-A",
+      "siteName": "临港园区光伏电站",
+      "type": "pv_inverter",
+      "typeLabel": "光伏逆变器",
+      "model": "SG110CX",
+      "capacityKw": 110,
+      "commissionedAt": "2021-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "INV-008",
+      "site": "SITE-A",
+      "siteName": "临港园区光伏电站",
+      "type": "pv_inverter",
+      "typeLabel": "光伏逆变器",
+      "model": "SG320HX",
+      "capacityKw": 320,
+      "commissionedAt": "2020-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "WT-001",
+      "site": "SITE-B",
+      "siteName": "沿海风电场",
+      "type": "wind_turbine",
+      "typeLabel": "风力发电机组",
+      "model": "GW155-4.5",
+      "capacityKw": 4500,
+      "commissionedAt": "2024-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "WT-002",
+      "site": "SITE-B",
+      "siteName": "沿海风电场",
+      "type": "wind_turbine",
+      "typeLabel": "风力发电机组",
+      "model": "GW155-4.5",
+      "capacityKw": 4500,
+      "commissionedAt": "2023-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "WT-003",
+      "site": "SITE-B",
+      "siteName": "沿海风电场",
+      "type": "wind_turbine",
+      "typeLabel": "风力发电机组",
+      "model": "GW140-3.4",
+      "capacityKw": 3400,
+      "commissionedAt": "2022-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "WT-004",
+      "site": "SITE-B",
+      "siteName": "沿海风电场",
+      "type": "wind_turbine",
+      "typeLabel": "风力发电机组",
+      "model": "GW140-3.4",
+      "capacityKw": 3400,
+      "commissionedAt": "2024-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "PCS-001",
+      "site": "SITE-C",
+      "siteName": "储能电站",
+      "type": "storage_pcs",
+      "typeLabel": "储能变流器",
+      "model": "SC500HV",
+      "capacityKw": 500,
+      "commissionedAt": "2025-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "PCS-002",
+      "site": "SITE-C",
+      "siteName": "储能电站",
+      "type": "storage_pcs",
+      "typeLabel": "储能变流器",
+      "model": "SC500HV",
+      "capacityKw": 500,
+      "commissionedAt": "2025-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "PCS-003",
+      "site": "SITE-C",
+      "siteName": "储能电站",
+      "type": "storage_pcs",
+      "typeLabel": "储能变流器",
+      "model": "SC3420kW",
+      "capacityKw": 3420,
+      "commissionedAt": "2024-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "SW-001",
+      "site": "SITE-D",
+      "siteName": "城区变电站与桥梁",
+      "type": "substation_bay",
+      "typeLabel": "变电站间隔",
+      "model": "10kV馈线间隔",
+      "capacityKw": 0,
+      "commissionedAt": "2025-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "SW-002",
+      "site": "SITE-D",
+      "siteName": "城区变电站与桥梁",
+      "type": "substation_bay",
+      "typeLabel": "变电站间隔",
+      "model": "35kV主变间隔",
+      "capacityKw": 0,
+      "commissionedAt": "2025-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "SW-003",
+      "site": "SITE-D",
+      "siteName": "城区变电站与桥梁",
+      "type": "substation_bay",
+      "typeLabel": "变电站间隔",
+      "model": "10kV馈线间隔",
+      "capacityKw": 0,
+      "commissionedAt": "2025-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "BS-001",
+      "site": "SITE-D",
+      "siteName": "城区变电站与桥梁",
+      "type": "bridge_sensor",
+      "typeLabel": "桥梁监测传感",
+      "model": "DS-30型位移计",
+      "capacityKw": 0,
+      "commissionedAt": "2025-06-01",
+      "status": "online"
+    },
+    {
+      "deviceId": "BS-002",
+      "site": "SITE-D",
+      "siteName": "城区变电站与桥梁",
+      "type": "bridge_sensor",
+      "typeLabel": "桥梁监测传感",
+      "model": "DS-30型位移计",
+      "capacityKw": 0,
+      "commissionedAt": "2022-06-01",
+      "status": "online"
+    }
+  ]
+}

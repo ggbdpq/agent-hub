@@ -3,10 +3,22 @@ name = "agent-hub-api"
 version = "0.1.0"
 description = "花语智能体 API：mock LLM 剧本 SSE + 异步任务状态机 + 支付沙箱（幂等回调）"
 requires-python = ">=3.12"
-dependencies = ["fastapi>=0.115", "uvicorn[standard]>=0.30", "pydantic>=2.7"]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.7",
+    # 巡检多智能体升级（ADR-0006/0007）：编排、检查点、工具协议、检索
+    # 版本下限为本机实测通过版本（2026-10-24），ADR-0007 附实测记录
+    "langgraph>=1.2",
+    "langgraph-checkpoint-sqlite>=3.1",
+    "langchain-core>=1.7",
+    "mcp>=2.3",
+    "numpy>=2.5",
+    "rank-bm25>=0.2",
+]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "httpx>=0.27"]
+dev = ["pytest>=8.0", "httpx>=0.27", "pytest-asyncio>=1.4"]
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -17,3 +29,4 @@ include = ["app*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+asyncio_mode = "auto"

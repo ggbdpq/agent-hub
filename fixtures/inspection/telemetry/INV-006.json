@@ -1,0 +1,150 @@
+{
+  "deviceId": "INV-006",
+  "window": "2026-10-23 00:00~23:00Z",
+  "points": [
+    {
+      "ts": "2026-10-23T00:00:00Z",
+      "output_kw": 185.3,
+      "cabinet_temp_c": 36.48,
+      "dc_input_v": 601.97
+    },
+    {
+      "ts": "2026-10-23T01:00:00Z",
+      "output_kw": 186.52,
+      "cabinet_temp_c": 37.57,
+      "dc_input_v": 614.24
+    },
+    {
+      "ts": "2026-10-23T02:00:00Z",
+      "output_kw": 192.17,
+      "cabinet_temp_c": 37.75,
+      "dc_input_v": 620.06
+    },
+    {
+      "ts": "2026-10-23T03:00:00Z",
+      "output_kw": 194.56,
+      "cabinet_temp_c": 38.83,
+      "dc_input_v": 625.7
+    },
+    {
+      "ts": "2026-10-23T04:00:00Z",
+      "output_kw": 200.09,
+      "cabinet_temp_c": 40.83,
+      "dc_input_v": 649.39
+    },
+    {
+      "ts": "2026-10-23T05:00:00Z",
+      "output_kw": 206.84,
+      "cabinet_temp_c": 42.93,
+      "dc_input_v": 680.05
+    },
+    {
+      "ts": "2026-10-23T06:00:00Z",
+      "output_kw": 216.02,
+      "cabinet_temp_c": 44.78,
+      "dc_input_v": 696.53
+    },
+    {
+      "ts": "2026-10-23T07:00:00Z",
+      "output_kw": 222.93,
+      "cabinet_temp_c": 47.24,
+      "dc_input_v": 724.58
+    },
+    {
+      "ts": "2026-10-23T08:00:00Z",
+      "output_kw": 230.52,
+      "cabinet_temp_c": 48.74,
+      "dc_input_v": 753.82
+    },
+    {
+      "ts": "2026-10-23T09:00:00Z",
+      "output_kw": 234.79,
+      "cabinet_temp_c": 50.14,
+      "dc_input_v": 765.92
+    },
+    {
+      "ts": "2026-10-23T10:00:00Z",
+      "output_kw": 239.37,
+      "cabinet_temp_c": 51.94,
+      "dc_input_v": 782.38
+    },
+    {
+      "ts": "2026-10-23T11:00:00Z",
+      "output_kw": 240.8,
+      "cabinet_temp_c": 52.84,
+      "dc_input_v": 799.9
+    },
+    {
+      "ts": "2026-10-23T12:00:00Z",
+      "output_kw": 243.06,
+      "cabinet_temp_c": 53.13,
+      "dc_input_v": 798.05
+    },
+    {
+      "ts": "2026-10-23T13:00:00Z",
+      "output_kw": 239.99,
+      "cabinet_temp_c": 52.86,
+      "dc_input_v": 785.74
+    },
+    {
+      "ts": "2026-10-23T14:00:00Z",
+      "output_kw": 239.84,
+      "cabinet_temp_c": 52.11,
+      "dc_input_v": 788.35
+    },
+    {
+      "ts": "2026-10-23T15:00:00Z",
+      "output_kw": 235.83,
+      "cabinet_temp_c": 50.67,
+      "dc_input_v": 768.5
+    },
+    {
+      "ts": "2026-10-23T16:00:00Z",
+      "output_kw": 227.0,
+      "cabinet_temp_c": 48.6,
+      "dc_input_v": 753.6
+    },
+    {
+      "ts": "2026-10-23T17:00:00Z",
+      "output_kw": 221.53,
+      "cabinet_temp_c": 46.63,
+      "dc_input_v": 731.24
+    },
+    {
+      "ts": "2026-10-23T18:00:00Z",
+      "output_kw": 216.11,
+      "cabinet_temp_c": 44.92,
+      "dc_input_v": 704.25
+    },
+    {
+      "ts": "2026-10-23T19:00:00Z",
+      "output_kw": 209.27,
+      "cabinet_temp_c": 42.53,
+      "dc_input_v": 680.1
+    },
+    {
+      "ts": "2026-10-23T20:00:00Z",
+      "output_kw": 199.02,
+      "cabinet_temp_c": 41.0,
+      "dc_input_v": 655.57
+    },
+    {
+      "ts": "2026-10-23T21:00:00Z",
+      "output_kw": 195.86,
+      "cabinet_temp_c": 39.72,
+      "dc_input_v": 638.05
+    },
+    {
+      "ts": "2026-10-23T22:00:00Z",
+      "output_kw": 189.62,
+      "cabinet_temp_c": 37.77,
+      "dc_input_v": 612.14
+    },
+    {
+      "ts": "2026-10-23T23:00:00Z",
+      "output_kw": 189.72,
+      "cabinet_temp_c": 37.07,
+      "dc_input_v": 604.75
+    }
+  ]
+}
