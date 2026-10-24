@@ -7,6 +7,7 @@
 - 结束时发 metric.usage（步骤/工具次数/Token/耗时），评测框架（C8）消费。
 """
 
+import inspect
 import time
 from collections.abc import Callable
 from typing import Any
@@ -86,6 +87,10 @@ class InspectionAgentRunner:
             if guard > 8:  # 防御：审批循环异常（恢复后仍中断）
                 raise RuntimeError("审批 interrupt 循环超过 8 次，中止")
             decision = self._approver(result["__interrupt__"][0].value)
+            # I5 使能（主线程向后兼容补丁）：approver 可返回 awaitable（HTTP 审批中心
+            # 需异步等待人工决定；同步 approver 行为不变）
+            if inspect.isawaitable(decision):
+                decision = await decision
             result = await graph.ainvoke(Command(resume=decision), config)
         await ctx.emit(
             NewEvent(

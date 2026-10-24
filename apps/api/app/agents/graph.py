@@ -202,6 +202,8 @@ def build_inspection_graph(
                 "question": f"是否派无人机现场复核 {len(critical)} 台 critical 设备？",
                 "devices": [f.device_id for f in critical],
                 "work_orders": [o.model_dump() for o in saved_orders],
+                # I5 使能（主线程向后兼容补丁）：HTTP 审批端点按此 id 寻址
+                "approval_id": f"{run_id}:approval:1",
             }
             await ctx.emit(NewEvent(type="approval.required", node="reporter", payload=payload))
             raw = interrupt(payload)
