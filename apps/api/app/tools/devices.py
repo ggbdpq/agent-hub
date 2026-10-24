@@ -69,18 +69,22 @@ class TelemetrySeries(BaseModel):
     points: list[TelemetryPoint]
 
 
-def load_devices(root: Path | str = DEFAULT_FIXTURE_ROOT, site: str | None = None) -> list[DeviceRecord]:
-    """读取设备清单；可选按站点过滤。"""
-    data = json.loads((Path(root) / "devices.json").read_text(encoding="utf-8"))
+def _root(root: Path | str | None) -> Path:
+    return Path(root) if root is not None else DEFAULT_FIXTURE_ROOT
+
+
+def load_devices(root: Path | str | None = None, site: str | None = None) -> list[DeviceRecord]:
+    """读取设备清单；可选按站点过滤。root=None 用仓库 fixtures 默认路径。"""
+    data = json.loads((Path(_root(root)) / "devices.json").read_text(encoding="utf-8"))
     devices = [DeviceRecord.model_validate(d) for d in data["devices"]]
     if site is not None:
         devices = [d for d in devices if d.site == site]
     return devices
 
 
-def load_telemetry(device_id: str, root: Path | str = DEFAULT_FIXTURE_ROOT) -> TelemetrySeries:
+def load_telemetry(device_id: str, root: Path | str | None = None) -> TelemetrySeries:
     """读取单台设备遥测；文件缺失按 FileNotFoundError 上抛（不编造数据）。"""
-    path = Path(root) / "telemetry" / f"{device_id}.json"
+    path = Path(_root(root)) / "telemetry" / f"{device_id}.json"
     data = json.loads(path.read_text(encoding="utf-8"))
     points = [TelemetryPoint.model_validate(raw) for raw in data["points"]]
     return TelemetrySeries(deviceId=data["deviceId"], window=data["window"], points=points)
