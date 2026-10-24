@@ -99,14 +99,14 @@ def test_approval_flow_with_last_event_id_resume(tmp_path) -> None:
         assert types[-1] == "run.completed"
         assert "tool.deduplicated" in types  # interrupt 恢复重放 reporter：写工具被账本去重
         approval_events = [e for e in events if e["type"] == "approval.required"]
-        assert all(e["data"]["payload"].get("approval_id") == approval_id for e in approval_events)
+        assert all(e["data"]["payload"].get("approvalId") == approval_id for e in approval_events)
 
         record = client.get(f"/api/runs/{run_id}").json()
         assert record["status"] == "completed"
         report = record["result"]
         assert report["status"] == "completed"
         # B 的领域语义：工单在审批前起草（draft、无审批 id）；审批 id 记入 notes 与派工
-        assert report["work_orders"][0]["status"] == "draft"
+        assert report["workOrders"][0]["status"] == "draft"
         assert approval_id in (report["notes"] or "")
 
         # Last-Event-ID 断点续传：从倒数第二条之后重连，只收尾部（含终态），无空洞无重放

@@ -165,7 +165,8 @@ class RuntimeWorker:
                 status = "cancelled"  # 因取消/失联中断 → cancelled；自然降级才是 partial
             else:
                 status = report.status
-            result = report.model_dump()
+            # I7 集成补丁（ADR-0008）：终态 result 经 API/SSE 输出，JSON 形状统一 camelCase
+            result = report.model_dump(by_alias=True)
         except Exception as exc:  # noqa: BLE001 - 运行时兜底：任何异常都落 failed 终态
             error = f"{type(exc).__name__}: {exc}"
         finally:

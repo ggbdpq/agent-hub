@@ -94,7 +94,7 @@ async def test_full_flow_completed_with_coverage_one() -> None:
     assert "__interrupt__" in result  # critical 触发审批（B7）
 
     resumed = await graph.ainvoke(
-        Command(resume={"approved": False, "approval_id": "", "note": "无需无人机"}),
+        Command(resume={"approved": False, "approvalId": "", "note": "无需无人机"}),
         {"configurable": {"thread_id": "t1"}},
     )
     report = resumed["report"]

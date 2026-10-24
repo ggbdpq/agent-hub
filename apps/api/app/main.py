@@ -64,7 +64,7 @@ class ApprovalHub:
         self._timeout_s = timeout_s
 
     async def approver(self, payload: dict) -> dict:
-        approval_id = str(payload.get("approval_id", ""))
+        approval_id = str(payload.get("approvalId") or payload.get("approval_id") or "")
         if not approval_id:
             return {"approved": False, "approval_id": "", "note": "payload 缺 approval_id，默认拒绝"}
         if approval_id in self._decided:
@@ -104,7 +104,7 @@ class ApprovalHub:
         """收尾：未决审批一律按拒绝解除，让等待中的 runner 尽快落终态。"""
         for fut in self._pending.values():
             if not fut.done():
-                fut.set_result({"approved": False, "approval_id": "", "note": "服务关闭，默认拒绝"})
+                fut.set_result({"approved": False, "approvalId": "", "note": "服务关闭，默认拒绝"})
         self._pending.clear()
         self._decided.clear()
         self._consumed.clear()
@@ -114,6 +114,17 @@ def _default_retriever() -> HybridRetriever:
     return HybridRetriever(
         split_corpus(DEFAULT_FIXTURE_ROOT / "corpus"), embedder=HashingEmbedder(dim=512)
     )
+
+
+def _offline_llm_requested() -> bool:
+    return os.environ.get("AGENT_HUB_LLM", "").strip().lower() in ("scripted", "fake", "offline")
+
+
+def scripted_llm_factory(evidence_chunk_id: str):
+    """离线确定性脚本工厂（I8）：复用 demo 的脚本与逐条推进实现（同包内协作）。"""
+    from app.agents.demo import _scripts, _sequence_factory
+
+    return _sequence_factory(_scripts(evidence_chunk_id))
 
 
 def create_app(
@@ -148,13 +159,22 @@ def create_app(
         async with AsyncSqliteSaver.from_conn_string(ckpt) as saver:
             runner = InspectionAgentRunner(checkpointer=saver, approver=hub.approver)
             if worker_count > 0:
+                if llm_factory is not None:
+                    factory = llm_factory
+                elif _offline_llm_requested():
+                    # AGENT_HUB_LLM=scripted：离线确定性档（E2E/演示），与花语离线剧本同哲学
+                    hits = await (retriever or _default_retriever()).search("柜温 告警阈值", k=1)
+                    chunk_id = hits[0].chunk_id if hits else ""
+                    factory = scripted_llm_factory(chunk_id)
+                else:
+                    factory = env_chat_model_factory()
                 pool = WorkerPool(
                     store,
                     ledger,
                     runner,
                     count=worker_count,
                     retriever=retriever or _default_retriever(),
-                    llm_factory=llm_factory or env_chat_model_factory(),
+                    llm_factory=factory,
                 )
                 reclaimer = Reclaimer(store, interval_s=10.0)
                 pool_task = asyncio.create_task(pool.run_forever(stop), name="runs-worker-pool")
@@ -265,7 +285,7 @@ def create_app(
         """创建巡检 run；Idempotency-Key 头相同则由 RunStore 返回同一 run（幂等重放）。"""
         state = request.app.state.runs
         idem = request.headers.get("Idempotency-Key")
-        record = state.store.create_run("inspection", body.model_dump(), idempotency_key=idem)
+        record = state.store.create_run("inspection", body.model_dump(by_alias=True), idempotency_key=idem)
         return record.model_dump(mode="json", by_alias=True)
 
     @app.get("/api/runs/{run_id}")
@@ -320,7 +340,7 @@ def create_app(
     @app.post("/api/runs/{run_id}/approvals/{approval_id}")
     def resolve_approval(run_id: str, approval_id: str, body: ApprovalDecision, request: Request) -> dict:
         state = request.app.state.runs
-        decision = {"approved": body.approved, "approval_id": approval_id, "note": body.note}
+        decision = {"approved": body.approved, "approvalId": approval_id, "note": body.note}
         if not state.hub.resolve(approval_id, decision):
             raise HTTPException(status_code=409, detail="审批单不存在或已消费（结果只消费一次）")
         return {"ok": True, "approval_id": approval_id, "approved": body.approved}

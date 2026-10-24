@@ -88,7 +88,7 @@ async def test_injected_approver_auto_resumes_and_dispatches() -> None:
 
     def approver(payload: dict) -> dict:
         decisions.append(payload)
-        return {"approved": True, "approval_id": "AP-B12", "note": "自动审批：同意派机"}
+        return {"approved": True, "approvalId": "AP-B12", "note": "自动审批：同意派机"}
 
     runner = InspectionAgentRunner(approver=approver)
     report = await runner.run("run-b12-2", REQUEST, ctx)

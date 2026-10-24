@@ -106,7 +106,7 @@ async def test_crash_before_approval_resumes_without_rerunning_planner_inspector
         tracker = BudgetTracker(ctx.budget)
         graph = build_inspection_graph(ctx, tracker, fixture_root=FIXTURES, checkpointer=saver)
         resumed = await graph.ainvoke(
-            Command(resume={"approved": False, "approval_id": "", "note": "重启后人工复核：暂不派机"}),
+            Command(resume={"approved": False, "approvalId": "", "note": "重启后人工复核：暂不派机"}),
             config,
         )
 

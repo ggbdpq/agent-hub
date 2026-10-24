@@ -85,7 +85,7 @@ async def test_critical_findings_interrupt_for_approval() -> None:
     assert "__interrupt__" in result
     value = result["__interrupt__"][0].value
     assert "INV-005" in value["devices"]
-    assert "工单" in json.dumps(value["work_orders"], ensure_ascii=False) or value["work_orders"]
+    assert "工单" in json.dumps(value["workOrders"], ensure_ascii=False) or value["workOrders"]
     assert "approval.required" in collector.types()
     # 未审批不产出报告（reporter 中断在产出前）
     assert result.get("report") is None
@@ -116,7 +116,7 @@ async def test_resume_approved_dispatches_with_approval_id() -> None:
         {"request": REQUEST.model_dump()}, {"configurable": {"thread_id": "run-appr-3"}}
     )
     resumed = await graph.ainvoke(
-        Command(resume={"approved": True, "approval_id": "AP-9", "note": "同意派无人机复核"}),
+        Command(resume={"approved": True, "approvalId": "AP-9", "note": "同意派无人机复核"}),
         {"configurable": {"thread_id": "run-appr-3"}},
     )
     report = resumed["report"]

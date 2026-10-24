@@ -267,7 +267,9 @@ export function RunsPage() {
         if (["completed", "failed", "cancelled", "partial"].includes(fresh.status)) {
           clearResumeAnchor();
         } else {
-          follow(anchor.runId, anchor.lastSeq);
+          // 刷新后内存丢失：从 0 重放全量事件重建时间线与未决审批条（事件幂等、
+          // 渲染幂等）；Last-Event-ID 续传用于页内断线重连（lastSeqRef 仍在）
+          follow(anchor.runId, 0);
         }
       })
       .catch(() => clearResumeAnchor());

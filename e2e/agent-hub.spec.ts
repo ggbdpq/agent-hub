@@ -83,3 +83,48 @@ test("多轮记忆：同一会话请求携带相同 threadId，点清空后更�
   const tid3 = JSON.parse(bodies[2]).threadId as string;
   expect(tid3).not.toBe(tid1);
 });
+
+// -- 巡检多智能体（I8，AGENT_HUB_LLM=scripted 离线确定性档） --
+
+test("巡检页：发起巡检 → 审批 → 报告完成（创建到终态全链路）", async ({ page }) => {
+  await page.goto("/runs");
+  await page.getByLabel(/设备 ID/).fill("INV-001, INV-005, INV-002");
+  await page.getByRole("button", { name: "发起巡检" }).click();
+
+  // 时间线推进：规划阶段可见（离线档走确定性判读 + 规程检索）
+  await expect(page.getByText(/规划完成/)).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText("批准派无人机")).toBeVisible({ timeout: 20_000 });
+  await page.getByRole("button", { name: "批准派无人机" }).click();
+  await expect(page.getByText("巡检报告")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/审批通过/).first()).toBeVisible();
+  await expect(page.getByText(/覆盖率 100%/)).toBeVisible();
+});
+
+test("巡检页：审批中断 → 刷新页面恢复审批条 → 批准 → 报告（Last-Event-ID 续传）", async ({ page }) => {
+  await page.goto("/runs");
+  await page.getByLabel(/设备 ID/).fill("INV-001, INV-005, INV-002");
+  await page.getByRole("button", { name: "发起巡检" }).click();
+
+  // critical 设备触发人工审批
+  await expect(page.getByText("批准派无人机")).toBeVisible({ timeout: 20_000 });
+
+  // 刷新：恢复锚点（runId+lastSeq）重连带 Last-Event-ID 续传，审批条仍在
+  await page.reload();
+  await expect(page.getByText("批准派无人机")).toBeVisible({ timeout: 20_000 });
+  await page.getByRole("button", { name: "批准派无人机" }).click();
+
+  await expect(page.getByText("巡检报告")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/审批通过/).first()).toBeVisible();
+});
+
+test("巡检页：审批拒绝 → 不派工，报告说明拒绝原因", async ({ page }) => {
+  await page.goto("/runs");
+  await page.getByLabel(/设备 ID/).fill("INV-001, INV-005, INV-002");
+  await page.getByRole("button", { name: "发起巡检" }).click();
+
+  await expect(page.getByRole("button", { name: "拒绝" })).toBeVisible({ timeout: 20_000 });
+  await page.getByRole("button", { name: "拒绝", exact: true }).click();
+
+  await expect(page.getByText("巡检报告")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/审批拒绝/).first()).toBeVisible();
+});

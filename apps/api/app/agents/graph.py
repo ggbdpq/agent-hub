@@ -201,9 +201,10 @@ def build_inspection_graph(
             payload = {
                 "question": f"是否派无人机现场复核 {len(critical)} 台 critical 设备？",
                 "devices": [f.device_id for f in critical],
-                "work_orders": [o.model_dump() for o in saved_orders],
+                # payload 出站键统一 camelCase（ADR-0008 I7/I8 补丁；前端按 camel 读取）
+                "workOrders": [o.model_dump(by_alias=True) for o in saved_orders],
                 # I5 使能（主线程向后兼容补丁）：HTTP 审批端点按此 id 寻址
-                "approval_id": f"{run_id}:approval:1",
+                "approvalId": f"{run_id}:approval:1",
             }
             await ctx.emit(NewEvent(type="approval.required", node="reporter", payload=payload))
             raw = interrupt(payload)
@@ -213,7 +214,7 @@ def build_inspection_graph(
                 for f in critical:
                     await reporter_tools.call(
                         "dispatch_drone",
-                        {"device_id": f.device_id, "reason": f.summary[:100], "approval_id": decision.get("approval_id", "")},
+                        {"device_id": f.device_id, "reason": f.summary[:100], "approval_id": decision.get("approvalId", "")},
                         ledger_key=f"{run_id}:reporter:drone:{f.device_id}",
                     )
 
@@ -319,7 +320,7 @@ def _assemble_report(
         notes_parts.append(f"工单 {len(work_orders)} 份（draft，待人工确认执行）")
     if approval is not None:
         if approval.get("approved"):
-            aids = approval.get("approval_id") or "-"
+            aids = approval.get("approvalId") or "-"
             notes_parts.append(f"审批通过：无人机派工已模拟执行（approval_id={aids}）")
         else:
             note = approval.get("note") or ""
