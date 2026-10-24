@@ -6,10 +6,14 @@
 """
 
 import asyncio
+import logging
+import sqlite3
 
 from app.contracts.fakes import ScriptedAgentRunner
 
 from app.runtime import RuntimeWorker, WorkerConfig, WorkerPool
+
+_WORKER_LOGGER_NAME = "agent-hub.runtime.worker"  # 与 worker.py 的模块 logger 一致
 
 
 async def test_worker_runs_queued_run_to_completion(sqlite_store, sqlite_ledger) -> None:
@@ -129,3 +133,70 @@ async def test_worker_runner_exception_maps_to_failed(sqlite_store, sqlite_ledge
     assert run.status == "failed" and run.error is not None and "boom" in run.error
     types = [e.type for e in sqlite_store.events_after(created.run_id, 0)]
     assert types == ["run.queued", "run.started", "node.started", "run.failed"]
+
+
+async def test_run_forever_survives_per_iteration_error(
+    sqlite_store, sqlite_ledger, monkeypatch
+) -> None:
+    """R2 回归：单轮抛异常（如锁错重试耗尽）→ 结构化日志 + 继续循环，协程不死。"""
+    import json as json_module
+    import logging
+
+    from app.runtime.structured_log import RunLogFormatter
+
+    created = sqlite_store.create_run(
+        "inspection", {"site": "s1", "device_ids": ["DE-001"]}
+    )
+    worker = RuntimeWorker(
+        sqlite_store,
+        sqlite_ledger,
+        ScriptedAgentRunner(),
+        config=WorkerConfig(worker_id="w1", poll_interval_s=0.02),
+    )
+
+    lines: list[str] = []
+    logger = logging.getLogger(_WORKER_LOGGER_NAME)
+    logger.setLevel(logging.DEBUG)
+
+    class Capture(logging.Handler):
+        def emit(self, record: logging.LogRecord) -> None:
+            lines.append(self.format(record))
+
+    handler = Capture()
+    handler.setFormatter(RunLogFormatter())
+    logger.addHandler(handler)
+    try:
+        calls = {"n": 0}
+
+        async def flaky_run_one() -> bool:
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise sqlite3.OperationalError("database is locked")  # 重试耗尽后的漏网锁错
+            if calls["n"] == 2:
+                return True  # 第二轮恢复正常并处理了一个 run
+            return False
+
+        monkeypatch.setattr(worker, "run_one", flaky_run_one)
+
+        stop = asyncio.Event()
+        task = asyncio.create_task(worker.run_forever(stop))
+        # 有界等待"协程死亡（修复前的红）或跑满三轮（修复后的绿）"
+        deadline = asyncio.get_running_loop().time() + 2
+        while calls["n"] < 3 and asyncio.get_running_loop().time() < deadline:
+            if task.done():
+                break
+            await asyncio.sleep(0.01)
+
+        assert not task.done(), f"worker 协程不应死亡：{task.exception()}"
+        stop.set()
+        await asyncio.wait_for(task, timeout=2)
+        assert calls["n"] >= 3  # 第一轮异常后循环继续
+        assert sqlite_store.get(created.run_id) is not None  # 库连接未被破坏，可继续服务
+    finally:
+        logger.removeHandler(handler)
+
+    payloads = [json_module.loads(line) for line in lines]
+    failures = [p for p in payloads if p["message"] == "worker.iteration_failed"]
+    assert failures, "单轮异常必须记结构化日志（池降级要有告警）"
+    assert "database is locked" in failures[0]["error"]
+    assert failures[0]["worker_id"] == "w1"
