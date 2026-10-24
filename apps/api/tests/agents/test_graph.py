@@ -9,6 +9,8 @@ import asyncio
 import json
 
 from langchain_core.messages import AIMessage
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.types import Command
 
 from app.agents.graph import build_inspection_graph
 from app.contracts.agent import InspectionRequest
@@ -56,8 +58,15 @@ def _insp_script(device_id: str, level: str, summary: str, with_evidence: bool =
     return turns
 
 
+def _orders_json() -> str:
+    return json.dumps(
+        {"orders": [{"device_id": "INV-005", "title": "柜温超限现场检查", "action": "检查散热"}]},
+        ensure_ascii=False,
+    )
+
+
 def _build(**kwargs):
-    """构造图与收集器；脚本默认：planner + 3 台 inspector（各 2-3 轮）。"""
+    """构造图与收集器；脚本默认：planner + 3 台 inspector + reporter 起草 ×2。"""
     scripts = kwargs.pop(
         "scripts",
         [
@@ -65,31 +74,44 @@ def _build(**kwargs):
             _insp_script("INV-001", "normal", "平稳"),
             _insp_script("INV-005", "critical", "柜温漂移", with_evidence=True),
             _insp_script("INV-002", "normal", "平稳"),
+            _orders_json(),
+            _orders_json(),
         ],
     )
     kwargs.setdefault("retriever", StaticRetriever([CHUNK]))
+    kwargs.setdefault("checkpointer", InMemorySaver())
+    checkpointer = kwargs.pop("checkpointer")
     ctx, collector = make_ctx(llm=sequence_llm_factory(scripts), **kwargs)
-    return ctx, collector
+    tracker = BudgetTracker(ctx.budget)
+    graph = build_inspection_graph(ctx, tracker, checkpointer=checkpointer, fixture_root=FIXTURES)
+    return graph, ctx, collector, tracker
 
 
 async def test_full_flow_completed_with_coverage_one() -> None:
-    ctx, collector = _build()
-    tracker = BudgetTracker(ctx.budget)
-    graph = build_inspection_graph(ctx, tracker, fixture_root=FIXTURES)
+    """INV-005 critical → interrupt 审批（拒绝派工）→ 报告 completed、覆盖率 1。"""
+    graph, ctx, collector, tracker = _build()
     result = await graph.ainvoke({"request": REQUEST.model_dump()}, {"configurable": {"thread_id": "t1"}})
+    assert "__interrupt__" in result  # critical 触发审批（B7）
 
-    report = result["report"]
+    resumed = await graph.ainvoke(
+        Command(resume={"approved": False, "approval_id": "", "note": "无需无人机"}),
+        {"configurable": {"thread_id": "t1"}},
+    )
+    report = resumed["report"]
     assert report["status"] == "completed"
     assert report["coverage"] == 1.0
     assert len(report["findings"]) == 3
     levels = {f["device_id"]: f["level"] for f in report["findings"]}
     assert levels == {"INV-001": "normal", "INV-005": "critical", "INV-002": "normal"}
-    # 事件序列：plan.created + 各节点 started/completed + inspector 证据事件
+    assert any("INV-005" in wo["device_id"] for wo in report["work_orders"])
+    assert "拒绝" in report["notes"]
+    # 事件序列：plan.created + 各节点 started/completed + inspector 证据事件 + 审批事件
     assert "plan.created" in collector.types()
     started = [e for e in collector.of_type("node.started")]
     assert any(e.node == "supervisor" for e in started)
     assert sum(1 for e in started if e.node == "inspector") == 3
     assert collector.of_type("evidence.attached")  # INV-005 检索证据入档
+    assert "approval.required" in collector.types() and "approval.resolved" in collector.types()
 
 
 async def test_subtask_timeout_degrades_to_partial_with_coverage() -> None:
@@ -104,13 +126,13 @@ async def test_subtask_timeout_degrades_to_partial_with_coverage() -> None:
         ],
         _insp_script("INV-002", "normal", "平稳"),
     ]
-    ctx, collector = _build(scripts=scripts)
-    # 让 INV-005 的 get_telemetry 慢到必超时（节点级 wait_for 先触发）
     from app.tools.inspection_tools import build_registry
 
     async def slow_handler(args):
         await asyncio.sleep(10)
 
+    # 先建 ctx 用于注册表构造，再建图（覆盖 get_telemetry 为慢调用）
+    ctx, collector = make_ctx(llm=sequence_llm_factory(scripts), retriever=StaticRetriever([CHUNK]))
     base = build_registry(ctx, fixture_root=FIXTURES)
     slow_spec = base.get("get_telemetry").model_copy(update={"handler": slow_handler})
     registry = build_registry(ctx, fixture_root=FIXTURES, spec_overrides={"get_telemetry": slow_spec})
@@ -131,7 +153,13 @@ async def test_subtask_timeout_degrades_to_partial_with_coverage() -> None:
 
 
 async def test_cancelled_run_yields_partial_report() -> None:
-    ctx, _ = _build(cancelled=True)
+    scripts = [
+        json.dumps({"steps": [{"device_id": "INV-001", "checks": ["遥测比对"]}]}, ensure_ascii=False),
+        _insp_script("INV-001", "normal", "平稳"),
+    ]
+    ctx, _collector = make_ctx(
+        llm=sequence_llm_factory(scripts), retriever=StaticRetriever([CHUNK]), cancelled=True
+    )
     tracker = BudgetTracker(ctx.budget)
     graph = build_inspection_graph(ctx, tracker, fixture_root=FIXTURES)
     result = await graph.ainvoke({"request": REQUEST.model_dump()}, {"configurable": {"thread_id": "t3"}})
@@ -140,16 +168,20 @@ async def test_cancelled_run_yields_partial_report() -> None:
 
 
 async def test_planner_fallback_plan_used_on_garbage() -> None:
-    """planner 三次都输出垃圾 → 兜底计划照常扇出（流程不中断）。"""
+    """planner 三次都输出垃圾 → 兜底计划照常扇出（流程不中断）。
+
+    用全 normal 设备（INV-001/002/003），避免确定性判读 critical 触发审批中断。
+    """
+    request = InspectionRequest(site="SITE-A", device_ids=["INV-001", "INV-002", "INV-003"])
     scripts = ["垃圾", "垃圾", "垃圾"] + [
         _insp_script("INV-001", "normal", "平稳"),
-        _insp_script("INV-005", "normal", "平稳"),
         _insp_script("INV-002", "normal", "平稳"),
+        _insp_script("INV-003", "normal", "平稳"),
     ]
-    ctx, collector = _build(scripts=scripts)
+    ctx, collector = make_ctx(llm=sequence_llm_factory(scripts), retriever=StaticRetriever([CHUNK]))
     tracker = BudgetTracker(ctx.budget)
     graph = build_inspection_graph(ctx, tracker, fixture_root=FIXTURES)
-    result = await graph.ainvoke({"request": REQUEST.model_dump()}, {"configurable": {"thread_id": "t4"}})
+    result = await graph.ainvoke({"request": request.model_dump()}, {"configurable": {"thread_id": "t4"}})
     assert result["plan"]["note"].startswith("默认全量检查计划")
     assert result["report"]["status"] == "completed"
     assert len(result["report"]["findings"]) == 3

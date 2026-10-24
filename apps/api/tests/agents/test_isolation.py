@@ -17,7 +17,7 @@ from app.tools.budget import BudgetTracker, estimate_tokens
 from app.tools.devices import load_devices
 from b_testkit import FIXTURES, make_ctx, recording_llm_factory
 
-REQUEST = InspectionRequest(site="SITE-A", device_ids=["INV-001", "INV-005", "INV-002"])
+REQUEST = InspectionRequest(site="SITE-A", device_ids=["INV-001", "INV-002", "INV-003"])
 
 CHUNK = Chunk(
     chunk_id="doc1#异常判据#1",
@@ -72,15 +72,15 @@ async def test_inspector_prompts_contain_only_own_device() -> None:
             {
                 "steps": [
                     {"device_id": "INV-001", "checks": ["遥测比对"]},
-                    {"device_id": "INV-005", "checks": ["柜温趋势"]},
                     {"device_id": "INV-002", "checks": ["遥测比对"]},
+                    {"device_id": "INV-003", "checks": ["遥测比对"]},
                 ]
             },
             ensure_ascii=False,
         ),
         _script_for("INV-001", "normal"),
-        _script_for("INV-005", "critical"),
         _script_for("INV-002", "normal"),
+        _script_for("INV-003", "normal"),
     ]
     factory, received = recording_llm_factory(scripts)
     ctx, _ = make_ctx(llm=factory, retriever=StaticRetriever([CHUNK]))
@@ -96,7 +96,7 @@ async def test_inspector_prompts_contain_only_own_device() -> None:
         if len(msgs) == 2 and humans and "telemetry_summary" in str(humans[0].content):
             inspector_first_inputs.append(str(humans[0].content))
     assert len(inspector_first_inputs) == 3  # 每台设备一次首提
-    all_ids = {"INV-001", "INV-005", "INV-002"}
+    all_ids = {"INV-001", "INV-002", "INV-003"}
     for text in inspector_first_inputs:
         own = next(d for d in all_ids if d in text)
         leaked = all_ids - {own}
