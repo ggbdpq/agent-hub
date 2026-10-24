@@ -6,9 +6,11 @@
 
 from app.contracts.runtime import Claim, LeaseLost
 from app.runtime.heartbeat import HeartbeatLoop
+from app.runtime.metrics import RuntimeMetrics, get_metrics
 from app.runtime.reclaimer import Reclaimer
 from app.runtime.state_machine import TERMINAL_STATUSES, VALID_TRANSITIONS, can_transition
 from app.runtime.store import Clock, SqliteLedger, SqliteRunStore, from_us, to_us
+from app.runtime.structured_log import RunLogFormatter, configure_run_logging
 from app.runtime.worker import CancelMonitor, RuntimeWorker, WorkerConfig, WorkerPool
 
 __all__ = [
@@ -20,12 +22,16 @@ __all__ = [
     "HeartbeatLoop",
     "LeaseLost",
     "Reclaimer",
+    "RuntimeMetrics",
     "RuntimeWorker",
+    "RunLogFormatter",
     "SqliteLedger",
     "SqliteRunStore",
     "WorkerConfig",
     "WorkerPool",
     "can_transition",
+    "configure_run_logging",
     "from_us",
+    "get_metrics",
     "to_us",
 ]

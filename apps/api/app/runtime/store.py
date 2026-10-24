@@ -324,6 +324,25 @@ class SqliteRunStore:
             ).fetchall()
             return [self._record(row) for row in rows]
 
+    def stats(self) -> dict[str, int | float | None]:
+        """运行指标查询（A10）：在途数与终态平均时长（库内派生）。
+
+        平均时长 = 终态 runs 的 (updated_at - created_at) 均值；无终态样本时为
+        None（不编造）。进程内计数器（claims / reclaimed / lease_lost）见 metrics.py。
+        """
+        with self._lock:
+            in_flight = self._conn.execute(
+                "SELECT COUNT(*) FROM runs WHERE status = 'running'"
+            ).fetchone()[0]
+            avg_us = self._conn.execute(
+                "SELECT AVG(updated_at - created_at) FROM runs"
+                " WHERE status IN ('completed','failed','cancelled','partial')"
+            ).fetchone()[0]
+            return {
+                "in_flight": in_flight,
+                "avg_duration_s": None if avg_us is None else avg_us / 1_000_000,
+            }
+
     def events_after(self, run_id: str, after_seq: int) -> list[RunEvent]:
         """after_seq 之后的事件按 seq 升序返回，支撑 SSE Last-Event-ID 断点续传。"""
         with self._lock:

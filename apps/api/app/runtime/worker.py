@@ -16,13 +16,18 @@ CAS 失败（finish False）即被顶替或已终态，本次写入作废——f
 from __future__ import annotations
 
 import asyncio
+import logging
 from dataclasses import dataclass, replace
 
 from app.contracts.agent import Budget, InspectionRequest, RunContext
 from app.contracts.events import NewEvent
 from app.contracts.runtime import Claim, ToolLedger
 from app.runtime.heartbeat import HeartbeatLoop
+from app.runtime.metrics import RuntimeMetrics
 from app.runtime.store import SqliteRunStore
+from app.runtime.structured_log import log_event
+
+logger = logging.getLogger("agent-hub.runtime.worker")
 
 
 @dataclass
@@ -80,6 +85,7 @@ class RuntimeWorker:
         config: WorkerConfig | None = None,
         retriever=None,  # Retriever 契约；None 时用 fakes 开发期默认
         llm_factory=None,  # ChatModelFactory；None 时用 fakes 开发期默认
+        metrics: RuntimeMetrics | None = None,
     ) -> None:
         self._store = store
         self._ledger = ledger
@@ -87,6 +93,7 @@ class RuntimeWorker:
         self._cfg = config or WorkerConfig()
         self._retriever = retriever
         self._llm_factory = llm_factory
+        self._metrics = metrics
 
     @property
     def worker_id(self) -> str:
@@ -108,6 +115,12 @@ class RuntimeWorker:
         claim = await asyncio.to_thread(self._store.claim, self._cfg.worker_id, self._cfg.lease_s)
         if claim is None:
             return False
+        if self._metrics is not None:
+            self._metrics.claims += 1
+        log_event(
+            logger, logging.INFO, "run.claimed",
+            run_id=claim.run_id, attempt=claim.attempt, worker_id=self._cfg.worker_id,
+        )
         await self._execute(claim)
         return True
 
@@ -126,7 +139,12 @@ class RuntimeWorker:
             return lost.is_set() or cancel.requested
 
         async def emit(event: NewEvent) -> None:
-            await asyncio.to_thread(self._store.append_event, run_id, token, event)
+            run_event = await asyncio.to_thread(self._store.append_event, run_id, token, event)
+            log_event(
+                logger, logging.DEBUG, "run.event",
+                run_id=run_event.run_id, attempt=run_event.attempt,
+                seq=run_event.seq, node=run_event.node, event=run_event.type,
+            )
 
         ctx = RunContext(
             emit=emit,
@@ -158,10 +176,24 @@ class RuntimeWorker:
         finished = await asyncio.to_thread(
             self._store.finish, run_id, token, status, result, error
         )
-        if not finished:
+        if self._metrics is not None:
+            if not finished or lost.is_set():
+                # 租约关系已断：终态被拒（被顶替/终态）或心跳失联后勉强写入
+                self._metrics.lease_lost += 1
+            elif finished:
+                self._metrics.finished += 1
+        if finished:
+            log_event(
+                logger, logging.INFO, "run.finished",
+                run_id=run_id, attempt=claim.attempt, status=status,
+            )
+        else:
             # 被顶替或已终态：写入作废。任务仍会被接管者结束——"任务最终结束"不变量
             # 不依赖本 worker。
-            return
+            log_event(
+                logger, logging.WARNING, "run.finish_rejected",
+                run_id=run_id, attempt=claim.attempt, status=status,
+            )
 
     def _dev_retriever(self):
         from app.contracts.fakes import StaticRetriever
@@ -187,6 +219,7 @@ class WorkerPool:
         config: WorkerConfig | None = None,
         retriever=None,
         llm_factory=None,
+        metrics: RuntimeMetrics | None = None,
     ) -> None:
         if count < 1:
             raise ValueError("WorkerPool 至少需要 1 个 worker")
@@ -199,6 +232,7 @@ class WorkerPool:
                 config=replace(base, worker_id=f"{base.worker_id}-{i}"),
                 retriever=retriever,
                 llm_factory=llm_factory,
+                metrics=metrics,
             )
             for i in range(count)
         )

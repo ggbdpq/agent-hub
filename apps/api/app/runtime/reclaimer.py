@@ -10,10 +10,15 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Callable
 
 from app.contracts.runtime import RunRecord
+from app.runtime.metrics import RuntimeMetrics
 from app.runtime.store import SqliteRunStore
+from app.runtime.structured_log import log_event
+
+logger = logging.getLogger("agent-hub.runtime.reclaimer")
 
 
 class Reclaimer:
@@ -22,10 +27,12 @@ class Reclaimer:
         store: SqliteRunStore,
         interval_s: float = 10.0,
         on_expired: Callable[[RunRecord], None] | None = None,
+        metrics: RuntimeMetrics | None = None,
     ) -> None:
         self._store = store
         self.interval_s = interval_s
         self._on_expired = on_expired
+        self._metrics = metrics
         self._seen: set[tuple[str, int]] = set()
 
     def scan_once(self) -> list[RunRecord]:
@@ -37,6 +44,9 @@ class Reclaimer:
         ]
         for rec in expired:
             self._seen.add((rec.run_id, rec.attempt))
+            log_event(logger, logging.WARNING, "lease.expired", run_id=rec.run_id, attempt=rec.attempt)
+            if self._metrics is not None:
+                self._metrics.reclaimed += 1
             if self._on_expired is not None:
                 self._on_expired(rec)
         return expired
