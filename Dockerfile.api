@@ -1,0 +1,13 @@
+# 巡检多智能体 API（FastAPI + SQLite 运行时 + LangGraph worker 池）
+# fixtures 布局保持仓库相对结构（app/tools/devices.py 的 DEFAULT_FIXTURE_ROOT = parents[4]/fixtures）
+FROM python:3.12-slim
+WORKDIR /srv
+COPY apps/api /srv/apps/api
+COPY fixtures /srv/fixtures
+RUN pip install --no-cache-dir -e /srv/apps/api
+ENV AGENT_HUB_RUNS_DB=/data/runs.sqlite \
+    AGENT_HUB_CHECKPOINTS=/data/checkpoints.sqlite \
+    AGENT_HUB_SNAPSHOT_DIR=/data/snapshots
+VOLUME ["/data"]
+EXPOSE 8808
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8808"]

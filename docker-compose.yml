@@ -1,0 +1,44 @@
+# 一键演示：docker compose up --build 后打开 http://localhost:8888
+# 服务拓扑与本机 pnpm demo 一致（web:8888 → api:8808 + agent:8809），
+# 巡检运行库持久化在命名卷 runs-data（进程重启后 queued/running 任务从 SQLite 续跑）。
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_PROVIDER=${OPENAI_PROVIDER:-}
+      # 默认离线确定性档（无需 Key 即可演示巡检全链路）；真实模型用 -e AGENT_HUB_LLM=real
+      - AGENT_HUB_LLM=${AGENT_HUB_LLM:-scripted}
+    volumes:
+      - runs-data:/data
+    expose:
+      - "8808"
+
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      target: build
+    command: ["node", "apps/agent/src/server.ts"]
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_PROVIDER=${OPENAI_PROVIDER:-}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-}
+    expose:
+      - "8809"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "8888:80"
+    depends_on:
+      - api
+      - agent
+
+volumes:
+  runs-data:

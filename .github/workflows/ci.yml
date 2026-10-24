@@ -36,7 +36,7 @@ jobs:
       - run: pnpm test:agent
 
   api:
-    name: api tests
+    name: api tests + quality gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,6 +46,9 @@ jobs:
       - run: pip install -e "apps/api[dev]"
       - working-directory: apps/api
         run: python -m pytest -q
+      # I9：离线评测质量门——低于阈值退出码非 0，真正让 CI 失败（C10）
+      - working-directory: apps/api
+        run: python -m evals.gate
 
   e2e:
     name: browser user stories
