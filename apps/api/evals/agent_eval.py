@@ -324,8 +324,13 @@ async def run_case(
     llm_factory: Callable[[], Any] | None = None,
     valid_chunk_ids: set[str] | frozenset[str] | None = None,
     prices: dict | None = None,
+    budget: Budget | None = None,
 ) -> dict:
-    """执行单条用例：构造 RunContext、收集事件、计时、评分。"""
+    """执行单条用例：构造 RunContext、收集事件、计时、评分。
+
+    budget 缺省 Budget()（与既有套件一致）；消融需要额外步数余量时可显式放宽
+    （如 E7 越权替身每设备多发 3 次请求）。
+    """
     events: list[dict] = []
 
     async def emit(event: NewEvent) -> None:
@@ -340,7 +345,7 @@ async def run_case(
     ctx = RunContext(
         emit=emit,
         cancelled=cancelled,
-        budget=Budget(),
+        budget=budget or Budget(),
         ledger=ledger or InMemoryLedger(),
         retriever=retriever or StaticRetriever(),
         llm=llm_factory or _llm_not_used,
