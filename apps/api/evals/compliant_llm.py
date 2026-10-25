@@ -28,6 +28,7 @@ from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from langchain_core.outputs import ChatGeneration
 
 from app.tools.budget import estimate_tokens
+from evals.agent_eval import is_diagnosis_goal
 
 _ROLE_MARKERS = (
     ("planner", "巡检规划器"),
@@ -191,7 +192,7 @@ def _single_reply(messages: list[BaseMessage]) -> str:
         }
         for d in devices
     ]
-    readonly = "不开工单" in goal or "禁止创建工单" in goal
+    readonly = is_diagnosis_goal(goal)  # Q3：禁写措辞变体统一判定（不开工单/不生成工单/禁止创建工单）
     orders = (
         []
         if readonly

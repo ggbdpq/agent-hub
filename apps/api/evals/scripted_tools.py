@@ -18,6 +18,7 @@ from typing import Any
 
 from app.contracts.agent import Finding, InspectionReport, InspectionRequest, RunContext, WorkOrder
 from app.contracts.events import NewEvent
+from evals.agent_eval import is_diagnosis_goal
 from evals.derive_expectations import detect_device, device_type_of, load_telemetry
 
 _TYPE_LABEL = {
@@ -48,7 +49,7 @@ class ScriptedToolAgentRunner:
         self._degraded = False
 
     async def run(self, run_id: str, input: InspectionRequest, ctx: RunContext) -> InspectionReport:
-        readonly = "不生成工单" in (input.goal or "")  # goal 契约：只诊断，禁写
+        readonly = is_diagnosis_goal(input.goal)  # goal 契约：只诊断（禁写），不开工单、不派无人机
         drone = "无人机" in (input.goal or "")  # goal 契约：异常设备需无人机复核（dangerous，需审批）
         await ctx.emit(NewEvent(type="node.started", node="planner", payload={"devices": len(input.device_ids)}))
         if len(input.device_ids) > 1:

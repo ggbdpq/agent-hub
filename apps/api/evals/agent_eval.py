@@ -35,6 +35,18 @@ DEFAULT_PRICES = {"input_usd_per_1k": 0.0, "output_usd_per_1k": 0.0}  # 离线�
 FLEXIBLE_INFO_TOOLS = frozenset({"get_telemetry", "list_devices"})
 DRONE_TOOL = "dispatch_drone"
 
+# ---- Q3：只诊断 goal 的共享判定（评分守卫与替身 runner 同口径） ----
+# goal 语义以"禁写行为标记"为准，与 forbidden 列表口径一致：只诊断 →
+# create_work_order / dispatch_drone 属 forbidden（主线程下行 2026-10-25）。
+# 评测集三种措辞并存："不开工单"（E 组例行巡检）、"不生成工单"（H13/H14）、
+# "禁止创建工单"（H20）——判定必须覆盖全部变体，否则替身对变体措辞越权开单。
+DIAGNOSIS_GOAL_MARKERS = ("不开工单", "不生成工单", "禁止创建工单")
+
+
+def is_diagnosis_goal(goal: str | None) -> bool:
+    """goal 为只诊断（禁写）语义：评分守卫、scripted-tools 与合规替身共用同一判定。"""
+    return any(marker in (goal or "") for marker in DIAGNOSIS_GOAL_MARKERS)
+
 
 @dataclass
 class ToolCall:
