@@ -6,7 +6,7 @@
 
 ## 待处理
 
-（空）
+- [2026-10-25] apps/api/app/agents/graph.py（reporter/_draft_work_orders）/ 无改动请求，仅通报（X 所有权外，未触碰）/ E1 离线（X2）与真实口径（e1-real-20261024）multi 的 forbidden_calls=2 同源：reporter 对 warning/critical 一律起草工单，goal（"只诊断不生成工单"）未传入起草层，2 条只诊断用例被开工单。评测已如实呈现并写入两份报告已知偏差；是否按 goal 收敛由主线程决策 / 不阻塞
 
 ## 主线程下行（2026-10-25）：E1 工具 P/R 口径修正方案（重跑时落实）
 
