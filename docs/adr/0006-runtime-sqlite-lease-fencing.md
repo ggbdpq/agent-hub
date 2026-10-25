@@ -33,3 +33,17 @@
 
 - 契约测试 + 故障注入测试（SIGKILL）是验收硬门槛。
 - WAL 下并发写可能出现 `database is locked`：`busy_timeout` + 单写者假设缓解，压测验证（U3）。
+
+## 迁移说明：Postgres 版 RunStore（不实现，YAGNI）
+
+接口已隔离（`RunStore`/`ToolLedger` Protocol），迁移只需替换 SQL 方言与锁语义，逐点对应：
+
+| SQLite 实现 | Postgres 对应 |
+|---|---|
+| `BEGIN IMMEDIATE`（写锁先行，claim 原子） | `SELECT ... FOR UPDATE SKIP LOCKED`（且天然支持多行并发认领，吞吐更好） |
+| `busy_timeout` + BUSY 重试（指数退避） | 行锁等待 + `lock_timeout`，重试层语义不变 |
+| `unixepoch('subsec')` 数据库时钟 | `now()` 数据库时钟（多实例时钟一致性问题同样由 DB 时钟消解） |
+| `idempotency_key TEXT UNIQUE` + IntegrityError 兜底 | `UNIQUE` 约束 + `ON CONFLICT DO NOTHING ... RETURNING`（少一次竞态兜底） |
+| WAL 单写者 | MVCC 多写者；`tool_ledger`/`run_events` 的键唯一性约束语义不变 |
+
+不做的原因：单机演示场景 SQLite 足够；黑盒替代不产生新的可验证能力（JD 考的是租约/fencing/CAS 机制本身）。面试口径：「迁移是 SQL 方言与锁原语的替换，契约测试（tests/test_contracts_v1.py 语义 + tests/runtime/）保证行为等价」。
