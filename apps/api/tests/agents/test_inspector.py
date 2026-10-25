@@ -178,6 +178,27 @@ async def test_last_step_reserve_steers_model_to_conclude() -> None:
     assert result.finding.summary == "基于已观测判读收口"
 
 
+async def test_consecutive_duplicate_tool_call_denied() -> None:
+    """P1b：模型连续两次同工具同参数的读调用，第二次被拒并引导换工具或出结论。
+
+    E1 hard 档浪费形态：真实模型在等待/失败恢复时会把同一读调用连发两遍，
+    每一遍都白耗一步。执行器层拒绝后，观察消息把引导带回模型。
+    """
+    script = [
+        _act("detect_anomaly", device_id="INV-005"),
+        _act("detect_anomaly", device_id="INV-005"),  # 连续重复：第二次应被拒
+        _final(level="critical", summary="柜温漂移维持", evidence_chunk_ids=[]),
+    ]
+    ctx, collector, registry = _make(llm=FakeLLM.factory(script))
+    result = await run_inspection("INV-005", ["柜温趋势"], ctx, registry, BudgetTracker(ctx.budget))
+    detects = [e for e in collector.of_type("tool.called") if e.payload["tool"] == "detect_anomaly"]
+    assert len(detects) == 1  # 重复调用未真实执行
+    denied = [e for e in collector.of_type("tool.denied") if e.payload["reason"] == "duplicate_call"]
+    assert denied and "结论" in denied[0].payload["detail"]
+    assert result.failure_reason is None
+    assert result.finding is not None and result.finding.level == "critical"
+
+
 def test_brief_contains_only_own_device_data() -> None:
     """简报只含本设备数据摘要（B6 的基础行为）。"""
     from app.agents.briefs import build_subtask_brief
