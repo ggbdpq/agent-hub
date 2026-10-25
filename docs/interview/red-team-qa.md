@@ -62,6 +62,8 @@
 **答**：账本吸收。重跑的 reporter 会再次调 create_work_order，但 ledger_key 是 `run_id:reporter:wo:<device_id>`（graph.py:207），与第一次执行相同；`begin` 对已完成键返回 completed 原记录，执行器直接复用结果、发 `tool.deduplicated` 事件，handler 不再执行。派机同理（graph.py:232）。
 **证据**：`tests/agents/test_approval.py::test_reporter_rerun_does_not_duplicate_work_orders`（断言 tool.called 1 次 + tool.deduplicated 1 次）；跨进程场景 `tests/agents/test_runner_resume.py::test_reclaimed_run_resumes_from_checkpoint_not_rerun` 同断言。
 
+> **版本行为变化（2026-10-25，第 6 轮 P2）**：工单起草本身也不再是"warning+critical 无条件"——goal 为「只诊断」（显式"只出结论/不开工单/禁止创建工单"类信号且无肯定式处置动作词）时 reporter 直接跳过起草，notes 记"按 goal 只诊断，未起草工单"；判定在 `graph.py::diagnosis_only_goal`，与评测口径一致（只诊断 → create_work_order 属 forbidden）。本问的账本幂等机制不受影响：一旦起草，恢复重跑仍靠键去重。
+
 ### Q11. 为什么 interrupt 只设计一个点？审批要是出现在别的节点怎么办？
 
 **答**：YAGNI 的显式取舍（ADR-0007 决定 4）。dangerous 工具只有 dispatch_drone，消费点只在 reporter；单 interrupt 点让"恢复时哪个节点挂起、resume 值去哪"的推理保持平凡——多中断点恢复的语义组合会爆炸。若未来出现第二个 dangerous 消费点，要么收敛到一个审批节点，要么为每个点设计独立 resume 路由并补 U1 式探针。dangerous 工具的审批凭证校验在执行器层强制（executor.py:102-104），interrupt 只是产生凭证的通道——点少不等于防线少。

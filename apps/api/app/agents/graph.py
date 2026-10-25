@@ -51,6 +51,62 @@ _ORDER_SYSTEM = """你是工单起草员。为异常设备起草检修工单。
 {"orders": [{"device_id": "设备编号", "title": "工单标题", "action": "处置措施"}]}
 title 简明（≤40字），action 引用判读发现的异常参数与处置方向。"""
 
+# -- P2：goal 只诊断判定（与评测口径一致：只诊断 → create_work_order 属 forbidden）--
+
+# 显式「只诊断」信号：出现任一即认为 goal 声明了只诊断意图
+_DIAGNOSIS_ONLY_MARKERS = (
+    "只诊断",
+    "仅诊断",
+    "只出结论",
+    "只给结论",
+    "不开工单",
+    "不生成工单",
+    "不创建工单",
+    "禁止创建工单",
+    "禁止生成工单",
+    "无需工单",
+    "不需要工单",
+)
+# 工单/派工/处置动作词：肯定式出现即不算只诊断（禁止式提及不算）
+_ACTION_MARKERS = (
+    "生成工单",
+    "创建工单",
+    "开工单",
+    "派工",
+    "派单",
+    "处置",
+    "安排无人机",
+    "无人机现场复核",
+)
+_NEGATION_WORDS = ("不", "禁止", "无需", "无须", "勿", "别", "非", "不能", "不得")
+
+
+def _affirmative_action_goal(goal: str) -> bool:
+    """是否存在肯定式动作词提及（前 2 字内含否定词视为禁止式提及）。"""
+    for marker in _ACTION_MARKERS:
+        pos = goal.find(marker)
+        while pos != -1:
+            if not any(neg in goal[max(0, pos - 2) : pos] for neg in _NEGATION_WORDS):
+                return True
+            pos = goal.find(marker, pos + 1)
+    return False
+
+
+def diagnosis_only_goal(goal: str | None) -> bool:
+    """goal 是否为「只诊断」：有显式只诊断信号，且无肯定式工单/派工/处置动作词。
+
+    口径（与 docs/integration-requests/Q.md 下行一致）：
+    - 只诊断 → create_work_order 属 forbidden，reporter 跳过起草（notes 记原因）；
+    - 判定要求 goal 带显式信号（只出结论/不开工单/禁止创建工单类）——无信号
+      （如"例行巡检：遥测比对"或未填 goal）保持既有行为，起草不受影响；
+    - 肯定式动作词优先：即便同时出现禁止式提及也不跳过（用户既要求处置）。
+    """
+    if not goal:
+        return False
+    if not any(marker in goal for marker in _DIAGNOSIS_ONLY_MARKERS):
+        return False
+    return not _affirmative_action_goal(goal)
+
 
 class InspectionState(TypedDict, total=False):
     """图状态：findings/failures 用 operator.add reducer 合并并行 inspector 输出。
@@ -198,7 +254,12 @@ def build_inspection_graph(
         critical = [f for f in findings if f.level == "critical"]
 
         # 1) 工单起草（warning+critical），结构化校验失败退确定性兜底
-        orders = await _draft_work_orders(ctx, tracker, findings)
+        # P2：goal 只诊断 → 跳过起草（评测口径：只诊断 → create_work_order 属 forbidden），
+        # notes 记录原因；非只诊断行为完全不变。
+        if diagnosis_only_goal((state.get("request") or {}).get("goal")):
+            orders: list[WorkOrder] = []
+        else:
+            orders = await _draft_work_orders(ctx, tracker, findings)
         saved_orders: list[WorkOrder] = []
         for order in orders:
             outcome = await reporter_tools.call(
@@ -343,6 +404,13 @@ def _assemble_report(
         notes_parts.append("run 被请求取消，提前结束")
     if state.get("plan_meta", {}).get("fallback"):
         notes_parts.append("规划失败，使用默认全量检查计划")
+    # P2：goal 只诊断时起草被跳过——仅当确有可起草对象（warning/critical）时记 notes
+    if (
+        diagnosis_only_goal(request.get("goal"))
+        and any(f.level in ("warning", "critical") for f in findings)
+        and not work_orders
+    ):
+        notes_parts.append("按 goal 只诊断，未起草工单")
     if work_orders:
         notes_parts.append(f"工单 {len(work_orders)} 份（draft，待人工确认执行）")
     if approval is not None:

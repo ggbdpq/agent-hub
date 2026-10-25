@@ -147,6 +147,8 @@
 >
 > 反例就用"键里含 attempt 会怎样"：续跑后 attempt 从 1 变 2，键变了，账本当成新调用，工单就重复创建了——这正是很多"重试加个随机后缀"式幂等键的通病。还有一个实际踩过的点：审批中断恢复时 reporter 是整节点重跑的，起草工单的代码会再走一遍，第一次测试时就靠账本把这次重复吸收掉了，`tool.called` 1 次、`deduplicated` 1 次，断言写死在回归里。
 
+> **版本行为变化（2026-10-25，第 6 轮 P2）**：上文"reporter 对 warning/critical 起草工单"不再是无条件语义——`request.goal` 为「只诊断」（带"只出结论/不开工单/禁止创建工单"类显式信号，且无肯定式"生成工单/处置/派工"动作词，判定见 `graph.py` 的 `diagnosis_only_goal`）时 reporter 跳过起草，notes 记"按 goal 只诊断，未起草工单"；无显式信号或处置类 goal 行为完全不变。口径与评测侧一致（只诊断 → `create_work_order` 属 forbidden，见 docs/integration-requests/Q.md），幂等账本键机制本身不受影响。
+
 ---
 
 ## ④ 审批等待期重启，如何从检查点恢复（含整图重跑缺陷的修复背景）
