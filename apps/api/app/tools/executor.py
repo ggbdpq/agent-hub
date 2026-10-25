@@ -39,6 +39,11 @@ class ToolOutcome:
 
 _SIDE_EFFECT_EFFECTS = ("write", "dangerous")
 
+# P1a 步数临界保护的豁免面：detect_anomaly 是结论 level 的确定性事实来源，
+# 预算临界时必须仍可得（inspector 收尾抢救 P1c 依赖它兜底出结论）。
+_LAST_STEP_EXEMPT_TOOLS = frozenset({"detect_anomaly"})
+_LAST_STEP_RESERVE_DETAIL = "步数预算只剩最后 1 步：拒绝再调用读工具，必须基于已观测数据立即给出结论"
+
 
 def _event(node: str | None, event_type: str, payload: dict) -> NewEvent:
     return NewEvent(type=event_type, node=node, payload=payload)
@@ -78,6 +83,17 @@ class ToolExecutor:
         check = await check_call(self._registry, self._ctx, node=self.node, name=name)
         if check.denied:
             return out("denied", reason=check.reason, error=check.detail)
+
+        # 2.5) 步数临界保护（P1a）：只剩最后 1 步时拒绝再执行读工具——把最后一步
+        # 留给结论；拒绝事件带明示引导，模型仍可基于已观测数据出结论。只在
+        # read 工具上生效：写/高危工具不拦（reporter 在步数耗尽后仍须能落工单）。
+        if (
+            check.spec.effect == "read"
+            and name not in _LAST_STEP_EXEMPT_TOOLS
+            and self._tracker.steps_left() <= 1
+        ):
+            await self._deny(name, "last_step_reserve", _LAST_STEP_RESERVE_DETAIL)
+            return out("denied", reason="last_step_reserve", error=_LAST_STEP_RESERVE_DETAIL)
 
         # 3) 预算：工具次数与截止时间（超限拒绝，不靠提示词）
         allowed, reason = self._tracker.allow_tool_call()

@@ -147,6 +147,37 @@ async def test_device_id_overridden_by_code() -> None:
     assert called[0].payload["args"]["device_id"] == "INV-005"
 
 
+async def test_last_step_reserve_steers_model_to_conclude() -> None:
+    """P1a：倒数第二步的读工具被拒（引导基于已观测数据出结论），最后一步出结论。
+
+    复现 E1 hard 档失败形态的临界点：共享步数预算逼近耗尽时，执行器拒绝读工具
+    并通过拒绝事件/观察消息把引导给到模型；模型在最后一步给出结论，不走耗尽路径。
+    """
+    from app.contracts.agent import Budget
+
+    script = [
+        _act("search_procedures", query="异常判据 一"),
+        _act("search_procedures", query="异常判据 二"),
+        _final(level="critical", summary="基于已观测判读收口", evidence_chunk_ids=[]),
+    ]
+    ctx, collector, registry = _make(
+        llm=FakeLLM.factory(script),
+        budget=Budget(max_steps=3, max_tool_calls=10, max_tokens=100_000),
+    )
+    result = await run_inspection(
+        "INV-005", ["柜温趋势"], ctx, registry, BudgetTracker(ctx.budget), max_steps=6
+    )
+    # 倒数第二步的第二次检索被拒绝：检索只真实执行了一次
+    searches = [e for e in collector.of_type("tool.called") if e.payload["tool"] == "search_procedures"]
+    assert len(searches) == 1
+    denied = [e for e in collector.of_type("tool.denied") if e.payload["reason"] == "last_step_reserve"]
+    assert denied and "结论" in denied[0].payload["detail"]
+    # 引导生效：模型在最后一步给出结论（不是预算耗尽路径）
+    assert result.failure_reason is None
+    assert result.finding is not None
+    assert result.finding.summary == "基于已观测判读收口"
+
+
 def test_brief_contains_only_own_device_data() -> None:
     """简报只含本设备数据摘要（B6 的基础行为）。"""
     from app.agents.briefs import build_subtask_brief

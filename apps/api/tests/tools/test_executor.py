@@ -195,6 +195,35 @@ async def test_cancelled_context_denies() -> None:
     assert outcome.reason == "cancelled"
 
 
+async def test_last_step_reserve_denies_read_tools_keeps_judgement_available() -> None:
+    """P1a 步数临界保护：只剩最后 1 步时拒绝再执行读工具，判读工具豁免。
+
+    最后一步留给结论；拒绝事件带明示引导（必须基于已观测数据给出结论）。
+    detect_anomaly 是结论 level 的确定性事实来源，必须始终可得（P1c 依赖）。
+    """
+    ex, _, collector = _executor(budget=Budget(max_steps=1))
+    denied = await ex.call("search_procedures", {"query": "异常判据 柜温"})
+    assert denied.status == "denied"
+    assert denied.reason == "last_step_reserve"
+    event = collector.of_type("tool.denied")[-1]
+    assert event.payload["reason"] == "last_step_reserve"
+    assert "最后 1 步" in event.payload["detail"] and "结论" in event.payload["detail"]
+    # 判读工具豁免：预算临界时结论的事实来源仍可用
+    judgement = await ex.call("detect_anomaly", {"device_id": "INV-005"})
+    assert judgement.status == "ok"
+
+
+async def test_last_step_reserve_does_not_block_write_tools() -> None:
+    """P1a 只保护读工具：reporter 在步数耗尽后仍必须能落工单（B7 语义不变）。"""
+    ex, _, _ = _node_executor("reporter", budget=Budget(max_steps=1))
+    outcome = await ex.call(
+        "create_work_order",
+        {"device_id": "INV-005", "title": "柜温超限", "action": "检查散热"},
+        ledger_key="run-p1a:reporter:wo:INV-005",
+    )
+    assert outcome.status == "ok"
+
+
 def test_tool_outcome_shape() -> None:
     o = ToolOutcome(tool="x", status="ok")
     assert o.result is None and o.retryable is None
