@@ -16,6 +16,7 @@
     "test:agent": "pnpm --filter @agent-hub/agent test",
     "test:api": "node scripts/api.mjs test",
     "test:e2e": "playwright test",
+    "test:e2e:restart": "node scripts/e2e-restart/run.mjs",
     "lint": "oxlint .",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check ."

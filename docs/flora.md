@@ -66,6 +66,8 @@ flowchart LR
 
 ![任务完成态](../docs/screenshots/tasks-completed.png)
 
+完整演示录屏见 [Releases](../../releases)。
+
 ## 其他工程示例
 
 - **支付沙箱**：订单状态机（created → paying → paid / closed）+ SHA-256 验签 + 幂等回调（重复回调返回 `duplicate: true`）+ 渠道绑定校验。

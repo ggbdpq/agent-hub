@@ -82,3 +82,7 @@
 `pnpm test:e2e` → 7 passed + 2 skipped（13.2s，门闩状态下；R-Y1+R-Y3 合入后为
 9 passed）。因此 config 与 CI 均零改动；若主线程仍希望 CI 单独分类跑，加一步
 `pnpm test:e2e:restart` 即可（依赖 R-Y2）。
+
+### 【主线程处理 2026-10-25】R-Y2 补合入（审查 D13 抓漏）
+
+首次批量补丁脚本在门闩行断言处中断，package.json 这一行被跳过且未发现——对抗审查实测 `pnpm test:e2e:restart` 不存在而文档已宣称。现已补入；R-Y1/R-Y2/R-Y3 三项全部闭环。
