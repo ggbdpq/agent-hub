@@ -1,0 +1,981 @@
+{
+  "round": 1,
+  "config": "off",
+  "per_case": [
+    {
+      "cid": "E01",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4835.666583036073,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E02",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4666.296042036265,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E03",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4371.6499579604715,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E04",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4460.432542022318,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E05",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4359.738458006177,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E06",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4948.114957951475,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E07",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4387.434999982361,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E08",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 3769.932041002903,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E09",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4629.001332970802,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E10",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 5699.0323750069365,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E11",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4580.2728330018,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E12",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 3969.1909170360304,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E13",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 5371.256207989063,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E14",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4423.721499973908,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E15",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 5030.599332996644,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E16",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 5982.744041015394,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E17",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 4563.569999998435,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E18",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 4980.078124965075,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E19",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 9,
+        "latency_ms": 4339.022041007411,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "E20",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 6566.521834000014,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M01",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 8,
+        "latency_ms": 6885.658250015695,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M02",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 8,
+        "latency_ms": 6605.0718750339,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M03",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 8,
+        "latency_ms": 7643.393334001303,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M04",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 8,
+        "latency_ms": 8949.445792008191,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M05",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 8,
+        "latency_ms": 5853.000583010726,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M06",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 11,
+        "latency_ms": 7154.739291057922,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M07",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 17,
+        "latency_ms": 7865.337458031718,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M08",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 11,
+        "latency_ms": 6469.260833982844,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M09",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 14,
+        "latency_ms": 8260.910957993474,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M10",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 11,
+        "latency_ms": 7908.174583048094,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M11",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 14,
+        "latency_ms": 7793.329125037417,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M12",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 14,
+        "latency_ms": 7177.299667033367,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M13",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 11,
+        "latency_ms": 6330.412000010256,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M14",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 14,
+        "latency_ms": 7315.2404589927755,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M15",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 11,
+        "latency_ms": 6387.686709000263,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M16",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 11,
+        "latency_ms": 7183.203333988786,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M17",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 24,
+        "latency_ms": 10574.937083001714,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M18",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 13,
+        "latency_ms": 9264.394457975868,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M19",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 7983.347959001549,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "M20",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 16,
+        "latency_ms": 8965.000791999046,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "H11",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 8,
+        "latency_ms": 6952.278375043534,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "H12",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 8,
+        "latency_ms": 6664.782083011232,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "H13",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 29,
+        "latency_ms": 7685.84250001004,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "H14",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 16,
+        "latency_ms": 5147.791416035034,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "H15",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 14,
+        "latency_ms": 7559.329625044484,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "H16",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 21,
+        "latency_ms": 8826.965457992628,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "H17",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 29,
+        "latency_ms": 9138.387540995609,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "H18",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 25,
+        "latency_ms": 10934.336417005397,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "H19",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 9177.001333038788,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    },
+    {
+      "cid": "H20",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 4442.733583971858,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed",
+      "violations": {
+        "executed_violations": 0,
+        "violations_by_tool": {},
+        "denied_node_not_allowed": 0
+      }
+    }
+  ],
+  "aggregates": {
+    "cases": 50,
+    "success_rate": 1.0,
+    "anomaly_precision": 1.0,
+    "anomaly_recall": 1.0,
+    "tool_precision": 0.7833333333333333,
+    "tool_recall": 0.5536666666666666,
+    "tool_precision_goal": 0.7833333333333333,
+    "tool_recall_goal": 1.0,
+    "drone_policy_ok_rate": 1.0,
+    "param_accuracy": 0.7930634920634921,
+    "work_order_accuracy": 0.0,
+    "order_satisfaction": 0.27,
+    "evidence_ok_rate": 0.9629629629629629,
+    "forbidden_calls_total": 0,
+    "write_cap_violations_total": 0,
+    "crashed_total": 0,
+    "steps_mean": 11.18,
+    "latency_ms_mean": 6500.671379966661,
+    "latency_ms_p50": 6517.891333991429,
+    "latency_ms_p95": 9225.067551754182,
+    "input_tokens_total": 0,
+    "output_tokens_total": 0,
+    "cost_usd_total": 0.0
+  }
+}

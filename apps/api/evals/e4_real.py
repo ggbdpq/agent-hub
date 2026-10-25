@@ -95,6 +95,13 @@ async def run_e4_real(runs: int = 3, *, difficulty: str | None = None,
     rounds: dict[str, list[dict]] = {"brief": [], "full_history": []}
     for round_idx in range(1, runs + 1):
         for arm in ("brief", "full_history"):
+            _rp = rounds_dir / f"round{round_idx}-{arm}.json"
+            if _rp.exists():
+                _round_data = json.loads(_rp.read_text(encoding="utf-8"))
+                rounds[arm].append(_round_data)
+                print(f"[e4r] R{round_idx} {arm}: 已落盘，跳过重跑", flush=True)
+                continue
+        # 断点续装配：已落盘的轮次直接装载（不重复烧 API）
             result = await _run_round(arm, round_idx, cases, retriever, valid_ids, fixtures, build_llm)
             dump_round(rounds_dir, result)
             rounds[arm].append(result)
@@ -110,7 +117,11 @@ async def run_e4_real(runs: int = 3, *, difficulty: str | None = None,
             break
 
     now = datetime.now(UTC)
-    snap = meter.snapshot()
+    # 计量说明：RealLLMMeter 的 usage 只在进程内（本实现未随轮次落盘——缺陷如实记录）；
+    # 重组路径从轮次 per_case 的 Token 字段汇总（脚本估算口径，双臂同法故比值有效）
+    tok_in = sum(c["metrics"].get("input_tokens") or 0 for rs in rounds.values() for r in rs for c in r["per_case"])
+    tok_out = sum(c["metrics"].get("output_tokens") or 0 for rs in rounds.values() for r in rs for c in r["per_case"])
+    snap = {"calls": 0, "input_tokens": tok_in, "output_tokens": tok_out}
     usd = usd_from_usage(snap["input_tokens"], snap["output_tokens"], DEEPSEEK_PRICES["flash_offpeak"])
 
     def summary(arm: str) -> dict:
@@ -132,6 +143,14 @@ async def run_e4_real(runs: int = 3, *, difficulty: str | None = None,
 
     s_brief, s_full = summary("brief"), summary("full_history")
     in_ratio = (s_full["latency_p50"] and True) and None  # placeholder, ratio computed below from meter split
+
+    from evals.report import std as _std
+
+    _variance: dict = {}
+    for _k in ('brief', 'full_history'):
+        rs = rounds[_k]
+        _variance[f"{_k}_success_std"] = round(_std([r["aggregates"].get("success_rate", 0) for r in rs]), 4)
+        _variance[f"{_k}_latency_ms_std"] = round(_std([c["metrics"]["latency_ms"] for r in rs for c in r["per_case"]]), 2)
     payload = finalize(
         {
             "suite": "e4-real",
@@ -141,7 +160,7 @@ async def run_e4_real(runs: int = 3, *, difficulty: str | None = None,
                 ("样本", f"{len(cases)} 条非故障用例{'（难度子集：' + difficulty + '）' if difficulty else ''} × 2 臂"),
                 ("运行次数", f"{runs} 轮请求；实际 brief {len(rounds['brief'])} / full_history {len(rounds['full_history'])}"),
                 ("成本", f"实际 usage：入 {snap['input_tokens']:,} + 出 {snap['output_tokens']:,} token ≈ ${usd:.4f}"
-                        f"（deepseek-flash 档 off-peak 单价，来源 api-docs.deepseek.com/quick_start/pricing 2026-10-25，未与账单核对）"),
+                        f"按脚本估算 Token 折算（非计费口径）；单价 deepseek-flash 档 off-peak，来源 api-docs.deepseek.com/quick_start/pricing 2026-10-25"),
                 ("停止规则", json.dumps(stopped, ensure_ascii=False) if stopped else "未触发"),
             ],
             "method": [
@@ -154,8 +173,10 @@ async def run_e4_real(runs: int = 3, *, difficulty: str | None = None,
                 "「完整历史」臂形态是构造的（完整遥测+全站清单），与真实场景的上下文膨胀形态未必一致；",
                 "成功率/召回在小样本 + 单模型口径下不可外推到其他模型或业务语料；",
                 "结论仅适用于本合成评测集。",
+                "计费级 usage 未随轮次落盘（RealLLMMeter 进程内实现），本报告 Token 为脚本估算口径——调用次数行不可用，成本为估算折算。",
             ],
             "disclaimer": E4_REAL_DISCLAIMER,
+            "variance": _variance,
             "tables": [
                 {
                     "caption": "总体指标（轮均值，范围 min~max；时延对全部 轮×用例 样本取分位数）",
@@ -174,7 +195,6 @@ async def run_e4_real(runs: int = 3, *, difficulty: str | None = None,
                     "caption": "计量（全部轮次合计，上游 usage 计费口径）",
                     "header": ["指标", "数值"],
                     "rows": [
-                        ["LLM 调用次数", f"{snap['calls']:,}"],
                         ["输入 / 输出 Token", f"{snap['input_tokens']:,} / {snap['output_tokens']:,}"],
                         ["估算成本 (USD, off-peak)", f"{usd:.4f}"],
                     ],
@@ -186,7 +206,7 @@ async def run_e4_real(runs: int = 3, *, difficulty: str | None = None,
         },
         generated_at=now.isoformat(),
     )
-    md, js = write_report(payload, out_dir, prefix="e4-real")
+    md, js = write_report(payload, out_dir, f"e4-real-{utcnow_iso()}")
     print(f"[e4r] 报告：{Path(md).name} / {Path(js).name}", flush=True)
     return payload
 

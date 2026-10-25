@@ -1,0 +1,127 @@
+{
+  "suite": "e4-real",
+  "title": "E4 消融：上下文载荷 简报 vs 完整历史（真实模型 deepseek-chat）",
+  "meta": [
+    [
+      "模型",
+      "deepseek-chat @ https://api.deepseek.com/v1（2026-10-25）"
+    ],
+    [
+      "样本",
+      "50 条非故障用例 × 2 臂"
+    ],
+    [
+      "运行次数",
+      "3 轮请求；实际 brief 3 / full_history 3"
+    ],
+    [
+      "成本",
+      "实际 usage：入 0 + 出 0 token ≈ $0.0000按脚本估算 Token 折算（非计费口径）；单价 deepseek-flash 档 off-peak，来源 api-docs.deepseek.com/quick_start/pricing 2026-10-25"
+    ],
+    [
+      "停止规则",
+      "未触发"
+    ]
+  ],
+  "method": [
+    "两臂同一 FanoutSimRunner 容器（真实规划/子任务/执行器），唯一变量 = 子任务上下文载荷；",
+    "full_history 臂经进程内替换 load_brief 注入完整遥测序列 + 全站清单（生产默认零改动）；",
+    "LLM 为 env 注入真实模型，Token 取上游 usage（计费口径）；每轮落盘可复核。"
+  ],
+  "sample_size": {
+    "cases": 50,
+    "rounds_per_arm": {
+      "brief": 3,
+      "full_history": 3
+    }
+  },
+  "known_biases": [
+    "「完整历史」臂形态是构造的（完整遥测+全站清单），与真实场景的上下文膨胀形态未必一致；",
+    "成功率/召回在小样本 + 单模型口径下不可外推到其他模型或业务语料；",
+    "结论仅适用于本合成评测集。",
+    "计费级 usage 未随轮次落盘（RealLLMMeter 进程内实现），本报告 Token 为脚本估算口径——调用次数行不可用，成本为估算折算。"
+  ],
+  "disclaimer": "真实模型上下文消融（deepseek-chat，env 注入）：结论仅适用于本合成评测集与本提示词/工具面；「完整历史」臂为构造载荷（完整遥测序列+全站清单），Token 为上游 usage 计费口径。",
+  "variance": {
+    "brief_success_std": 0.0,
+    "brief_latency_ms_std": 824.64,
+    "full_history_success_std": 0.0,
+    "full_history_latency_ms_std": 757.99
+  },
+  "tables": [
+    {
+      "caption": "总体指标（轮均值，范围 min~max；时延对全部 轮×用例 样本取分位数）",
+      "header": [
+        "指标",
+        "brief（简报，现状）",
+        "full_history（完整历史）"
+      ],
+      "rows": [
+        [
+          "成功率",
+          "100.0%（100%~100%）",
+          "100.0%（100%~100%）"
+        ],
+        [
+          "异常识别 Recall",
+          "100.0%",
+          "100.0%"
+        ],
+        [
+          "时延 P50 (ms)",
+          "4708.3",
+          "5748.5"
+        ],
+        [
+          "时延 P95 (ms)",
+          "6733.6",
+          "7187.4"
+        ]
+      ]
+    },
+    {
+      "caption": "计量（全部轮次合计，上游 usage 计费口径）",
+      "header": [
+        "指标",
+        "数值"
+      ],
+      "rows": [
+        [
+          "输入 / 输出 Token",
+          "0 / 0"
+        ],
+        [
+          "估算成本 (USD, off-peak)",
+          "0.0000"
+        ]
+      ]
+    }
+  ],
+  "summaries": {
+    "brief": {
+      "rounds": 3,
+      "success_mean": 1.0,
+      "success_range": [
+        1.0,
+        1.0
+      ],
+      "anomaly_recall_mean": 1.0,
+      "latency_p50": 4708.328041975619,
+      "latency_p95": 6733.56151426269
+    },
+    "full_history": {
+      "rounds": 3,
+      "success_mean": 1.0,
+      "success_range": [
+        1.0,
+        1.0
+      ],
+      "anomaly_recall_mean": 1.0,
+      "latency_p50": 5748.45089649898,
+      "latency_p95": 7187.366739087153
+    }
+  },
+  "rounds_dir": "/Users/ggbdpq/cc/repositories/public/agent-hub/apps/api/evals/reports/e4-real-rounds",
+  "stopped": null,
+  "generated_at": "2026-10-25T04:38:10.319968+00:00"
+}

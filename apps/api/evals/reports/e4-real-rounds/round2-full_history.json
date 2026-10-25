@@ -1,0 +1,881 @@
+{
+  "round": 2,
+  "config": "full_history",
+  "per_case": [
+    {
+      "cid": "E01",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5573.598583054263,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E02",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 6272.113875020295,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E03",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5828.717124997638,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E04",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5579.183332971297,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E05",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5764.796041010413,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E06",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 4947.998750023544,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E07",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5188.262167037465,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E08",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 6466.857083025388,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E09",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 6208.249707997311,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E10",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5114.766124985181,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E11",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 4741.877624997869,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E12",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5501.263583020773,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E13",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5208.3400409901515,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E14",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5218.613291974179,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E15",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 4978.309291996993,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E16",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 13,
+        "latency_ms": 6586.155000026338,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E17",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 13,
+        "latency_ms": 6287.403249996714,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E18",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 13,
+        "latency_ms": 6036.72508301679,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E19",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 9,
+        "latency_ms": 5545.2360000344925,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "E20",
+      "difficulty": "easy",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 13,
+        "latency_ms": 5865.716416970827,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M01",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 6092.490834009368,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M02",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 6588.325165968854,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M03",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5722.203832992818,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M04",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 4965.584209014196,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M05",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.6666666666666666,
+        "forbidden_calls": 0,
+        "steps": 4,
+        "latency_ms": 4640.6587500241585,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M06",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 9,
+        "latency_ms": 5575.118542008568,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M07",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 17,
+        "latency_ms": 5983.741874981206,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M08",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 9,
+        "latency_ms": 5582.06741703907,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M09",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 6235.105625004508,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M10",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 9,
+        "latency_ms": 6394.624624983408,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M11",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.6666666666666666,
+        "forbidden_calls": 0,
+        "steps": 11,
+        "latency_ms": 5845.4025410464965,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M12",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 13,
+        "latency_ms": 6354.153916006908,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M13",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 8,
+        "latency_ms": 5510.547458019573,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M14",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 5727.252250013407,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M15",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.6666666666666666,
+        "forbidden_calls": 0,
+        "steps": 7,
+        "latency_ms": 4639.372207981069,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M16",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 9,
+        "latency_ms": 5643.792833958287,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M17",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 20,
+        "latency_ms": 6564.494582999032,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M18",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 9,
+        "latency_ms": 5978.282708034385,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M19",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 9,
+        "latency_ms": 5227.539125015028,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "M20",
+      "difficulty": "medium",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 6611.940708011389,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "H11",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 5,
+        "latency_ms": 5274.847416032571,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "H12",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 7,
+        "latency_ms": 6441.691083018668,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "H13",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 25,
+        "latency_ms": 6573.958207969554,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "H14",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 16,
+        "latency_ms": 6764.856208988931,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "H15",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 5968.760499963537,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "H16",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 21,
+        "latency_ms": 6189.403166004922,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "H17",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.5,
+        "forbidden_calls": 0,
+        "steps": 25,
+        "latency_ms": 5923.530874948483,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "H18",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 19,
+        "latency_ms": 7265.3893329552375,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "H19",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "tool_recall_goal": 0.75,
+        "forbidden_calls": 0,
+        "steps": 9,
+        "latency_ms": 5916.723291971721,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    },
+    {
+      "cid": "H20",
+      "difficulty": "hard",
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "tool_recall_goal": 1.0,
+        "forbidden_calls": 0,
+        "steps": 4,
+        "latency_ms": 4118.848624988459,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "status": "completed"
+    }
+  ],
+  "aggregates": {
+    "cases": 50,
+    "success_rate": 1.0,
+    "anomaly_precision": 1.0,
+    "anomaly_recall": 1.0,
+    "tool_precision": 0.8533333333333333,
+    "tool_recall": 0.7266666666666667,
+    "tool_precision_goal": 0.8533333333333333,
+    "tool_recall_goal": 0.855,
+    "drone_policy_ok_rate": 1.0,
+    "param_accuracy": 1.0,
+    "work_order_accuracy": 0.0,
+    "order_satisfaction": 0.45,
+    "evidence_ok_rate": 0.9629629629629629,
+    "forbidden_calls_total": 0,
+    "write_cap_violations_total": 0,
+    "crashed_total": 0,
+    "steps_mean": 9.4,
+    "latency_ms_mean": 5784.697805742035,
+    "latency_ms_p50": 5837.059833022067,
+    "latency_ms_p95": 6601.313714092248,
+    "input_tokens_total": 0,
+    "output_tokens_total": 0,
+    "cost_usd_total": 0.0
+  }
+}

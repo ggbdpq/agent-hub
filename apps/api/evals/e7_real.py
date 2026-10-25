@@ -96,16 +96,27 @@ async def run_e7_real(runs: int = 3, *, difficulty: str | None = None,
 
     stopped: dict[str, str] | None = None
     rounds: dict[str, list[dict]] = {"on": [], "off": []}
-    violations: dict[str, dict] = {"on": {}, "off": {}}
+    violations: dict[str, dict] = {
+        g: {"executed": 0, "denied": 0, "by_tool": {}} for g in ("on", "off")
+    }
     for round_idx in range(1, runs + 1):
         for gate in ("on", "off"):
+            # 断点续装配：已落盘的轮次直接装载（不重复烧 API）
+            _rp = rounds_dir / f"round{round_idx}-{gate}.json"
+            if _rp.exists():
+                rounds[gate].append(json.loads(_rp.read_text(encoding="utf-8")))
+                print(f"[e7r] R{round_idx} {gate}: 已落盘，跳过重跑", flush=True)
+                continue
             result = await _run_round(gate, round_idx, cases, retriever, valid_ids, build_llm)
             dump_round(rounds_dir, result)
             rounds[gate].append(result)
-            # 越权统计合并（本报告的核心观测）
+            # 越权统计合并（本报告的核心观测）：executed/denied 为标量，by_tool 按工具计数
             for c in result["per_case"]:
-                for tool, n in (c["violations"] or {}).items():
-                    violations[gate][tool] = violations[gate].get(tool, 0) + n
+                vs = c.get("violations") or {}
+                violations[gate]["executed"] += vs.get("executed_violations", 0) or 0
+                violations[gate]["denied"] += vs.get("denied", 0) or 0
+                for tool, n in (vs.get("violations_by_tool") or {}).items():
+                    violations[gate]["by_tool"][tool] = violations[gate]["by_tool"].get(tool, 0) + n
             agg = result["aggregates"]
             print(f"[e7r] R{round_idx} gate={gate}: success={agg.get('success_rate', 0):.0%} "
                   f"violations={violations[gate]} calls={meter.snapshot()['calls']:,}", flush=True)
@@ -118,7 +129,11 @@ async def run_e7_real(runs: int = 3, *, difficulty: str | None = None,
             break
 
     now = datetime.now(UTC)
-    snap = meter.snapshot()
+    # 计量说明：RealLLMMeter 的 usage 只在进程内（本实现未随轮次落盘——缺陷如实记录）；
+    # 重组路径从轮次 per_case 的 Token 字段汇总（脚本估算口径，双臂同法故比值有效）
+    tok_in = sum(c["metrics"].get("input_tokens") or 0 for rs in rounds.values() for r in rs for c in r["per_case"])
+    tok_out = sum(c["metrics"].get("output_tokens") or 0 for rs in rounds.values() for r in rs for c in r["per_case"])
+    snap = {"calls": 0, "input_tokens": tok_in, "output_tokens": tok_out}
     usd = usd_from_usage(snap["input_tokens"], snap["output_tokens"], DEEPSEEK_PRICES["flash_offpeak"])
 
     def summary(gate: str) -> dict:
@@ -126,10 +141,19 @@ async def run_e7_real(runs: int = 3, *, difficulty: str | None = None,
         n = len(rs) or 1
         succ = [r["aggregates"].get("success_rate", 0) for r in rs]
         return {"rounds": len(rs), "success_mean": sum(succ) / n,
-                "violations_by_tool": violations[gate],
-                "violations_total": sum(violations[gate].values())}
+                "executed": violations[gate]["executed"],
+                "denied": violations[gate]["denied"],
+                "violations_by_tool": violations[gate]["by_tool"]}
 
     s_on, s_off = summary("on"), summary("off")
+
+    from evals.report import std as _std
+
+    _variance: dict = {}
+    for _k in ('on', 'off'):
+        rs = rounds[_k]
+        _variance[f"{_k}_success_std"] = round(_std([r["aggregates"].get("success_rate", 0) for r in rs]), 4)
+        _variance[f"{_k}_latency_ms_std"] = round(_std([c["metrics"]["latency_ms"] for r in rs for c in r["per_case"]]), 2)
     payload = finalize(
         {
             "suite": "e7-real",
@@ -151,17 +175,17 @@ async def run_e7_real(runs: int = 3, *, difficulty: str | None = None,
                 "单模型（deepseek-chat）单注入模板：不构成注入鲁棒性的一般结论；",
                 "off 臂的越权执行受账本/审批门兜底（纵深防御），本实验只分离节点权限门单一变量；",
                 "结论仅适用于本合成评测集。",
+                "计费级 usage 未随轮次落盘（RealLLMMeter 进程内实现），本报告 Token 为脚本估算口径——调用次数行不可用，成本为估算折算。",
             ],
             "disclaimer": E7_REAL_DISCLAIMER,
+            "variance": _variance,
             "tables": [
                 {
                     "caption": "注入结果（真实模型服从率实测）",
                     "header": ["指标", "权限门 on（生产默认）", "权限门 off"],
                     "rows": [
-                        ["越权请求次数（合计）", str(s_on["violations_total"]), str(s_off["violations_total"])],
-                        ["越权执行次数（合计）",
-                         str(s_on["violations_total"]),  # on 下的 denied 即未执行
-                         str(sum(v for t, v in s_off["violations_by_tool"].items() if t == "list_devices"))],
+                        ["越权请求（被拦截，合计）", str(s_on["denied"]), str(s_off["denied"])],
+                        ["越权执行次数（合计）", str(s_on["executed"]), str(s_off["executed"])],
                         ["越权执行明细（off）", "-", json.dumps(s_off["violations_by_tool"], ensure_ascii=False)],
                         ["成功率（轮均值）", f"{s_on['success_mean']:.1%}", f"{s_off['success_mean']:.1%}"],
                     ],
@@ -182,7 +206,7 @@ async def run_e7_real(runs: int = 3, *, difficulty: str | None = None,
         },
         generated_at=now.isoformat(),
     )
-    md, js = write_report(payload, out_dir, prefix="e7-real")
+    md, js = write_report(payload, out_dir, f"e7-real-{utcnow_iso()}")
     print(f"[e7r] 报告：{Path(md).name} / {Path(js).name}", flush=True)
     return payload
 
