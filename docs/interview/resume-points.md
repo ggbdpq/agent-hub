@@ -1,6 +1,6 @@
-# 简历要点草稿（Z3）
+# 简历要点草稿（Z3，已回填 X 真实模型数字）
 
-> 硬口径：效果/规模类数字一律 `____` 占位，来源限定 X 产出的 `apps/api/evals/reports/` 下 e1/e3/e7 系列报告（X 完成后回填）；机制、架构、测试类定性表述基于当前代码事实（ah-Z@`ebf93a3`），每条附可核实锚点。旧报告（含 20261024 的 e1-real）数字口径有错配，一律不引用。
+> 硬口径：机制、架构、测试类定性表述基于代码事实（ah-Z@`ebf93a3`，行号锚点可 `git show ebf93a3:` 复核）；效果类数字已用 X 真实模型报告（`e1-real-20261025-011659` / `e3-real-20261025-015300` / `e7-offline-20261025-000228`）回填，出处可查。旧报告（20261024 的 e1-real）数字口径有错配，未引用。真实模型口径：deepseek-chat @ api.deepseek.com/v1，2026-10-25，50 条非故障用例 × 3 轮（E7 为确定性代码路径，无真实模型）。
 
 ## 要点 1：多智能体编排与运行时强制（LangGraph）
 
@@ -24,20 +24,20 @@
 
 ## 要点 3：混合检索、评测与消融（数字回填区）
 
-> 同一 ToolSpec 注册表同时驱动 API 与 MCP Server（dangerous 工具 MCP 侧不暴露）；混合检索 BM25 + 向量双路召回经 RRF 融合，中文分词用零依赖字符 bigram（与 jieba 对照评测后不引入新依赖），检索无相关结果返回空集不编造；分层评测集期望从遥测数据派生（不从生成器注释抄取，防泄露），指标（Recall@k / MRR / 成功率 / 工具 P-R）全部有手工算例单测锁定口径，质量门低于阈值 CI 即红；真实模型消融：多智能体 vs 单智能体（E1：成功率 / 工具 P-R / 时延 / Token = ____，双口径 process-strict 与 goal-oriented 并列）、并行扇出 vs 串行（E3：时延 P50/P95 = ____）、运行时强制 vs 仅提示词约束（E7：越权调用次数 = ____）。
+> 同一 ToolSpec 注册表同时驱动 API 与 MCP Server（dangerous 工具 MCP 侧不暴露）；混合检索 BM25 + 向量双路召回经 RRF 融合，中文分词用零依赖字符 bigram（与 jieba 对照评测后不引入新依赖），检索无相关结果返回空集不编造；分层评测集期望从遥测数据派生（不从生成器注释抄取，防泄露），指标（Recall@k / MRR / 成功率 / 工具 P-R）全部有手工算例单测锁定口径，质量门低于阈值 CI 即红；真实模型消融：多智能体 vs 单智能体（E1：成功率 96.7% vs 98.7%、goal-oriented 工具召回 99.2% / 98.4%、时延 P95 8.6s vs 26.2s、输入 Token 879K vs 2.25M；双口径 process-strict 与 goal-oriented 并列）、并行扇出 vs 串行（E3：时延 P50/P95 = 4.6s/6.5s vs 7.1s/19.1s，6+ 台设备 P50 相差 3.9×）、运行时强制 vs 仅提示词约束（E7：越权替身 336 次请求，运行时强制开启全部拦截、关闭时站点级越权执行 112 次而 write/dangerous 仍被账本与审批门拦下）。合成语料口径；E1 结论按数据如实：单智能体成功率更高（差距 <3pp），多智能体的实证价值在并行时延（P95 3 倍）与上下文隔离（输入 Token 2.6×）。
 
 可核实锚点：
 - 混合检索：`apps/api/app/knowledge/retriever.py:32-42`（双路 + RRF + 空结果不编造）、`app/knowledge/fuse.py:20-31`；测试 `tests/knowledge/test_hybrid_retriever.py`、`tests/knowledge/test_embedding.py`。
 - 评测防泄露与质量门：测试 `tests/evals/test_agent_cases.py::test_expected_anomalies_derived_from_telemetry_not_from_comments`、`tests/evals/test_gate.py::test_gate_main_exit_codes`。
 - MCP 单一事实源：测试 `tests/tools/test_mcp_server.py::test_list_tools_exposes_five_non_dangerous_tools`。
 
-## 数字回填登记（X 报告落地后逐项替换 ____）
+## 数字回填登记（已全部回填）
 
-| 占位 | 来源报告（apps/api/evals/reports/） | 备注 |
+| 占位 | 来源报告（apps/api/evals/reports/） | 回填值 |
 |---|---|---|
-| E1 成功率 / 工具 P-R / 时延 / Token | e1 系列（修正版） | 必须用双口径列（process-strict + goal-oriented），单口径数字不回填；旧 e1-real-20261024 数字作废（docs/integration-requests/X.md:11-16） |
-| E3 时延 P50/P95 | e3 系列 | X 未产出前保持 ____ |
-| E7 越权调用次数 | e7 系列 | X 未产出前保持 ____ |
+| E1 成功率 / 工具 P-R / 时延 / Token | `e1-real-20261025-011659.md` | 96.7% vs 98.7%（hard 83.3% vs 96.7%）；goal 召回 99.2%/98.4%（strict 56.5%/87.7%）；P95 8632.0ms vs 26249.1ms；输入 879K vs 2.25M |
+| E3 时延 P50/P95 | `e3-real-20261025-015300.md` | 4638.7/6541.6ms vs 7079.5/19083.6ms（6+ 台 P50 6849 vs 26843ms，3.9×） |
+| E7 越权调用次数 | `e7-offline-20261025-000228.md` | 336 次越权请求：on 全拦（执行 0）；off 站点级 list_devices 执行 112 次，write/dangerous 被账本/审批门拦下 |
 
 红线（写进简历前自查）：
 1. 任何数字必须能在 evals/reports/ 报告原文找到出处（计划 §10 口径审查项）。
