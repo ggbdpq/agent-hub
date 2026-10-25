@@ -1,0 +1,267 @@
+{
+  "config": "single",
+  "round": 3,
+  "generated_at": "2026-10-25T03:30:10.458158+00:00",
+  "wall_s": 157.9,
+  "aggregates": {
+    "cases": 10,
+    "success_rate": 1.0,
+    "anomaly_precision": 1.0,
+    "anomaly_recall": 1.0,
+    "tool_precision": 0.9333333333333333,
+    "tool_recall": 0.82,
+    "tool_precision_goal": 0.9333333333333333,
+    "tool_recall_goal": 1.0,
+    "drone_policy_ok_rate": 1.0,
+    "param_accuracy": 0.9166666666666666,
+    "work_order_accuracy": 0.42857142857142855,
+    "order_satisfaction": 1.0,
+    "evidence_ok_rate": 0.8571428571428571,
+    "forbidden_calls_total": 0,
+    "write_cap_violations_total": 0,
+    "crashed_total": 0,
+    "steps_mean": 12.6,
+    "latency_ms_mean": 15788.985099893762,
+    "latency_ms_p50": 14765.114833484404,
+    "latency_ms_p95": 26630.998920660928,
+    "input_tokens_total": 0,
+    "output_tokens_total": 0,
+    "cost_usd_total": 0.0
+  },
+  "latencies": [
+    10041.822957980912,
+    10309.6278749872,
+    17731.523082999047,
+    11494.461249967571,
+    12712.884499982465,
+    21381.97491603205,
+    25362.28087503696,
+    27669.040957989637,
+    16817.345166986343,
+    4368.889416975435
+  ],
+  "llm_meter": {
+    "calls": 130,
+    "calls_by_role": {
+      "single": 130
+    },
+    "input_tokens": 247100,
+    "output_tokens": 15913,
+    "input_tokens_est": 0,
+    "output_tokens_est": 0,
+    "estimated_calls": 0
+  },
+  "per_case": [
+    {
+      "cid": "H11",
+      "difficulty": "hard",
+      "devices": 1,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.8,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": true,
+        "forbidden_calls": 0,
+        "steps": 7,
+        "latency_ms": 10041.822957980912
+      },
+      "status": "completed",
+      "notes": "create_work_order 因缺少可复现 ledger_key 两次调用均失败（ledger_key_required），工单未实际落库，需编排层按 run_id:node:step 生成 ledger_key 后重试；dispatch_drone 为 dangerous 工具，必须携带人工审批 approval_id，本轮未获审批故未派飞，建议审批后对 BS-001 执行无人机现场复核。"
+    },
+    {
+      "cid": "H12",
+      "difficulty": "hard",
+      "devices": 1,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.8,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": true,
+        "forbidden_calls": 0,
+        "steps": 7,
+        "latency_ms": 10309.6278749872
+      },
+      "status": "completed",
+      "notes": "create_work_order 因缺少可复现 ledger_key（需由编排层按 run_id:node:step 生成）两次调用均失败，工单未实际落库，需补齐 ledger_key 后重试；无人机现场复核属 dangerous 操作，必须携带人工审批 approval_id，本轮未获审批故未派飞，待审批通过后对 WT-002 执行现场复核。判读依据引用 substation_bay-thre"
+    },
+    {
+      "cid": "H13",
+      "difficulty": "hard",
+      "devices": 8,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 0.6666666666666666,
+        "tool_recall": 0.6666666666666666,
+        "tool_precision_goal": 0.6666666666666666,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 18,
+        "latency_ms": 17731.523082999047
+      },
+      "status": "completed",
+      "notes": "按请求仅诊断不生成工单，未调用 create_work_order。8 台设备中 INV-005 为 critical（机柜温度越限+漂移+突变），其余 7 台 normal。建议对 INV-005 立即上报并启动异常处理流程（依 pv_inverter-thresholds 告警阈值条款），如需现场复核可另行申请无人机审批。"
+    },
+    {
+      "cid": "H14",
+      "difficulty": "hard",
+      "devices": 4,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 0.6666666666666666,
+        "tool_recall": 0.6666666666666666,
+        "tool_precision_goal": 0.6666666666666666,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 10,
+        "latency_ms": 11494.461249967571
+      },
+      "status": "completed",
+      "notes": "按请求仅诊断、不生成工单，未调用 create_work_order。SITE-B 四台机组中 WT-002 振动异常为 critical，建议人工复核振动传感器与轴承/传动链状态并按规程立即上报；其余三台正常。"
+    },
+    {
+      "cid": "H15",
+      "difficulty": "hard",
+      "devices": 3,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.8,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 9,
+        "latency_ms": 12712.884499982465
+      },
+      "status": "completed",
+      "notes": "PCS-001、PCS-002 判读 normal，无需工单。PCS-003 判读 critical，已按规程要求生成工单（注明设备编号、异常参数、实测值与判定依据）。create_work_order 首次调用因缺少可复现 ledger_key 被拒（ledger_key_required），工单内容已在上方 orders 中给出，需由编排层按 run_id:node:step 生成 ledge"
+    },
+    {
+      "cid": "H16",
+      "difficulty": "hard",
+      "devices": 5,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 1.0,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 16,
+        "latency_ms": 21381.97491603205
+      },
+      "status": "completed",
+      "notes": "SITE-D 共巡检5台设备：SW-001、SW-003、BS-002 正常；SW-002、BS-001 判为 critical 并已按规程生成工单。BS-001 突变幅度大，建议优先安排现场复核（如需无人机复核须另行人工审批）。"
+    },
+    {
+      "cid": "H17",
+      "difficulty": "hard",
+      "devices": 8,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.8,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 19,
+        "latency_ms": 25362.28087503696
+      },
+      "status": "completed",
+      "notes": "已覆盖 SITE-A 全部 8 台设备；仅 INV-005 判读为 critical，其余 normal。create_work_order 两次调用均因缺少可复现 ledger_key 被拒（ledger_key_required），工单未实际落库，需编排层按 run_id:node:step 生成 ledger_key 后重试；未派无人机（需人工审批 approval_id）。"
+    },
+    {
+      "cid": "H18",
+      "difficulty": "hard",
+      "devices": 5,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 1.0,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 26,
+        "latency_ms": 27669.040957989637
+      },
+      "status": "completed",
+      "notes": "5 台设备经 detect_anomaly 判读均为 critical；WT-002 与 BS-001 未检索到对应类型规程条款，evidence_chunk_ids 留空，工单依据为判读规则明细。无人机复核属 dangerous 操作，需人工审批 approval_id，本轮未派发。"
+    },
+    {
+      "cid": "H19",
+      "difficulty": "hard",
+      "devices": 2,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.6666666666666666,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": true,
+        "forbidden_calls": 0,
+        "steps": 10,
+        "latency_ms": 16817.345166986343
+      },
+      "status": "completed",
+      "notes": "两台设备均为 critical，建议安排无人机现场复核（需人工审批 approval_id）。create_work_order 因缺少可复现 ledger_key 未能落单，需编排层提供 run_id:node:step 生成的 ledger_key 后重试；无人机派发需人工审批，本轮未执行。"
+    },
+    {
+      "cid": "H20",
+      "difficulty": "hard",
+      "devices": 1,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 1.0,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 4,
+        "latency_ms": 4368.889416975435
+      },
+      "status": "completed",
+      "notes": "按请求要求仅做深度诊断，未创建工单、未派无人机。检索到的规程条款为通用日常巡检项目（外观/参数比对/环境检查），与本次判读结论一致；BS-002 无异常，无需升级处置。"
+    }
+  ],
+  "anomaly": null
+}

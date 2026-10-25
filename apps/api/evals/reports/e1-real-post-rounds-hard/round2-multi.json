@@ -1,0 +1,269 @@
+{
+  "config": "multi",
+  "round": 2,
+  "generated_at": "2026-10-25T03:23:31.740128+00:00",
+  "wall_s": 78.2,
+  "aggregates": {
+    "cases": 10,
+    "success_rate": 1.0,
+    "anomaly_precision": 1.0,
+    "anomaly_recall": 1.0,
+    "tool_precision": 0.9,
+    "tool_recall": 0.5433333333333333,
+    "tool_precision_goal": 0.9,
+    "tool_recall_goal": 1.0,
+    "drone_policy_ok_rate": 1.0,
+    "param_accuracy": 0.7353174603174603,
+    "work_order_accuracy": 0.0,
+    "order_satisfaction": 0.35,
+    "evidence_ok_rate": 1.0,
+    "forbidden_calls_total": 0,
+    "write_cap_violations_total": 0,
+    "crashed_total": 0,
+    "steps_mean": 16.6,
+    "latency_ms_mean": 7819.689554203069,
+    "latency_ms_p50": 7918.734583508922,
+    "latency_ms_p95": 10362.677406414876,
+    "input_tokens_total": 0,
+    "output_tokens_total": 0,
+    "cost_usd_total": 0.0
+  },
+  "latencies": [
+    6111.716499959584,
+    9369.271417031996,
+    7139.592959021684,
+    5943.065750005189,
+    7419.292917009443,
+    8664.923625008669,
+    8418.1762500084,
+    11175.464125000872,
+    8910.802708007395,
+    5044.589290977456
+  ],
+  "llm_meter": {
+    "calls": 140,
+    "calls_by_role": {
+      "planner": 10,
+      "inspector": 116,
+      "reporter": 14
+    },
+    "input_tokens": 97249,
+    "output_tokens": 17260,
+    "input_tokens_est": 0,
+    "output_tokens_est": 0,
+    "estimated_calls": 0
+  },
+  "per_case": [
+    {
+      "cid": "H11",
+      "difficulty": "hard",
+      "devices": 1,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.6,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": true,
+        "forbidden_calls": 0,
+        "steps": 8,
+        "latency_ms": 6111.716499959584
+      },
+      "status": "completed",
+      "notes": "工单 1 份（draft，待人工确认执行）；审批拒绝：无人机派工未执行（默认策略：无人工审批通道，自动拒绝（可注入 approver 覆盖））"
+    },
+    {
+      "cid": "H12",
+      "difficulty": "hard",
+      "devices": 1,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.6,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": true,
+        "forbidden_calls": 0,
+        "steps": 10,
+        "latency_ms": 9369.271417031996
+      },
+      "status": "completed",
+      "notes": "工单 1 份（draft，待人工确认执行）；审批拒绝：无人机派工未执行（默认策略：无人工审批通道，自动拒绝（可注入 approver 覆盖））"
+    },
+    {
+      "cid": "H13",
+      "difficulty": "hard",
+      "devices": 8,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 0.5,
+        "tool_recall": 0.3333333333333333,
+        "tool_precision_goal": 0.5,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 27,
+        "latency_ms": 7139.592959021684
+      },
+      "status": "completed",
+      "notes": "按 goal 只诊断，未起草工单；审批拒绝：无人机派工未执行（默认策略：无人工审批通道，自动拒绝（可注入 approver 覆盖））"
+    },
+    {
+      "cid": "H14",
+      "difficulty": "hard",
+      "devices": 4,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 0.5,
+        "tool_recall": 0.3333333333333333,
+        "tool_precision_goal": 0.5,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 16,
+        "latency_ms": 5943.065750005189
+      },
+      "status": "completed",
+      "notes": "按 goal 只诊断，未起草工单；审批拒绝：无人机派工未执行（默认策略：无人工审批通道，自动拒绝（可注入 approver 覆盖））"
+    },
+    {
+      "cid": "H15",
+      "difficulty": "hard",
+      "devices": 3,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.6,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 14,
+        "latency_ms": 7419.292917009443
+      },
+      "status": "completed",
+      "notes": "工单 1 份（draft，待人工确认执行）；审批拒绝：无人机派工未执行（默认策略：无人工审批通道，自动拒绝（可注入 approver 覆盖））"
+    },
+    {
+      "cid": "H16",
+      "difficulty": "hard",
+      "devices": 5,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.6,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 21,
+        "latency_ms": 8664.923625008669
+      },
+      "status": "completed",
+      "notes": "工单 2 份（draft，待人工确认执行）；审批拒绝：无人机派工未执行（默认策略：无人工审批通道，自动拒绝（可注入 approver 覆盖））"
+    },
+    {
+      "cid": "H17",
+      "difficulty": "hard",
+      "devices": 8,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.6,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 28,
+        "latency_ms": 8418.1762500084
+      },
+      "status": "completed",
+      "notes": "工单 1 份（draft，待人工确认执行）；审批拒绝：无人机派工未执行（默认策略：无人工审批通道，自动拒绝（可注入 approver 覆盖））"
+    },
+    {
+      "cid": "H18",
+      "difficulty": "hard",
+      "devices": 5,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.6,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 24,
+        "latency_ms": 11175.464125000872
+      },
+      "status": "completed",
+      "notes": "工单 5 份（draft，待人工确认执行）；审批拒绝：无人机派工未执行（默认策略：无人工审批通道，自动拒绝（可注入 approver 覆盖））"
+    },
+    {
+      "cid": "H19",
+      "difficulty": "hard",
+      "devices": 2,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.5,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": 1.0,
+        "anomaly_recall": 1.0,
+        "drone_policy_ok": true,
+        "forbidden_calls": 0,
+        "steps": 12,
+        "latency_ms": 8910.802708007395
+      },
+      "status": "completed",
+      "notes": "工单 2 份（draft，待人工确认执行）；审批拒绝：无人机派工未执行（默认策略：无人工审批通道，自动拒绝（可注入 approver 覆盖））"
+    },
+    {
+      "cid": "H20",
+      "difficulty": "hard",
+      "devices": 1,
+      "metrics": {
+        "success": 1.0,
+        "crashed": null,
+        "tool_precision": 1.0,
+        "tool_recall": 0.6666666666666666,
+        "tool_precision_goal": 1.0,
+        "tool_recall_goal": 1.0,
+        "anomaly_precision": null,
+        "anomaly_recall": null,
+        "drone_policy_ok": null,
+        "forbidden_calls": 0,
+        "steps": 6,
+        "latency_ms": 5044.589290977456
+      },
+      "status": "completed",
+      "notes": null
+    }
+  ],
+  "anomaly": null
+}

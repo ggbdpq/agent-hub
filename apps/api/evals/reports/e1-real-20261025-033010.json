@@ -1,0 +1,537 @@
+{
+  "suite": "e1-real",
+  "title": "E1 消融：多智能体 vs 单智能体（真实模型 deepseek-chat，X2R）",
+  "meta": [
+    [
+      "模型",
+      "deepseek-chat @ https://api.deepseek.com/v1（temperature=0.2，非流式）"
+    ],
+    [
+      "日期",
+      "2026-10-25（UTC；本地 UTC+8 为 2026-10-25）"
+    ],
+    [
+      "范围",
+      "10 条非故障用例（难度子集：hard）（easy/medium/hard = 0/0/10）"
+    ],
+    [
+      "运行次数",
+      "请求 3 轮；实际完成 multi 3 轮 / single 3 轮"
+    ],
+    [
+      "单价",
+      "deepseek-flash 档 off-peak $0.15/M 入 + $0.60/M 出（peak 上界 $0.30/$1.20）；来源 https://api-docs.deepseek.com/quick_start/pricing，2026-10-25 查询（定价页已不单列 deepseek-chat，按 flash 档假设）"
+    ],
+    [
+      "成功率上限检查",
+      "成功率未同时到上限，成功率本身仍具区分度。"
+    ]
+  ],
+  "method": [
+    "配置与指标同离线版（e1-offline 报告）：multi=InspectionAgentRunner（Send 扇出，默认拒绝审批），single=SingleReActRunner；同一 HybridRetriever、同一 Budget 默认值（24 步生产口径）、同一评分（含 X1 双口径）。",
+    "真实模型经 env 注入（app/agents/models.py 的 OpenAI 兼容客户端，60s 超时）；Token 取上游 usage 计费口径（缺失调用按内容估算，estimated_calls 单列）。",
+    "每轮完成即落盘（断点续跑）；单轮 crash 率 >20% 或成功率 <50% 触发停止规则（不烧预算掩埋问题）。",
+    "时延为 run_case 墙钟（含真实 LLM 推理与网络往返）；P50/P95 对全部 轮×用例 样本取分位数。"
+  ],
+  "sample_size": {
+    "cases": 10,
+    "runs_requested": 3,
+    "runs_completed": {
+      "multi": 3,
+      "single": 3
+    }
+  },
+  "variance": {
+    "multi success_rate range": "1.000（1.000~1.000）",
+    "single success_rate range": "0.967（0.900~1.000）",
+    "multi latency_ms_p95": 11173.4,
+    "single latency_ms_p95": 26768.0
+  },
+  "known_biases": [
+    "合成评测集（60 条中的 50 条非故障），结论仅适用本语料与提示词/工具面；temperature=0.2 → 轮间波动真实存在（范围列呈现）。",
+    "Token 为上游 usage 计费口径；上游未回 usage 的调用按内容估算（estimated_calls 单列，不计入计费口径）。",
+    "Budget=24 步（生产默认）对 multi 共享步数预算是紧约束（8 台设备 hard 用例），真实模型步数分布可能触发 partial——如实呈现，不是评分缺陷。",
+    "图节点 task_timeout=30s（生产默认）真实生效：inspector 子任务超时按 partial 计。",
+    "成本按 deepseek-flash 档假设计价（定价页 2026-10-25 已不单列 deepseek-chat，2026-10-25 查询）。"
+  ],
+  "disclaimer": "真实模型消融（deepseek-chat，env 注入）：结论仅适用于本合成评测集与本提示词/工具面；时延含真实 LLM 推理与网络往返；Token 为上游返回 usage（计费口径，缺失调用按内容估算并标记）。",
+  "ceiling_check": {
+    "at_ceiling": false,
+    "note": "成功率未同时到上限，成功率本身仍具区分度。"
+  },
+  "tables": [
+    {
+      "caption": "总体指标（均值，范围 min~max；时延对全部 轮×用例 样本取分位数，ms 保留 1 位小数）",
+      "header": [
+        "指标",
+        "multi（Supervisor+Worker）",
+        "single（SingleReAct）"
+      ],
+      "rows": [
+        [
+          "任务成功率",
+          "100.0%（100.0%~100.0%）",
+          "96.7%（90.0%~100.0%）"
+        ],
+        [
+          "崩溃 run 数（合计）",
+          "0.000（0.000~0.000）",
+          "0.000（0.000~0.000）"
+        ],
+        [
+          "异常识别 Precision",
+          "100.0%（100.0%~100.0%）",
+          "96.3%（88.9%~100.0%）"
+        ],
+        [
+          "异常识别 Recall",
+          "100.0%（100.0%~100.0%）",
+          "96.3%（88.9%~100.0%）"
+        ],
+        [
+          "工具 Precision（process-strict）",
+          "90.6%（90.0%~91.7%）",
+          "93.9%（93.3%~94.2%）"
+        ],
+        [
+          "工具 Recall（process-strict）",
+          "55.4%（54.3%~57.7%）",
+          "83.6%（82.0%~85.3%）"
+        ],
+        [
+          "工具 Precision（goal-oriented）",
+          "90.6%（90.0%~91.7%）",
+          "93.9%（93.3%~94.2%）"
+        ],
+        [
+          "工具 Recall（goal-oriented）",
+          "100.0%（100.0%~100.0%）",
+          "99.3%（98.0%~100.0%）"
+        ],
+        [
+          "派工合规率（默认拒绝口径）",
+          "100.0%（100.0%~100.0%）",
+          "100.0%（100.0%~100.0%）"
+        ],
+        [
+          "越权调用次数（合计）",
+          "0.000（0.000~0.000）",
+          "0.000（0.000~0.000）"
+        ],
+        [
+          "时延 P50 (ms)",
+          "7752.2",
+          "16253.0"
+        ],
+        [
+          "时延 P95 (ms)",
+          "11173.4",
+          "26768.0"
+        ],
+        [
+          "步数均值",
+          "16.633（16.600~16.700）",
+          "12.633（12.300~13.000）"
+        ]
+      ]
+    },
+    {
+      "caption": "hard 档成功率（上限检查后的区分度所在；全部已完成轮次样本均值）",
+      "header": [
+        "配置",
+        "hard 样本数（轮×用例）",
+        "成功率"
+      ],
+      "rows": [
+        [
+          "multi",
+          "30",
+          "100.0%"
+        ],
+        [
+          "single",
+          "30",
+          "96.7%"
+        ]
+      ]
+    },
+    {
+      "caption": "逐轮概况（成功率 / 崩溃 / 墙钟 / LLM 调用 / 异常）",
+      "header": [
+        "配置",
+        "轮次",
+        "成功率",
+        "崩溃",
+        "墙钟",
+        "LLM 调用",
+        "异常"
+      ],
+      "rows": [
+        [
+          "multi",
+          "1",
+          "100%",
+          "0",
+          "76s",
+          "141",
+          ""
+        ],
+        [
+          "multi",
+          "2",
+          "100%",
+          "0",
+          "78s",
+          "140",
+          ""
+        ],
+        [
+          "multi",
+          "3",
+          "100%",
+          "0",
+          "80s",
+          "140",
+          ""
+        ],
+        [
+          "single",
+          "1",
+          "90%",
+          "0",
+          "175s",
+          "138",
+          ""
+        ],
+        [
+          "single",
+          "2",
+          "100%",
+          "0",
+          "161s",
+          "129",
+          ""
+        ],
+        [
+          "single",
+          "3",
+          "100%",
+          "0",
+          "158s",
+          "130",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": "Token 与成本（上游 usage 计费口径；估算对照见结论节）",
+      "header": [
+        "配置",
+        "LLM 调用（合计）",
+        "输入 Token",
+        "输出 Token",
+        "估算调用（无 usage）",
+        "USD（off-peak）"
+      ],
+      "rows": [
+        [
+          "multi",
+          "421",
+          "293,483",
+          "51,901",
+          "0",
+          "0.0752"
+        ],
+        [
+          "single",
+          "397",
+          "796,083",
+          "55,604",
+          "0",
+          "0.1528"
+        ]
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "caption": "估算 vs 实际",
+      "bullets": [
+        "总 LLM 调用实际 818 次（离线估算基线 2,076 次 = 375+317/轮 × 3 轮）；实际 USD（off-peak 口径）= $0.2279（peak 上界 $0.4559；离线估算 $0.235）。",
+        "差异来源：真实模型每步 Token 与调用数分布 ≠ 合规替身（重试/解析失败会加调用，步数受 24 步预算截断）。"
+      ]
+    },
+    {
+      "caption": "与离线版的差异解读（结论以真实口径为准）",
+      "bullets": [
+        "成功率：multi 100.0%（100.0%~100.0%） vs single 96.7%（90.0%~100.0%）（离线两配置均 100%——真实口径以本表为准）。",
+        "双口径工具 Recall：multi strict 55.4%（54.3%~57.7%） / goal 100.0%（100.0%~100.0%）；single strict 83.6%（82.0%~85.3%） / goal 99.3%（98.0%~100.0%）（离线：multi 54.0%/99.0%，single 85.6%/99.3%——真实模型是否自调遥测直接决定两口径差，见正文解读）。",
+        "时延：multi P50/P95 7752.2/11173.4ms vs single 16253.0/26768.0ms（离线替身即时回复时 multi 反而更慢；真实 LLM 时延下并行扇出是否兑现收益以本表为准）。",
+        "结论判定沿用计划 §11-E1：成功率差距 <3pp 时，调用数/Token/时延决定「单智能体是否已够用」，如实采信。"
+      ]
+    }
+  ],
+  "summaries": {
+    "multi": {
+      "success_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "anomaly_precision": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "anomaly_recall": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "tool_precision": {
+        "mean": 0.9055555555555556,
+        "min": 0.9,
+        "max": 0.9166666666666666
+      },
+      "tool_recall": {
+        "mean": 0.5544444444444444,
+        "min": 0.5433333333333333,
+        "max": 0.5766666666666667
+      },
+      "tool_precision_goal": {
+        "mean": 0.9055555555555556,
+        "min": 0.9,
+        "max": 0.9166666666666666
+      },
+      "tool_recall_goal": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "drone_policy_ok_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "param_accuracy": {
+        "mean": 0.7353174603174603,
+        "min": 0.7353174603174603,
+        "max": 0.7353174603174603
+      },
+      "work_order_accuracy": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "order_satisfaction": {
+        "mean": 0.3499999999999999,
+        "min": 0.35,
+        "max": 0.35
+      },
+      "evidence_ok_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "forbidden_calls_total": {
+        "mean": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "crashed_total": {
+        "mean": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "steps_mean": {
+        "mean": 16.633333333333336,
+        "min": 16.6,
+        "max": 16.7
+      },
+      "latency_ms_p50": 7752.229208505014,
+      "latency_ms_p95": 11173.383531119907,
+      "latency_ms_mean": 7809.349958270711,
+      "runs": 3,
+      "round_indices": [
+        1,
+        2,
+        3
+      ],
+      "llm": {
+        "calls": 421,
+        "calls_by_round": [
+          141,
+          140,
+          140
+        ],
+        "calls_by_role": {
+          "planner": 30,
+          "inspector": 349,
+          "reporter": 42
+        },
+        "input_tokens": 293483,
+        "output_tokens": 51901,
+        "input_tokens_est": 0,
+        "output_tokens_est": 0,
+        "estimated_calls": 0
+      },
+      "per_round": [
+        {
+          "round": 1,
+          "success_rate": 1.0,
+          "crashed_total": 0,
+          "wall_s": 76.0,
+          "llm_calls": 141,
+          "anomaly": null
+        },
+        {
+          "round": 2,
+          "success_rate": 1.0,
+          "crashed_total": 0,
+          "wall_s": 78.2,
+          "llm_calls": 140,
+          "anomaly": null
+        },
+        {
+          "round": 3,
+          "success_rate": 1.0,
+          "crashed_total": 0,
+          "wall_s": 80.1,
+          "llm_calls": 140,
+          "anomaly": null
+        }
+      ]
+    },
+    "single": {
+      "success_rate": {
+        "mean": 0.9666666666666667,
+        "min": 0.9,
+        "max": 1.0
+      },
+      "anomaly_precision": {
+        "mean": 0.9629629629629629,
+        "min": 0.8888888888888888,
+        "max": 1.0
+      },
+      "anomaly_recall": {
+        "mean": 0.9629629629629629,
+        "min": 0.8888888888888888,
+        "max": 1.0
+      },
+      "tool_precision": {
+        "mean": 0.9388888888888888,
+        "min": 0.9333333333333333,
+        "max": 0.9416666666666667
+      },
+      "tool_recall": {
+        "mean": 0.8355555555555556,
+        "min": 0.82,
+        "max": 0.8533333333333333
+      },
+      "tool_precision_goal": {
+        "mean": 0.9388888888888888,
+        "min": 0.9333333333333333,
+        "max": 0.9416666666666667
+      },
+      "tool_recall_goal": {
+        "mean": 0.9933333333333333,
+        "min": 0.9800000000000001,
+        "max": 1.0
+      },
+      "drone_policy_ok_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "param_accuracy": {
+        "mean": 0.9285714285714285,
+        "min": 0.9166666666666666,
+        "max": 0.95
+      },
+      "work_order_accuracy": {
+        "mean": 0.4761904761904761,
+        "min": 0.42857142857142855,
+        "max": 0.5714285714285714
+      },
+      "order_satisfaction": {
+        "mean": 0.9666666666666667,
+        "min": 0.95,
+        "max": 1.0
+      },
+      "evidence_ok_rate": {
+        "mean": 0.9047619047619048,
+        "min": 0.8571428571428571,
+        "max": 1.0
+      },
+      "forbidden_calls_total": {
+        "mean": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "crashed_total": {
+        "mean": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "steps_mean": {
+        "mean": 12.633333333333333,
+        "min": 12.3,
+        "max": 13.0
+      },
+      "latency_ms_p50": 16252.969854016555,
+      "latency_ms_p95": 26768.022326749626,
+      "latency_ms_mean": 16469.189530504325,
+      "runs": 3,
+      "round_indices": [
+        1,
+        2,
+        3
+      ],
+      "llm": {
+        "calls": 397,
+        "calls_by_round": [
+          138,
+          129,
+          130
+        ],
+        "calls_by_role": {
+          "single": 397
+        },
+        "input_tokens": 796083,
+        "output_tokens": 55604,
+        "input_tokens_est": 0,
+        "output_tokens_est": 0,
+        "estimated_calls": 0
+      },
+      "per_round": [
+        {
+          "round": 1,
+          "success_rate": 0.9,
+          "crashed_total": 0,
+          "wall_s": 175.4,
+          "llm_calls": 138,
+          "anomaly": null
+        },
+        {
+          "round": 2,
+          "success_rate": 1.0,
+          "crashed_total": 0,
+          "wall_s": 160.8,
+          "llm_calls": 129,
+          "anomaly": null
+        },
+        {
+          "round": 3,
+          "success_rate": 1.0,
+          "crashed_total": 0,
+          "wall_s": 157.9,
+          "llm_calls": 130,
+          "anomaly": null
+        }
+      ]
+    }
+  },
+  "rounds_dir": "reports/e1-real-post-rounds-hard",
+  "stopped": null,
+  "generated_at": "2026-10-25T03:30:10.462739+00:00"
+}
