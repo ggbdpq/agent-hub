@@ -100,6 +100,7 @@ async def run_round(config: str, round_idx: int, cases: list[dict], retriever, v
 async def run_e1_real(
     runs: int = 3,
     *,
+    difficulty: str | None = None,
     rounds_dir: Path | None = None,
     out_dir: Path | None = None,
     max_crash_rate: float = MAX_CRASH_RATE,
@@ -115,6 +116,9 @@ async def run_e1_real(
     out_dir = out_dir or Path(__file__).resolve().parent / "reports"
     rounds_dir = rounds_dir or out_dir / "e1-real-rounds"
     cases = load_non_fault_cases()
+    if difficulty is not None:
+        cases = [c for c in cases if c["difficulty"] == difficulty]
+        print(f"[e1r] 难度过滤：difficulty={difficulty}，{len(cases)} 条", flush=True)
     retriever, valid_chunk_ids = build_retriever()
     fixtures = fixtures_root()
     by_difficulty: dict[str, int] = {}
@@ -146,7 +150,7 @@ async def run_e1_real(
                 stopped = {"config": config, "round": round_idx, "reason": anomaly}
                 print(f"[e1r][STOP] 单轮异常，停止后续轮次：{anomaly}", flush=True)
 
-    return assemble_report(cases, by_difficulty, rounds_dir, out_dir, runs, stopped)
+    return assemble_report(cases, by_difficulty, rounds_dir, out_dir, runs, stopped, difficulty)
 
 
 def assemble_report(
@@ -156,6 +160,7 @@ def assemble_report(
     out_dir: Path,
     runs_requested: int,
     stopped: dict | None,
+    difficulty: str | None = None,
 ) -> dict:
     from evals.e1_ablation import DEEPSEEK_PRICES, ceiling_check
     from evals.metrics import percentile
@@ -208,7 +213,7 @@ def assemble_report(
             "meta": [
                 ("模型", f"{os.environ.get('OPENAI_MODEL', 'deepseek-chat')} @ {os.environ.get('OPENAI_BASE_URL', 'https://api.deepseek.com/v1')}（temperature=0.2，非流式）"),
                 ("日期", f"{now.strftime('%Y-%m-%d')}（UTC；本地 UTC+8 为 {(now + timedelta(hours=8)).strftime('%Y-%m-%d')}）"),
-                ("范围", f"{len(cases)} 条非故障用例（easy/medium/hard = {by_difficulty.get('easy', 0)}/"
+                ("范围", f"{len(cases)} 条非故障用例{'（难度子集：' + difficulty + '）' if difficulty else ''}（easy/medium/hard = {by_difficulty.get('easy', 0)}/"
                         f"{by_difficulty.get('medium', 0)}/{by_difficulty.get('hard', 0)}）"),
                 ("运行次数", f"请求 {runs_requested} 轮；实际完成 multi {s_multi['runs']} 轮 / single {s_single['runs']} 轮"
                             + (f"；**中途停止**：{stopped['reason']}（{stopped['config']} R{stopped['round']} 后）" if stopped else "")),
@@ -349,6 +354,8 @@ def _diff_vs_offline(s_multi: dict, s_single: dict) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="evals.e1_real", description="E1 真实模型消融（多 vs 单智能体）")
     parser.add_argument("--runs", type=int, default=3)
+    parser.add_argument("--difficulty", choices=["hard"], default=None,
+                        help="只跑指定难度子集（第 6 轮改前/改后对比用）；轮次目录须独立")
     parser.add_argument("--rounds-dir", type=Path, default=None, help="轮次文件目录（默认 reports/e1-real-rounds，断点续跑）")
     parser.add_argument("--out-dir", type=Path, default=None)
     parser.add_argument("--max-crash-rate", type=float, default=MAX_CRASH_RATE)
@@ -364,7 +371,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     asyncio.run(
         run_e1_real(
-            args.runs, rounds_dir=args.rounds_dir, out_dir=args.out_dir,
+            args.runs,
+            difficulty=args.difficulty, rounds_dir=args.rounds_dir, out_dir=args.out_dir,
             max_crash_rate=args.max_crash_rate, min_success=args.min_success,
         )
     )
