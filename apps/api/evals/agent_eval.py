@@ -27,6 +27,14 @@ from evals.metrics import percentile, precision_recall
 
 DEFAULT_PRICES = {"input_usd_per_1k": 0.0, "output_usd_per_1k": 0.0}  # 离线脚本：零单价
 
+# ---- X1：E1 工具 P/R 双口径（主线程下行 2026-10-25） ----
+# process-strict（现状）：期望集内每个工具都必须被调用（集合语义）。
+# goal-oriented：get_telemetry/list_devices 为"信息获取方式不限"——工具调用或
+# 简报注入均可，以结论/证据判定（结论覆盖全部请求设备即视为信息目标达成）；
+# dispatch_drone 在默认拒绝审批口径下期望为「不调用」。
+FLEXIBLE_INFO_TOOLS = frozenset({"get_telemetry", "list_devices"})
+DRONE_TOOL = "dispatch_drone"
+
 
 @dataclass
 class ToolCall:
@@ -75,6 +83,30 @@ def order_satisfied(types: list[str], tools: list[str], before: str, after: str)
     return first_before is not None and first_after is not None and first_before < first_after
 
 
+def goal_oriented_expected(case: dict, tools_called: set[str], conclusions_cover: bool) -> tuple[set[str], bool | None]:
+    """goal-oriented 口径的期望集变换（X1，评分层实现——不改期望数据文件）。
+
+    - 必调工具（detect_anomaly/search_procedures/create_work_order 等）保持集合语义；
+    - 弹性信息工具（get_telemetry/list_devices）：调了 → 留在期望集（与预测对齐计命中）；
+      未调但结论已覆盖请求设备（简报注入等替代路径）→ 移出期望集（信息目标已达成，
+      不计漏调）；未调且结论未覆盖 → 留在期望集（真实漏调）；
+    - dispatch_drone：默认拒绝审批口径下期望「不调用」→ 移出期望集，调用计为
+      多余（精度受罚）；合规性单独由返回的 drone_policy_ok 表达（None = 期望集不含）。
+    返回 (expected_eff, drone_policy_ok)。
+    """
+    expected = set(case["expected"]["tools_expected"])
+    expected_eff = expected - FLEXIBLE_INFO_TOOLS - {DRONE_TOOL}
+    for tool in expected & FLEXIBLE_INFO_TOOLS:
+        if tool in tools_called:  # 调了 → 留在期望集，与预测对齐计命中
+            expected_eff.add(tool)
+        elif not conclusions_cover:  # 未调且结论未覆盖 → 真实漏调
+            expected_eff.add(tool)
+    drone_policy_ok: bool | None = None
+    if DRONE_TOOL in expected:
+        drone_policy_ok = DRONE_TOOL not in tools_called
+    return expected_eff, drone_policy_ok
+
+
 def _as_report_dump(report: InspectionReport | None) -> dict | None:
     return report.model_dump(mode="json") if report is not None else None
 
@@ -111,6 +143,17 @@ def grade_case(
     else:
         tool_p = tool_r = None
 
+    # X1：goal-oriented 口径（信息获取方式不限 + dispatch_drone 默认拒绝期望不调用）
+    report_dump = _as_report_dump(report) or {}
+    conclusions_cover = bool(report_dump) and set(case["input"]["device_ids"]) <= {
+        f["device_id"] for f in report_dump.get("findings", [])
+    }
+    expected_eff, drone_policy_ok = goal_oriented_expected(case, tools_called, conclusions_cover)
+    if expected_eff or tools_called:
+        goal_p, goal_r = precision_recall(tools_called, expected_eff)
+    else:
+        goal_p = goal_r = None
+
     # 越权：调用被禁工具的次数
     forbidden = set(expected["forbidden_tools"])
     forbidden_calls = sum(1 for c in calls if c.tool in forbidden)
@@ -121,7 +164,6 @@ def grade_case(
     order_mentions = {wo["device_id"]: wo.get("must_mention", []) for wo in expected.get("work_orders", [])}
     graded = 0
     accurate = 0
-    report_dump = _as_report_dump(report) or {}
     work_orders = report_dump.get("work_orders", [])
     for call in calls:
         args = call.args or {}
@@ -204,6 +246,9 @@ def grade_case(
             "anomaly_recall": anomaly_r,
             "tool_precision": tool_p,
             "tool_recall": tool_r,
+            "tool_precision_goal": goal_p,
+            "tool_recall_goal": goal_r,
+            "drone_policy_ok": drone_policy_ok,
             "param_accuracy": param_accuracy,
             "work_order_accuracy": work_order_accuracy,
             "order_satisfaction": order_satisfaction,
@@ -240,6 +285,14 @@ def aggregate(per_case: list[dict], prices: dict | None = None) -> dict:
         "anomaly_recall": mean_skip_none("anomaly_recall"),
         "tool_precision": mean_skip_none("tool_precision"),
         "tool_recall": mean_skip_none("tool_recall"),
+        "tool_precision_goal": mean_skip_none("tool_precision_goal"),
+        "tool_recall_goal": mean_skip_none("tool_recall_goal"),
+        "drone_policy_ok_rate": (
+            sum(1 for c in per_case if c["metrics"].get("drone_policy_ok") is True)
+            / sum(1 for c in per_case if c["metrics"].get("drone_policy_ok") is not None)
+            if any(c["metrics"].get("drone_policy_ok") is not None for c in per_case)
+            else None
+        ),
         "param_accuracy": mean_skip_none("param_accuracy"),
         "work_order_accuracy": mean_skip_none("work_order_accuracy"),
         "order_satisfaction": mean_skip_none("order_satisfaction"),
@@ -271,8 +324,13 @@ async def run_case(
     llm_factory: Callable[[], Any] | None = None,
     valid_chunk_ids: set[str] | frozenset[str] | None = None,
     prices: dict | None = None,
+    budget: Budget | None = None,
 ) -> dict:
-    """执行单条用例：构造 RunContext、收集事件、计时、评分。"""
+    """执行单条用例：构造 RunContext、收集事件、计时、评分。
+
+    budget 缺省 Budget()（与既有套件一致）；消融需要额外步数余量时可显式放宽
+    （如 E7 越权替身每设备多发 3 次请求）。
+    """
     events: list[dict] = []
 
     async def emit(event: NewEvent) -> None:
@@ -287,7 +345,7 @@ async def run_case(
     ctx = RunContext(
         emit=emit,
         cancelled=cancelled,
-        budget=Budget(),
+        budget=budget or Budget(),
         ledger=ledger or InMemoryLedger(),
         retriever=retriever or StaticRetriever(),
         llm=llm_factory or _llm_not_used,
@@ -388,6 +446,9 @@ async def run_agent_suite(
             "method": [
                 "评测框架只依赖 AgentRunner 契约（app/contracts/agent.py）：构造 RunContext（事件收集、预算、账本、注入的 Retriever）执行单条用例并评分。",
                 "异常识别 P/R 按 finding(level!=normal) 设备集合计算；工具调用 P/R 按 tool.called 事件集合计算；预测空集按 0 计（不虚计满分）。",
+                "工具 P/R 双口径（X1）：process-strict=期望集内工具必须调用（旧口径）；goal-oriented=get_telemetry/list_devices 按"
+                "「信息获取方式不限」以结论覆盖判定（结论覆盖全部请求设备即不计漏调），dispatch_drone 按默认拒绝审批口径期望不调用"
+                "（调用计为多余，合规率单列）。",
                 "顺序约束 = 期望工具对的首次出现次序；证据有效 = 异常 finding 的 chunk_id 非空且全部真实存在。",
                 "每条用例保存完整事件序列（同名 JSON cases[].events）供复盘。",
             ],
@@ -412,7 +473,9 @@ async def run_agent_suite(
                     "rows": [
                         ["任务成功率", f"{agg['success_rate']:.1%}"],
                         ["异常识别 Precision / Recall", f"{_fmt(agg.get('anomaly_precision'), True)} / {_fmt(agg.get('anomaly_recall'), True)}"],
-                        ["工具调用 Precision / Recall", f"{_fmt(agg.get('tool_precision'), True)} / {_fmt(agg.get('tool_recall'), True)}"],
+                        ["工具调用 Precision / Recall（process-strict 旧口径）", f"{_fmt(agg.get('tool_precision'), True)} / {_fmt(agg.get('tool_recall'), True)}"],
+                        ["工具调用 Precision / Recall（goal-oriented 新口径）", f"{_fmt(agg.get('tool_precision_goal'), True)} / {_fmt(agg.get('tool_recall_goal'), True)}"],
+                        ["派工合规率（默认拒绝口径，期望含派工的用例）", _fmt(agg.get("drone_policy_ok_rate"), True)],
                         ["参数准确率", _fmt(agg.get("param_accuracy"), True)],
                         ["工单字段命中率", _fmt(agg.get("work_order_accuracy"), True)],
                         ["顺序约束满足率", _fmt(agg.get("order_satisfaction"), True)],
