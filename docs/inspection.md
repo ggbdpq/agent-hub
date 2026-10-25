@@ -67,7 +67,10 @@ flowchart TB
 | 报告 | 内容 | 口径 |
 |---|---|---|
 | `e1-offline-*` | 多 vs 单智能体，50 条 × 2 配置 × 3 轮；双口径工具 P/R（process-strict / goal-oriented） | 离线（仅验证流程） |
-| `e1-real-*` | 同上，真实模型 12 条子集单轮（历史报告，双口径修正前的口径） | 真实模型 |
+| `e1-real-20261025-011659` | E1 真实模型（deepseek-chat，50 条 × 3 轮，双口径）：成功率 multi 96.7% vs single 98.7%、goal 召回 99.2%/98.4%、时延 P95 8.6s vs 26.2s、输入 Token 879K vs 2.25M | 真实模型 |
+| `e3-real-20261025-015300` | E3 真实模型：并行 P50/P95 4.6s/6.5s vs 串行 7.1s/19.1s（6+ 台设备 P50 相差 3.9×） | 真实模型 |
+| `e4-offline-20261025-024152` | E4 上下文载荷对照（简报 vs 完整历史）：质量一致、输入 Token 2.58× | 离线（仅验证流程） |
+| `e7-injection-20261025-024832` | E7 提示注入版（注入 1008 次请求：on 全拦 / off 站级越权执行 336 次） | 离线（仅验证流程） |
 | `e3-offline-*` | 并行 vs 串行扇出时延（替身层，结构关系） | 离线（仅验证流程） |
 | `e7-offline-*` | 运行时强制权限 vs 仅提示词声明（越权 336 次请求：on 全拦 / off 放行站点级越权 112 次） | 离线确定性 |
 | `ablation-retrieval-*` | 检索消融 6 配置（hybrid/bm25/vector × 分词） | 离线确定性 |
@@ -90,7 +93,7 @@ flowchart TB
 
 ## 诚实口径与边界
 
-- **fixtures/inspection 全部为合成数据**（生成器 `fixtures/inspection/generate.py` 确定性可复现），检索与评测数字均为离线确定性口径，**仅验证工程流程，不代表模型效果**。
+- **fixtures/inspection 全部为合成数据**（生成器 `fixtures/inspection/generate.py` 确定性可复现）。检索与 E7/E4 消融为离线确定性口径（**仅验证工程流程，不代表模型效果**）；E1/E3 已有真实模型（deepseek-chat，2026-10-25）报告，结论仅适用于本合成评测集与本提示词/工具面。
 - 服务端任务续跑的分层覆盖：store 层进程重启（含 kill -9）由 `tests/runtime/test_kill9_reclaim.py` 覆盖；编排层「审批等待期重启→重认领→从检查点恢复」由 `tests/agents/test_runner_resume.py` 覆盖（回归过 findings 翻倍与异步 approver 两个缺陷）；浏览器层进程重启由两条 E2E 覆盖（kill 落点实际稳定处于审批等待期，graph-rerun 落点经探针验证）。
 - 已知接受的边界：审批 interrupt 恢复会重放 reporter 节点（重复事件按 approval_id 幂等消费、写工具由账本去重）；非中断点的崩溃重跑靠 reducer 按 device_id 去重兜底（planner 会重跑，真实模型下有重复计费）；WAL 多进程高并发写未压测（ADR-0006）。
 - 真实模型（`OPENAI_API_KEY` + `OPENAI_BASE_URL`/`OPENAI_MODEL`）下 planner/inspector 的输出质量取决于所选模型；巡检 LLM 默认离线确定性档（`AGENT_HUB_LLM=scripted`）。

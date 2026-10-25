@@ -24,7 +24,7 @@
 
 ## 要点 3：混合检索、评测与消融（数字回填区）
 
-> 同一 ToolSpec 注册表同时驱动 API 与 MCP Server（dangerous 工具 MCP 侧不暴露）；混合检索 BM25 + 向量双路召回经 RRF 融合，中文分词用零依赖字符 bigram（与 jieba 对照评测后不引入新依赖），检索无相关结果返回空集不编造；分层评测集期望从遥测数据派生（不从生成器注释抄取，防泄露），指标（Recall@k / MRR / 成功率 / 工具 P-R）全部有手工算例单测锁定口径，质量门低于阈值 CI 即红；真实模型消融：多智能体 vs 单智能体（E1：成功率 96.7% vs 98.7%、goal-oriented 工具召回 99.2% / 98.4%、时延 P95 8.6s vs 26.2s、输入 Token 879K vs 2.25M；双口径 process-strict 与 goal-oriented 并列）、并行扇出 vs 串行（E3：时延 P50/P95 = 4.6s/6.5s vs 7.1s/19.1s，6+ 台设备 P50 相差 3.9×）、运行时强制 vs 仅提示词约束（E7：越权替身 336 次请求，运行时强制开启全部拦截、关闭时站点级越权执行 112 次而 write/dangerous 仍被账本与审批门拦下）。合成语料口径；E1 结论按数据如实：单智能体成功率更高（差距 <3pp），多智能体的实证价值在并行时延（P95 3 倍）与上下文隔离（输入 Token 2.6×）。
+> 同一 ToolSpec 注册表同时驱动 API 与 MCP Server（dangerous 工具 MCP 侧不暴露）；混合检索 BM25 + 向量双路召回经 RRF 融合，中文分词用零依赖字符 bigram（与 jieba 对照评测后不引入新依赖），检索无相关结果返回空集不编造；分层评测集期望从遥测数据派生（不从生成器注释抄取，防泄露），指标（Recall@k / MRR / 成功率 / 工具 P-R）全部有手工算例单测锁定口径，质量门低于阈值 CI 即红；真实模型消融：多智能体 vs 单智能体（E1：成功率 96.7% vs 98.7%、goal-oriented 工具召回 99.2% / 98.4%、时延 P95 8.6s vs 26.2s、输入 Token 879K vs 2.25M；双口径 process-strict 与 goal-oriented 并列）、并行扇出 vs 串行（E3：时延 P50/P95 = 4.6s/6.5s vs 7.1s/19.1s，6+ 台设备 P50 相差 3.9×）、运行时强制 vs 仅提示词约束（E7：越权替身 336 次请求，运行时强制开启全部拦截、关闭时站点级越权执行 112 次而 write/dangerous 仍被账本与审批门拦下）。合成语料口径、成本按公开单价估算（deepseek-flash 档，未与实际账单核对）；E1 结论按数据如实：单智能体成功率更高（差距 <3pp），多智能体的实证价值在并行时延（P95 3 倍）；多智能体输入 Token 约为单智能体的 39%（879K vs 2.25M）——该差异的「上下文隔离」归因待 E4 真实验证后才能声明。
 
 可核实锚点：
 - 混合检索：`apps/api/app/knowledge/retriever.py:32-42`（双路 + RRF + 空结果不编造）、`app/knowledge/fuse.py:20-31`；测试 `tests/knowledge/test_hybrid_retriever.py`、`tests/knowledge/test_embedding.py`。
