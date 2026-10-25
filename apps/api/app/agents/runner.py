@@ -65,6 +65,10 @@ class InspectionAgentRunner:
         self._inspector_skills: list[Skill] | None = (
             [get_skill(name) for name in inspector_skills] if inspector_skills else None
         )
+        # P3：run 级规划缓存 {run_id: (request指纹, PlanResult)}——同进程崩溃续跑
+        # 重认领再次驱动时规划复用，planner 不重复计费。跨进程不共享（新进程
+        # 重新规划，语义与首次一致，只是重新计费）。
+        self._plan_cache: dict[str, tuple[dict, Any]] = {}
 
     async def run(self, run_id: str, input: InspectionRequest, ctx: RunContext) -> InspectionReport:
         tracker = BudgetTracker(ctx.budget)
@@ -77,6 +81,7 @@ class InspectionAgentRunner:
             inspector_max_steps=self._inspector_max_steps,
             checkpointer=self._checkpointer if self._checkpointer is not None else InMemorySaver(),
             inspector_skills=self._inspector_skills,
+            plan_cache=self._plan_cache,
         )
         config = {"configurable": {"thread_id": run_id}}  # thread_id = run_id（B8）
 

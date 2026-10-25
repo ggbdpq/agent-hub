@@ -138,3 +138,56 @@ async def test_full_flow_with_in_memory_run_store() -> None:
     # 重复输入键幂等：同一 idempotency_key 返回同一 run
     again = store.create_run("inspection", REQUEST.model_dump(), idempotency_key="demo-key-1")
     assert again.run_id == record.run_id
+
+
+async def test_plan_cache_reused_across_reclaim_redrive() -> None:
+    """P3：同 run_id 再次驱动（同进程崩溃续跑重认领，无 pending interrupt）
+    → 规划结果按 run_id 缓存复用，planner 不重复计费；报告与首轮一致。
+
+    用全 normal 设备（INV-001/002/003）避免审批中断；planner 系统提示含
+    「巡检规划器」标记，以 recording_llm_factory 统计其真实 ainvoke 次数。
+    """
+    from b_testkit import recording_llm_factory
+
+    request = InspectionRequest(site="SITE-A", device_ids=["INV-001", "INV-002", "INV-003"])
+    plan_json = json.dumps(
+        {
+            "steps": [
+                {"device_id": "INV-001", "checks": ["遥测比对"]},
+                {"device_id": "INV-002", "checks": ["遥测比对"]},
+                {"device_id": "INV-003", "checks": ["遥测比对"]},
+            ]
+        },
+        ensure_ascii=False,
+    )
+
+    def insp(device_id: str) -> list[AIMessage]:
+        return [
+            AIMessage(content=json.dumps({"tool": "detect_anomaly", "args": {"device_id": device_id}})),
+            AIMessage(
+                content=json.dumps(
+                    {"final": {"summary": f"{device_id} 平稳", "level": "normal", "evidence_chunk_ids": [], "metrics": {}}},
+                    ensure_ascii=False,
+                )
+            ),
+        ]
+
+    # 首轮消费 plan+3 台；第二轮（命中缓存）只消费 3 台——plan 项不重复准备
+    scripts = [
+        plan_json,
+        insp("INV-001"), insp("INV-002"), insp("INV-003"),
+        insp("INV-001"), insp("INV-002"), insp("INV-003"),
+    ]
+    factory, received = recording_llm_factory(scripts)
+    ctx, collector = make_ctx(llm=factory, retriever=StaticRetriever([CHUNK]))
+    runner = InspectionAgentRunner()
+
+    first = await runner.run("run-p3-cache", request, ctx)
+    assert first.status == "completed" and len(first.findings) == 3
+
+    second = await runner.run("run-p3-cache", request, ctx)  # 同 run_id 重驱动（模拟重认领续跑）
+    assert second.status == "completed" and second.coverage == 1.0
+    planner_calls = sum(1 for msgs in received if "巡检规划器" in msgs[0].content)
+    assert planner_calls == 1  # 规划只计费一次（重驱动不重跑 planner）
+    cached = [e for e in collector.of_type("plan.created") if e.payload.get("cached")]
+    assert len(cached) == 1  # 第二轮 plan.created 标注复用

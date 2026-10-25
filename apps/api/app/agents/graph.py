@@ -29,6 +29,7 @@ from app.tools.registry import ToolRegistry
 
 DEFAULT_TASK_TIMEOUT_S = 30.0
 DEFAULT_INSPECTOR_STEPS = 6
+_PLAN_CACHE_MAX = 256  # P3：run 级规划缓存上限（FIFO 淘汰），worker 常驻进程不无界增长
 _JSON_FENCE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
 
 
@@ -134,10 +135,14 @@ def build_inspection_graph(
     inspector_max_steps: int = DEFAULT_INSPECTOR_STEPS,
     checkpointer=None,
     inspector_skills: list | None = None,
+    plan_cache: dict[str, tuple[dict, Any]] | None = None,
 ):
     """编译巡检图。ctx/tracker 为 run 级共享（预算跨节点强制）。
 
     inspector_skills（B10）：传入 Skill 实例列表 → inspector 白名单并集 + 提示片段。
+    plan_cache（P3）：调用方（runner）持有的 {run_id: (request_dump, PlanResult)}
+    缓存——同 run_id 重驱动（同进程崩溃续跑重认领）时规划复用，不重复计费；
+    request 指纹不一致则重规划（幂等安全：与检查点状态一致）。
     """
     reg = registry if registry is not None else build_registry(ctx, fixture_root=fixture_root)
     reporter_tools = ToolExecutor(reg, ctx, node="reporter", tracker=tracker)
@@ -157,11 +162,24 @@ def build_inspection_graph(
             raise ValueError(f"非法巡检请求: {exc}") from exc
         return {}
 
-    async def planner(state: InspectionState) -> dict:
+    async def planner(state: InspectionState, config: RunnableConfig | None = None) -> dict:
         await ctx.emit(NewEvent(type="node.started", node="planner", payload={"phase": "planner"}))
         request = state["request"]
         req = _request_from(request)
-        plan_result = await make_plan(req, ctx, tracker)
+        # P3：同 run_id 重驱动（同进程崩溃续跑重认领，无 pending interrupt）时
+        # 复用规划——request 指纹一致才复用；否则重规划并刷新缓存。
+        thread_id = (config or {}).get("configurable", {}).get("thread_id", "unknown-run")
+        cached = plan_cache.get(thread_id) if plan_cache is not None else None
+        if cached is not None and cached[0] == req.model_dump():
+            plan_result = cached[1]
+            reused = True
+        else:
+            plan_result = await make_plan(req, ctx, tracker)
+            reused = False
+            if plan_cache is not None:
+                if len(plan_cache) >= _PLAN_CACHE_MAX:  # FIFO 上限：worker 常驻不无界增长
+                    plan_cache.pop(next(iter(plan_cache)))
+                plan_cache[thread_id] = (req.model_dump(), plan_result)
         tasks = [{"device_id": s.device_id, "checks": s.checks} for s in plan_result.plan.steps]
         await ctx.emit(
             NewEvent(
@@ -172,6 +190,7 @@ def build_inspection_graph(
                     "fallback": plan_result.fallback,
                     "attempts": plan_result.attempts,
                     "errors": plan_result.errors,
+                    "cached": reused,
                 },
             )
         )
