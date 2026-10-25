@@ -152,6 +152,44 @@ async def test_subtask_timeout_degrades_to_partial_with_coverage() -> None:
     assert any(e.payload.get("device_id") == "INV-005" for e in failed)
 
 
+async def test_starved_step_budget_still_yields_findings() -> None:
+    """P1c（E1 hard 档失败形态）：共享步数预算耗尽后，确定性判读兜底出 finding。
+
+    复现 e1-real H13/H17 形态：多台设备共享 24 步，排尾设备一步未跑即
+    step_budget_exhausted → 整 run partial。修复后：有判读的设备照常出结论，
+    报告 completed、覆盖率 1.0；不再因预算耗尽整体降级。
+    """
+    scripts = [
+        _plan_json(),
+        "",  # 3 台 starved inspector 各取一个模型实例（预算耗尽，不发生 ainvoke）
+        "",
+        "",
+        _orders_json(),
+        _orders_json(),
+    ]
+    ctx, collector = make_ctx(llm=sequence_llm_factory(scripts), retriever=StaticRetriever([CHUNK]))
+    tracker = BudgetTracker(ctx.budget)
+    while tracker.consume_step():
+        pass  # 模拟同 run 排头设备先耗尽全部 24 步（E1 hard 的排队形态）
+    graph = build_inspection_graph(ctx, tracker, checkpointer=InMemorySaver(), fixture_root=FIXTURES)
+    result = await graph.ainvoke({"request": REQUEST.model_dump()}, {"configurable": {"thread_id": "t6"}})
+    assert "__interrupt__" in result  # INV-005 判读 critical → 审批照常触发
+
+    resumed = await graph.ainvoke(
+        Command(resume={"approved": False, "approvalId": "", "note": "无需无人机"}),
+        {"configurable": {"thread_id": "t6"}},
+    )
+    report = resumed["report"]
+    assert report["status"] == "completed"  # 不再整 run 判 partial
+    assert report["coverage"] == 1.0
+    levels = {f["device_id"]: f["level"] for f in report["findings"]}
+    assert levels == {"INV-001": "normal", "INV-005": "critical", "INV-002": "normal"}
+    assert "step_budget" not in (report["notes"] or "")  # 无失败项
+    # starved inspector 也真实执行了确定性判读
+    detects = [e for e in collector.of_type("tool.called") if e.payload["tool"] == "detect_anomaly"]
+    assert len(detects) == 3
+
+
 async def test_cancelled_run_yields_partial_report() -> None:
     scripts = [
         json.dumps({"steps": [{"device_id": "INV-001", "checks": ["遥测比对"]}]}, ensure_ascii=False),
