@@ -44,11 +44,15 @@ async def test_happy_path_read_tool_emits_called_and_result() -> None:
 
 
 async def test_budget_tool_calls_exhausted_denies() -> None:
-    """超预算：max_tool_calls=1，第二次调用被拒且发 tool.denied。"""
+    """超预算：max_tool_calls=1，第二次调用被拒且发 tool.denied。
+
+    两次调用用不同参数：连续重复由 P1b 的 duplicate_call 专门拒绝（优先级更高），
+    本测试只锁定预算耗尽路径。
+    """
     ex, _, collector = _executor(budget=Budget(max_tool_calls=1))
     first = await ex.call("get_telemetry", {"device_id": "INV-001"})
     assert first.status == "ok"
-    second = await ex.call("get_telemetry", {"device_id": "INV-001"})
+    second = await ex.call("get_telemetry", {"device_id": "INV-002"})
     assert second.status == "denied"
     assert second.reason == "budget_tool_calls"
     assert collector.of_type("tool.denied")[-1].payload["reason"] == "budget_tool_calls"
@@ -193,6 +197,66 @@ async def test_cancelled_context_denies() -> None:
     outcome = await ex.call("get_telemetry", {"device_id": "INV-001"})
     assert outcome.status == "denied"
     assert outcome.reason == "cancelled"
+
+
+async def test_last_step_reserve_denies_read_tools_keeps_judgement_available() -> None:
+    """P1a 步数临界保护：只剩最后 1 步时拒绝再执行读工具，判读工具豁免。
+
+    最后一步留给结论；拒绝事件带明示引导（必须基于已观测数据给出结论）。
+    detect_anomaly 是结论 level 的确定性事实来源，必须始终可得（P1c 依赖）。
+    """
+    ex, _, collector = _executor(budget=Budget(max_steps=1))
+    denied = await ex.call("search_procedures", {"query": "异常判据 柜温"})
+    assert denied.status == "denied"
+    assert denied.reason == "last_step_reserve"
+    event = collector.of_type("tool.denied")[-1]
+    assert event.payload["reason"] == "last_step_reserve"
+    assert "最后 1 步" in event.payload["detail"] and "结论" in event.payload["detail"]
+    # 判读工具豁免：预算临界时结论的事实来源仍可用
+    judgement = await ex.call("detect_anomaly", {"device_id": "INV-005"})
+    assert judgement.status == "ok"
+
+
+async def test_last_step_reserve_does_not_block_write_tools() -> None:
+    """P1a 只保护读工具：reporter 在步数耗尽后仍必须能落工单（B7 语义不变）。"""
+    ex, _, _ = _node_executor("reporter", budget=Budget(max_steps=1))
+    outcome = await ex.call(
+        "create_work_order",
+        {"device_id": "INV-005", "title": "柜温超限", "action": "检查散热"},
+        ledger_key="run-p1a:reporter:wo:INV-005",
+    )
+    assert outcome.status == "ok"
+
+
+async def test_consecutive_duplicate_read_call_denied() -> None:
+    """P1b：连续两次相同工具名+参数的读调用，第二次拒绝（省预算，引导换路）。
+
+    拒绝发生在预算扣减之前：被拒的重复调用不消耗 tool_calls（max_tool_calls=3
+    下 ok/拒/ok/ok 全部放行可证）；中间隔着别的调用（A→B→A）不算连续，放行。
+    """
+    ex, _, collector = _executor(budget=Budget(max_tool_calls=3))
+    first = await ex.call("get_telemetry", {"device_id": "INV-001"})
+    assert first.status == "ok"
+    second = await ex.call("get_telemetry", {"device_id": "INV-001"})
+    assert second.status == "denied"
+    assert second.reason == "duplicate_call"
+    event = collector.of_type("tool.denied")[-1]
+    assert "连续" in event.payload["detail"] and ("换工具" in event.payload["detail"] or "结论" in event.payload["detail"])
+    third = await ex.call("get_telemetry", {"device_id": "INV-002"})
+    assert third.status == "ok"  # 不同参数不算重复
+    fourth = await ex.call("get_telemetry", {"device_id": "INV-001"})
+    assert fourth.status == "ok"  # 非连续重复放行；且拒绝未消耗 tool_calls 预算
+
+
+async def test_duplicate_gate_ignores_write_tools() -> None:
+    """P1b 只管 read：写工具的重复由幂等账本去重（deduplicated 语义不变，§9）。"""
+    ex, _, _ = _node_executor("reporter")
+    args = {"device_id": "INV-005", "title": "柜温超限", "action": "检查散热"}
+    key = "run-p1b:reporter:wo:INV-005"
+    first = await ex.call("create_work_order", args, ledger_key=key)
+    second = await ex.call("create_work_order", args, ledger_key=key)
+    assert first.status == "ok"
+    assert second.status == "deduplicated"  # 不是 duplicate_call 拒绝
 
 
 def test_tool_outcome_shape() -> None:

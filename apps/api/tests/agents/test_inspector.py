@@ -113,16 +113,68 @@ async def test_invalid_final_json_falls_back_to_deterministic() -> None:
     assert result.finding.evidence_chunk_ids == []  # 无检索证据不引用
 
 
-async def test_step_budget_exhausted_is_subtask_failure() -> None:
-    """步数预算（每子任务最多 6 步）耗尽仍无结论 → 子任务失败（B5 记 partial）。"""
-    script = [_act("list_devices", site="SITE-A")] * 7
-    ctx, _, registry = _make(llm=FakeLLM.factory(script))
+async def test_step_budget_exhausted_spam_rescues_judgement_finding() -> None:
+    """步数耗尽仍无结论 → P1c 确定性判读兜底出 finding（原语义为子任务失败）。
+
+    模型刷同一读工具（P1b 连续重复被拒，不真实执行）→ 每设备步数上限耗尽 →
+    有判读的设备照常出结论（INV-001 判读 normal），不再记子任务失败。
+    """
+    script = [_act("get_telemetry", device_id="INV-001")] * 7
+    ctx, collector, registry = _make(llm=FakeLLM.factory(script))
     result = await run_inspection(
         "INV-001", ["遥测比对"], ctx, registry, BudgetTracker(ctx.budget), max_steps=6
     )
+    assert result.finding is not None
+    assert result.finding.level == "normal"  # 判读为准（确定性）
+    assert result.failure_reason is None
+    assert result.steps_used == 6
+    denied = [e for e in collector.of_type("tool.denied") if e.payload["reason"] == "duplicate_call"]
+    assert denied  # 刷屏调用被 P1b 拒绝，只真实执行了一次
+
+
+async def test_starved_run_budget_rescues_finding_without_any_step() -> None:
+    """P1c（E1 hard 档失败形态）：共享步数预算被同 run 其他设备耗尽，本设备
+    一步未跑——判读兜底照常出 finding，不再记 step_budget_exhausted 失败。"""
+    ctx, _, registry = _make(llm=FakeLLM.factory([_act("get_telemetry", device_id="INV-005")]))
+    tracker = BudgetTracker(ctx.budget)
+    while tracker.consume_step():
+        pass  # 模拟排尾设备入场前预算已被耗尽（multi 8 台设备的排队形态）
+    result = await run_inspection("INV-005", ["柜温趋势"], ctx, registry, tracker, max_steps=6)
+    assert result.finding is not None
+    assert result.finding.level == "critical"  # INV-005 确定性判读
+    assert result.failure_reason is None
+    assert result.finding.summary  # 兜底摘要来自判读明细，不编造
+
+
+async def test_token_budget_exhausted_rescues_finding_too() -> None:
+    """P1c：token 预算耗尽同语义（E1 single 档 H18/M17 失败形态）→ 判读兜底出 finding。"""
+    from app.contracts.agent import Budget
+
+    script = [_act("detect_anomaly", device_id="INV-005"), _act("get_telemetry", device_id="INV-005")]
+    ctx, _, registry = _make(
+        llm=FakeLLM.factory(script),
+        budget=Budget(max_steps=24, max_tool_calls=40, max_tokens=1),
+    )
+    result = await run_inspection("INV-005", ["柜温趋势"], ctx, registry, BudgetTracker(ctx.budget))
+    assert result.finding is not None and result.finding.level == "critical"
+    assert result.failure_reason is None
+
+
+async def test_rescue_still_fails_when_judgement_unavailable() -> None:
+    """P1c 反例兜底：判读也不可得（工具预算耗尽）→ 仍记失败（notes 可解释）。"""
+    from app.contracts.agent import Budget
+
+    ctx, _, registry = _make(
+        llm=FakeLLM.factory([_act("get_telemetry", device_id="INV-001")]),
+        budget=Budget(max_tool_calls=1),
+    )
+    tracker = BudgetTracker(ctx.budget)
+    assert tracker.allow_tool_call()[0]  # 模拟同 run 已用掉全部工具调用预算
+    while tracker.consume_step():
+        pass
+    result = await run_inspection("INV-001", ["遥测比对"], ctx, registry, tracker, max_steps=2)
     assert result.finding is None
     assert result.failure_reason == "step_budget_exhausted"
-    assert result.steps_used == 6
 
 
 async def test_cancelled_subtask_fails_fast() -> None:
@@ -145,6 +197,58 @@ async def test_device_id_overridden_by_code() -> None:
     assert result.failure_reason is None
     called = [e for e in collector.of_type("tool.called") if e.payload["tool"] == "get_telemetry"]
     assert called[0].payload["args"]["device_id"] == "INV-005"
+
+
+async def test_last_step_reserve_steers_model_to_conclude() -> None:
+    """P1a：倒数第二步的读工具被拒（引导基于已观测数据出结论），最后一步出结论。
+
+    复现 E1 hard 档失败形态的临界点：共享步数预算逼近耗尽时，执行器拒绝读工具
+    并通过拒绝事件/观察消息把引导给到模型；模型在最后一步给出结论，不走耗尽路径。
+    """
+    from app.contracts.agent import Budget
+
+    script = [
+        _act("search_procedures", query="异常判据 一"),
+        _act("search_procedures", query="异常判据 二"),
+        _final(level="critical", summary="基于已观测判读收口", evidence_chunk_ids=[]),
+    ]
+    ctx, collector, registry = _make(
+        llm=FakeLLM.factory(script),
+        budget=Budget(max_steps=3, max_tool_calls=10, max_tokens=100_000),
+    )
+    result = await run_inspection(
+        "INV-005", ["柜温趋势"], ctx, registry, BudgetTracker(ctx.budget), max_steps=6
+    )
+    # 倒数第二步的第二次检索被拒绝：检索只真实执行了一次
+    searches = [e for e in collector.of_type("tool.called") if e.payload["tool"] == "search_procedures"]
+    assert len(searches) == 1
+    denied = [e for e in collector.of_type("tool.denied") if e.payload["reason"] == "last_step_reserve"]
+    assert denied and "结论" in denied[0].payload["detail"]
+    # 引导生效：模型在最后一步给出结论（不是预算耗尽路径）
+    assert result.failure_reason is None
+    assert result.finding is not None
+    assert result.finding.summary == "基于已观测判读收口"
+
+
+async def test_consecutive_duplicate_tool_call_denied() -> None:
+    """P1b：模型连续两次同工具同参数的读调用，第二次被拒并引导换工具或出结论。
+
+    E1 hard 档浪费形态：真实模型在等待/失败恢复时会把同一读调用连发两遍，
+    每一遍都白耗一步。执行器层拒绝后，观察消息把引导带回模型。
+    """
+    script = [
+        _act("detect_anomaly", device_id="INV-005"),
+        _act("detect_anomaly", device_id="INV-005"),  # 连续重复：第二次应被拒
+        _final(level="critical", summary="柜温漂移维持", evidence_chunk_ids=[]),
+    ]
+    ctx, collector, registry = _make(llm=FakeLLM.factory(script))
+    result = await run_inspection("INV-005", ["柜温趋势"], ctx, registry, BudgetTracker(ctx.budget))
+    detects = [e for e in collector.of_type("tool.called") if e.payload["tool"] == "detect_anomaly"]
+    assert len(detects) == 1  # 重复调用未真实执行
+    denied = [e for e in collector.of_type("tool.denied") if e.payload["reason"] == "duplicate_call"]
+    assert denied and "结论" in denied[0].payload["detail"]
+    assert result.failure_reason is None
+    assert result.finding is not None and result.finding.level == "critical"
 
 
 def test_brief_contains_only_own_device_data() -> None:

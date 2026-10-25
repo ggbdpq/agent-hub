@@ -62,6 +62,10 @@ class BudgetTracker:
         self.steps_used += 1
         return self.steps_used <= self.budget.max_steps
 
+    def steps_left(self) -> int:
+        """剩余步数；0 = 最后一步（留给结论），可为负（耗尽后循环退出的过渡态）。"""
+        return self.budget.max_steps - self.steps_used
+
     def allow_tool_call(self) -> tuple[bool, str | None]:
         """检查并消耗一次工具调用；(False, reason) = 拒绝。"""
         if self.tool_calls_used >= self.budget.max_tool_calls:

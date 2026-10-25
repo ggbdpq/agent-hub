@@ -152,6 +152,107 @@ async def test_subtask_timeout_degrades_to_partial_with_coverage() -> None:
     assert any(e.payload.get("device_id") == "INV-005" for e in failed)
 
 
+async def test_starved_step_budget_still_yields_findings() -> None:
+    """P1c（E1 hard 档失败形态）：共享步数预算耗尽后，确定性判读兜底出 finding。
+
+    复现 e1-real H13/H17 形态：多台设备共享 24 步，排尾设备一步未跑即
+    step_budget_exhausted → 整 run partial。修复后：有判读的设备照常出结论，
+    报告 completed、覆盖率 1.0；不再因预算耗尽整体降级。
+    """
+    scripts = [
+        _plan_json(),
+        "",  # 3 台 starved inspector 各取一个模型实例（预算耗尽，不发生 ainvoke）
+        "",
+        "",
+        _orders_json(),
+        _orders_json(),
+    ]
+    ctx, collector = make_ctx(llm=sequence_llm_factory(scripts), retriever=StaticRetriever([CHUNK]))
+    tracker = BudgetTracker(ctx.budget)
+    while tracker.consume_step():
+        pass  # 模拟同 run 排头设备先耗尽全部 24 步（E1 hard 的排队形态）
+    graph = build_inspection_graph(ctx, tracker, checkpointer=InMemorySaver(), fixture_root=FIXTURES)
+    result = await graph.ainvoke({"request": REQUEST.model_dump()}, {"configurable": {"thread_id": "t6"}})
+    assert "__interrupt__" in result  # INV-005 判读 critical → 审批照常触发
+
+    resumed = await graph.ainvoke(
+        Command(resume={"approved": False, "approvalId": "", "note": "无需无人机"}),
+        {"configurable": {"thread_id": "t6"}},
+    )
+    report = resumed["report"]
+    assert report["status"] == "completed"  # 不再整 run 判 partial
+    assert report["coverage"] == 1.0
+    levels = {f["device_id"]: f["level"] for f in report["findings"]}
+    assert levels == {"INV-001": "normal", "INV-005": "critical", "INV-002": "normal"}
+    assert "step_budget" not in (report["notes"] or "")  # 无失败项
+    # starved inspector 也真实执行了确定性判读
+    detects = [e for e in collector.of_type("tool.called") if e.payload["tool"] == "detect_anomaly"]
+    assert len(detects) == 3
+
+
+def test_diagnosis_only_goal_classification_matches_eval_vocabulary() -> None:
+    """P2 口径锁定：评测集 5 种 goal 文本的只诊断判定，与 Q.md 下行口径一致
+    （只诊断 → create_work_order 属 forbidden）。"""
+    from app.agents.graph import diagnosis_only_goal
+
+    # 只诊断类（3 种评测文本）
+    assert diagnosis_only_goal("例行巡检：核对遥测是否越限，无异常只出结论，不开工单。")
+    assert diagnosis_only_goal("只诊断不生成工单：输出异常结论与依据，禁止创建工单。")
+    assert diagnosis_only_goal("深度诊断：给出运行评价与规程依据，禁止创建工单。")
+    # 处置/派工类（2 种评测文本）：不算只诊断
+    assert not diagnosis_only_goal(
+        "巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。"
+    )
+    assert not diagnosis_only_goal("巡检并对异常设备安排无人机现场复核（需审批），同时按规程生成工单。")
+    # 无 goal / 无显式只诊断信号 → 维持既有行为（起草工单）
+    assert not diagnosis_only_goal(None)
+    assert not diagnosis_only_goal("")
+    assert not diagnosis_only_goal("例行巡检：遥测比对与异常判读")
+
+
+async def test_diagnosis_only_goal_skips_work_order_drafting() -> None:
+    """P2：goal 只诊断 → reporter 跳过工单起草，notes 记录原因；其余行为不变。"""
+    request = InspectionRequest(
+        site="SITE-A",
+        device_ids=["INV-001", "INV-005", "INV-002"],
+        goal="只诊断不生成工单：输出异常结论与依据，禁止创建工单。",
+    )
+    graph, ctx, collector, _ = _build()
+    result = await graph.ainvoke({"request": request.model_dump()}, {"configurable": {"thread_id": "t7"}})
+    assert "__interrupt__" in result  # critical 审批不受 goal 影响
+    resumed = await graph.ainvoke(
+        Command(resume={"approved": False, "approvalId": "", "note": "无需无人机"}),
+        {"configurable": {"thread_id": "t7"}},
+    )
+    report = resumed["report"]
+    assert report["status"] == "completed"
+    levels = {f["device_id"]: f["level"] for f in report["findings"]}
+    assert levels["INV-005"] == "critical"  # 诊断结论照常产出
+    assert report["work_orders"] == []  # 未起草工单
+    wo_calls = [e for e in collector.of_type("tool.called") if e.payload["tool"] == "create_work_order"]
+    assert wo_calls == []  # 只诊断 → create_work_order 属 forbidden（Q 口径）
+    assert "只诊断" in (report["notes"] or "") and "未起草工单" in (report["notes"] or "")
+    assert "approval.required" in collector.types()  # 审批链路不变
+
+
+async def test_action_goal_still_drafts_work_orders() -> None:
+    """P2 反例面：处置类 goal 行为完全不变（起草工单照旧）。"""
+    request = InspectionRequest(
+        site="SITE-A",
+        device_ids=["INV-001", "INV-005", "INV-002"],
+        goal="巡检并处置：异常设备按规程生成工单，注明设备编号、异常参数、实测值与判定依据。",
+    )
+    graph, ctx, collector, _ = _build()
+    result = await graph.ainvoke({"request": request.model_dump()}, {"configurable": {"thread_id": "t8"}})
+    resumed = await graph.ainvoke(
+        Command(resume={"approved": False, "approvalId": "", "note": "无需无人机"}),
+        {"configurable": {"thread_id": "t8"}},
+    )
+    assert resumed["report"]["work_orders"]  # 处置 goal：工单照常起草
+    wo_calls = [e for e in collector.of_type("tool.called") if e.payload["tool"] == "create_work_order"]
+    assert wo_calls  # 行为不变
+
+
 async def test_cancelled_run_yields_partial_report() -> None:
     scripts = [
         json.dumps({"steps": [{"device_id": "INV-001", "checks": ["遥测比对"]}]}, ensure_ascii=False),

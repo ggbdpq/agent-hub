@@ -29,6 +29,7 @@ from app.tools.registry import ToolRegistry
 
 DEFAULT_TASK_TIMEOUT_S = 30.0
 DEFAULT_INSPECTOR_STEPS = 6
+_PLAN_CACHE_MAX = 256  # P3：run 级规划缓存上限（FIFO 淘汰），worker 常驻进程不无界增长
 _JSON_FENCE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
 
 
@@ -50,6 +51,62 @@ _ORDER_SYSTEM = """你是工单起草员。为异常设备起草检修工单。
 只输出严格 JSON（不要多余文字）：
 {"orders": [{"device_id": "设备编号", "title": "工单标题", "action": "处置措施"}]}
 title 简明（≤40字），action 引用判读发现的异常参数与处置方向。"""
+
+# -- P2：goal 只诊断判定（与评测口径一致：只诊断 → create_work_order 属 forbidden）--
+
+# 显式「只诊断」信号：出现任一即认为 goal 声明了只诊断意图
+_DIAGNOSIS_ONLY_MARKERS = (
+    "只诊断",
+    "仅诊断",
+    "只出结论",
+    "只给结论",
+    "不开工单",
+    "不生成工单",
+    "不创建工单",
+    "禁止创建工单",
+    "禁止生成工单",
+    "无需工单",
+    "不需要工单",
+)
+# 工单/派工/处置动作词：肯定式出现即不算只诊断（禁止式提及不算）
+_ACTION_MARKERS = (
+    "生成工单",
+    "创建工单",
+    "开工单",
+    "派工",
+    "派单",
+    "处置",
+    "安排无人机",
+    "无人机现场复核",
+)
+_NEGATION_WORDS = ("不", "禁止", "无需", "无须", "勿", "别", "非", "不能", "不得")
+
+
+def _affirmative_action_goal(goal: str) -> bool:
+    """是否存在肯定式动作词提及（前 2 字内含否定词视为禁止式提及）。"""
+    for marker in _ACTION_MARKERS:
+        pos = goal.find(marker)
+        while pos != -1:
+            if not any(neg in goal[max(0, pos - 2) : pos] for neg in _NEGATION_WORDS):
+                return True
+            pos = goal.find(marker, pos + 1)
+    return False
+
+
+def diagnosis_only_goal(goal: str | None) -> bool:
+    """goal 是否为「只诊断」：有显式只诊断信号，且无肯定式工单/派工/处置动作词。
+
+    口径（与 docs/integration-requests/Q.md 下行一致）：
+    - 只诊断 → create_work_order 属 forbidden，reporter 跳过起草（notes 记原因）；
+    - 判定要求 goal 带显式信号（只出结论/不开工单/禁止创建工单类）——无信号
+      （如"例行巡检：遥测比对"或未填 goal）保持既有行为，起草不受影响；
+    - 肯定式动作词优先：即便同时出现禁止式提及也不跳过（用户既要求处置）。
+    """
+    if not goal:
+        return False
+    if not any(marker in goal for marker in _DIAGNOSIS_ONLY_MARKERS):
+        return False
+    return not _affirmative_action_goal(goal)
 
 
 class InspectionState(TypedDict, total=False):
@@ -78,10 +135,14 @@ def build_inspection_graph(
     inspector_max_steps: int = DEFAULT_INSPECTOR_STEPS,
     checkpointer=None,
     inspector_skills: list | None = None,
+    plan_cache: dict[str, tuple[dict, Any]] | None = None,
 ):
     """编译巡检图。ctx/tracker 为 run 级共享（预算跨节点强制）。
 
     inspector_skills（B10）：传入 Skill 实例列表 → inspector 白名单并集 + 提示片段。
+    plan_cache（P3）：调用方（runner）持有的 {run_id: (request_dump, PlanResult)}
+    缓存——同 run_id 重驱动（同进程崩溃续跑重认领）时规划复用，不重复计费；
+    request 指纹不一致则重规划（幂等安全：与检查点状态一致）。
     """
     reg = registry if registry is not None else build_registry(ctx, fixture_root=fixture_root)
     reporter_tools = ToolExecutor(reg, ctx, node="reporter", tracker=tracker)
@@ -101,11 +162,24 @@ def build_inspection_graph(
             raise ValueError(f"非法巡检请求: {exc}") from exc
         return {}
 
-    async def planner(state: InspectionState) -> dict:
+    async def planner(state: InspectionState, config: RunnableConfig | None = None) -> dict:
         await ctx.emit(NewEvent(type="node.started", node="planner", payload={"phase": "planner"}))
         request = state["request"]
         req = _request_from(request)
-        plan_result = await make_plan(req, ctx, tracker)
+        # P3：同 run_id 重驱动（同进程崩溃续跑重认领，无 pending interrupt）时
+        # 复用规划——request 指纹一致才复用；否则重规划并刷新缓存。
+        thread_id = (config or {}).get("configurable", {}).get("thread_id", "unknown-run")
+        cached = plan_cache.get(thread_id) if plan_cache is not None else None
+        if cached is not None and cached[0] == req.model_dump():
+            plan_result = cached[1]
+            reused = True
+        else:
+            plan_result = await make_plan(req, ctx, tracker)
+            reused = False
+            if plan_cache is not None:
+                if len(plan_cache) >= _PLAN_CACHE_MAX:  # FIFO 上限：worker 常驻不无界增长
+                    plan_cache.pop(next(iter(plan_cache)))
+                plan_cache[thread_id] = (req.model_dump(), plan_result)
         tasks = [{"device_id": s.device_id, "checks": s.checks} for s in plan_result.plan.steps]
         await ctx.emit(
             NewEvent(
@@ -116,6 +190,7 @@ def build_inspection_graph(
                     "fallback": plan_result.fallback,
                     "attempts": plan_result.attempts,
                     "errors": plan_result.errors,
+                    "cached": reused,
                 },
             )
         )
@@ -198,7 +273,12 @@ def build_inspection_graph(
         critical = [f for f in findings if f.level == "critical"]
 
         # 1) 工单起草（warning+critical），结构化校验失败退确定性兜底
-        orders = await _draft_work_orders(ctx, tracker, findings)
+        # P2：goal 只诊断 → 跳过起草（评测口径：只诊断 → create_work_order 属 forbidden），
+        # notes 记录原因；非只诊断行为完全不变。
+        if diagnosis_only_goal((state.get("request") or {}).get("goal")):
+            orders: list[WorkOrder] = []
+        else:
+            orders = await _draft_work_orders(ctx, tracker, findings)
         saved_orders: list[WorkOrder] = []
         for order in orders:
             outcome = await reporter_tools.call(
@@ -343,6 +423,13 @@ def _assemble_report(
         notes_parts.append("run 被请求取消，提前结束")
     if state.get("plan_meta", {}).get("fallback"):
         notes_parts.append("规划失败，使用默认全量检查计划")
+    # P2：goal 只诊断时起草被跳过——仅当确有可起草对象（warning/critical）时记 notes
+    if (
+        diagnosis_only_goal(request.get("goal"))
+        and any(f.level in ("warning", "critical") for f in findings)
+        and not work_orders
+    ):
+        notes_parts.append("按 goal 只诊断，未起草工单")
     if work_orders:
         notes_parts.append(f"工单 {len(work_orders)} 份（draft，待人工确认执行）")
     if approval is not None:

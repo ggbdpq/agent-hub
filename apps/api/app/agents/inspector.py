@@ -154,6 +154,7 @@ async def run_inspection(
                     {
                         "tool": tool_name,
                         "status": outcome.status,
+                        "reason": outcome.reason,  # denied 时把拒绝原因给到模型（P1a 引导）
                         "result": outcome.result.model_dump() if outcome.result else outcome.error,
                     },
                     ensure_ascii=False,
@@ -195,6 +196,9 @@ async def _ensure_anomaly(
     return outcome.result if outcome.status == "ok" else None
 
 
+_BUDGET_EXHAUSTED_REASONS = frozenset({"step_budget_exhausted", "token_budget_exhausted"})
+
+
 async def _rescue_or_fail(
     result: InspectorResult,
     reason: str,
@@ -207,9 +211,11 @@ async def _rescue_or_fail(
     unparseable_seen: bool,
     fixture_root,
 ) -> InspectorResult:
-    """终止抢救：模型试图下过结论（垃圾输出）→ 判读兜底出确定性结论；
-    模型从未试图下结论（纯步数超限）→ 子任务失败（B5 记 partial，覆盖率可解释）。"""
-    if unparseable_seen:
+    """终止抢救（P1c 扩面）：预算耗尽或模型已试图下结论（垃圾输出）时，以确定性
+    判读兜底出结论——判读可得（已观测或补跑成功）的设备照常出 finding，不再
+    整 run 判 partial（E1 hard 档 H13/H17 失败形态）；判读仍不可得的设备才记
+    失败（reason 进 notes，可解释）。llm_error 与预算无关，不扩面，保持原语义。"""
+    if unparseable_seen or reason in _BUDGET_EXHAUSTED_REASONS:
         if anomaly is None:
             anomaly = await _ensure_anomaly(executor, ctx, device_id)
         if anomaly is not None:

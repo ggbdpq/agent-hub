@@ -11,6 +11,7 @@ fail(retryable=True)（副作用可能已发生 → 账本 unknown，禁止自�
 """
 
 import asyncio
+import json
 import time
 from dataclasses import dataclass
 from typing import Literal
@@ -39,6 +40,22 @@ class ToolOutcome:
 
 _SIDE_EFFECT_EFFECTS = ("write", "dangerous")
 
+# P1a 步数临界保护的豁免面：detect_anomaly 是结论 level 的确定性事实来源，
+# 预算临界时必须仍可得（inspector 收尾抢救 P1c 依赖它兜底出结论）。
+_LAST_STEP_EXEMPT_TOOLS = frozenset({"detect_anomaly"})
+_LAST_STEP_RESERVE_DETAIL = "步数预算只剩最后 1 步：拒绝再调用读工具，必须基于已观测数据立即给出结论"
+
+# P1b 重复调用引导语：连续两次同工具同参数的读调用，第二遍只是重复观测
+_DUPLICATE_CALL_DETAIL = "连续两次相同工具名+参数：拒绝重复调用——请更换工具或基于已观测数据给出结论"
+
+
+def _args_fingerprint(args: dict) -> str:
+    """调用参数指纹（P1b 连续重复判定）：规范化 JSON，与幂等账本的 args_hash 口径一致。"""
+    try:
+        return json.dumps(args, ensure_ascii=False, sort_keys=True, default=str)
+    except (TypeError, ValueError):  # 不可序列化参数按字符串形态比对（退化不崩溃）
+        return repr(args)
+
 
 def _event(node: str | None, event_type: str, payload: dict) -> NewEvent:
     return NewEvent(type=event_type, node=node, payload=payload)
@@ -62,6 +79,7 @@ class ToolExecutor:
         self._tracker = tracker
         self._allowed = allowed
         self._begun: set[str] = set()  # 本实例已 begin 的账本键（fresh/既有判定）
+        self._last_read_call: tuple[str, str] | None = None  # P1b：最近一次成功读调用指纹（连续重复判定）
 
     async def call(self, name: str, args: dict, *, ledger_key: str | None = None) -> ToolOutcome:
         started = time.monotonic()
@@ -78,6 +96,26 @@ class ToolExecutor:
         check = await check_call(self._registry, self._ctx, node=self.node, name=name)
         if check.denied:
             return out("denied", reason=check.reason, error=check.detail)
+
+        # 2.5) 步数临界保护（P1a）：只剩最后 1 步时拒绝再执行读工具——把最后一步
+        # 留给结论；拒绝事件带明示引导，模型仍可基于已观测数据出结论。只在
+        # read 工具上生效：写/高危工具不拦（reporter 在步数耗尽后仍须能落工单）。
+        if (
+            check.spec.effect == "read"
+            and name not in _LAST_STEP_EXEMPT_TOOLS
+            and self._tracker.steps_left() <= 1
+        ):
+            await self._deny(name, "last_step_reserve", _LAST_STEP_RESERVE_DETAIL)
+            return out("denied", reason="last_step_reserve", error=_LAST_STEP_RESERVE_DETAIL)
+
+        # 2.6) 连续重复保护（P1b）：同一执行器实例上，紧接上一次成功调用之后
+        # 的同工具名+同参数读调用直接拒绝——重复观测只浪费步数与工具预算。
+        # 只在 read 生效：写/高危的重复由幂等账本去重（§9 语义不变）；
+        # 被拒/出错的调用不记指纹（出错后重试同一调用仍然合法）。
+        fingerprint = (name, _args_fingerprint(args))
+        if check.spec.effect == "read" and fingerprint == self._last_read_call:
+            await self._deny(name, "duplicate_call", _DUPLICATE_CALL_DETAIL)
+            return out("denied", reason="duplicate_call", error=_DUPLICATE_CALL_DETAIL)
 
         # 3) 预算：工具次数与截止时间（超限拒绝，不靠提示词）
         allowed, reason = self._tracker.allow_tool_call()
@@ -168,6 +206,8 @@ class ToolExecutor:
         # 10) 落账与 tool.result
         if entry is not None:
             self._ctx.ledger.complete(ledger_key, result.model_dump())
+        if check.spec.effect == "read":
+            self._last_read_call = fingerprint  # P1b：仅在成功执行后记指纹（连续重复的基准）
         await self._ctx.emit(
             _event(
                 self.node,

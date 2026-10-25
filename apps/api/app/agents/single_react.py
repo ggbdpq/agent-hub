@@ -118,6 +118,7 @@ class SingleReActRunner(AgentRunner):
                         {
                             "tool": tool_name,
                             "status": outcome.status,
+                            "reason": outcome.reason,  # denied 时把拒绝原因给到模型（P1a 引导）
                             "result": outcome.result.model_dump() if outcome.result else outcome.error,
                         },
                         ensure_ascii=False,
